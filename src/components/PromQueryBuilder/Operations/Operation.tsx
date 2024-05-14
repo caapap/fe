@@ -81,7 +81,8 @@ function renderOperationParamEditor(
           size='small'
           value={value as number}
           onChange={(val) => {
-            onChange(val);
+            if (val !== null)
+              onChange(val);
           }}
         />
       );

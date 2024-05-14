@@ -1,49 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="144px" height="144px" viewBox="0 0 144 144" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-    <title>nightingale</title>
-    <defs>
-        <rect id="path-1" x="0" y="0" width="144" height="144"></rect>
-        <linearGradient x1="0%" y1="59.8765432%" x2="100%" y2="40.1234568%" id="linearGradient-3">
-            <stop stop-color="#0019F4" offset="0%"></stop>
-            <stop stop-color="#0019F4" offset="41.7613636%"></stop>
-            <stop stop-color="#7200F1" offset="100%"></stop>
-        </linearGradient>
-        <linearGradient x1="50%" y1="62.5%" x2="100%" y2="37.5%" id="linearGradient-4">
-            <stop stop-color="#0019F4" offset="0%"></stop>
-            <stop stop-color="#7200F1" offset="100%"></stop>
-        </linearGradient>
-        <linearGradient x1="1.22342315e-13%" y1="62.5%" x2="100%" y2="37.5%" id="linearGradient-5">
-            <stop stop-color="#0019F4" offset="0%"></stop>
-            <stop stop-color="#7200F1" offset="100%"></stop>
-        </linearGradient>
-        <linearGradient x1="-1.78957223e-14%" y1="50%" x2="100%" y2="50%" id="linearGradient-6">
-            <stop stop-color="#0019F4" offset="0%"></stop>
-            <stop stop-color="#7200F1" offset="100%"></stop>
-        </linearGradient>
-        <linearGradient x1="2.53450571e-14%" y1="50%" x2="100%" y2="50%" id="linearGradient-7">
-            <stop stop-color="#0019F4" offset="0%"></stop>
-            <stop stop-color="#7200F1" offset="100%"></stop>
-        </linearGradient>
-    </defs>
-    <g id="页面-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="nightingale" transform="translate(-50.000000, 0.000000)">
-            <g transform="translate(50.000000, 0.000000)">
-                <mask id="mask-2" fill="white">
-                    <use xlink:href="#path-1"></use>
-                </mask>
-                <g id="蒙版"></g>
-                <g mask="url(#mask-2)">
-                    <g transform="translate(84.656250, 76.921875) rotate(45.000000) translate(-84.656250, -76.921875) translate(21.375000, 31.218750)">
-                        <path d="M126.5625,35.15625 C126.5625,42.9227543 120.266504,49.21875 112.5,49.21875 C111.908479,49.21875 111.325489,49.1822281 110.75316,49.1113163 C104.548928,73.4264759 82.4991646,91.40625 56.25,91.40625 L56.25,91.40625 L0.5625,91.40625 C0.251839828,91.40625 1.95655013e-13,91.1544102 1.95731103e-13,90.84375 L1.95731103e-13,90.84375 L1.97418819e-13,63.28125 C2.01223309e-13,47.7482414 12.5919914,35.15625 28.125,35.15625 L28.125,35.15625 Z" id="形状结合" fill="url(#linearGradient-3)"></path>
-                        <path d="M56.25,49.21875 C71.7830086,49.21875 84.375,36.6267586 84.375,21.09375 C73.8984375,21.09375 45.7734375,21.09375 28.125,21.09375 C28.125,36.6267586 40.7169914,49.21875 56.25,49.21875 Z" id="椭圆形" fill="url(#linearGradient-4)" transform="translate(56.250000, 35.156250) scale(-1, -1) rotate(90.000000) translate(-56.250000, -35.156250) "></path>
-                        <path d="M35.15625,7.03125 C39.0395021,7.03125 42.1875,3.88325215 42.1875,5.48467118e-14 C39.5683594,5.48467118e-14 32.5371094,5.48467118e-14 28.125,5.48467118e-14 C28.125,3.88325215 31.2729979,7.03125 35.15625,7.03125 Z" id="椭圆形" fill="url(#linearGradient-5)" transform="translate(35.156250, 3.515625) rotate(180.000000) translate(-35.156250, -3.515625) "></path>
-                        <g id="eye" stroke-width="1" fill="none" transform="translate(0.000000, 35.156250)">
-                            <circle id="椭圆形" fill="url(#linearGradient-6)" cx="28.125" cy="28.125" r="28.125"></circle>
-                            <circle id="椭圆形" fill="#FFFFFF" cx="28.125" cy="28.125" r="22.5"></circle>
-                            <circle id="椭圆形" fill="url(#linearGradient-7)" cx="28.125" cy="28.125" r="16.875"></circle>
-                            <circle id="椭圆形" fill="#FFFFFF" cx="16.875" cy="28.125" r="5.625"></circle>
-                        </g>
-                    </g>
+
+<svg width="136.679455px" height="122.679455px" viewBox="0 0 136.679455 122.679455" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="logo-dark" transform="translate(-138.0016, -0)">
+            <g id="Group" transform="translate(138.0016, 0)">
+                <rect id="蒙版" x="16.6794552" y="0" width="120" height="120"></rect>
+                <g transform="translate(59.6795, 63) rotate(45) translate(-59.6795, -63)translate(14.6795, 23.6005)" fill="#000000" fill-rule="nonzero" id="Shape">
+                    <path d="M14.3205882,42.8060461 C13.313723,33.9084792 16.0744453,24.995143 21.9049682,18.3189301 C27.735491,11.6427172 36.0778716,7.84249742 44.8235294,7.87879624 C49.9206294,7.87303102 54.9379759,9.17477377 59.4176471,11.6652174 L67.3588235,7.51732405 C55.6825347,-1.17999984 40.227892,-2.42895849 27.3642282,4.2851823 C14.5005644,10.9993231 6.40528604,24.5400742 6.41470588,39.3268763 C6.41470588,40.5106977 6.46764706,41.6854823 6.56470588,42.8421933 C6.79071191,45.1319733 5.61533566,47.3275361 3.60882353,48.363681 L1.57821548e-14,50.1710419 L1.57821548e-14,59 L90,12.5869714 L90,3.75801333 L14.3205882,42.8060461 Z M90,19.7989899 L2.99930096e-14,66.1220274 L2.99930096e-14,74.9304368 L75.3176471,36.1626164 C75.4501976,37.2846415 75.5208974,38.4133946 75.5294118,39.543531 C75.5335344,50.5940172 69.8464333,60.831412 60.5585898,66.4926237 C51.2707463,72.1538355 39.7526799,72.4034927 30.2382353,67.1498254 L22.2970588,71.2880649 C33.2559406,79.4401916 47.6110804,81.0796652 60.0610265,75.6010168 C72.5109725,70.1223684 81.2083572,58.3385395 82.9411765,44.6013792 C83.2970903,41.7485729 83.3503404,38.8648268 83.1,36.0003325 C82.9035882,33.7429333 84.0847407,31.5941731 86.0735294,30.5908692 L90,28.6073993 L90,19.7989899 Z"></path>
                 </g>
             </g>
         </g>
