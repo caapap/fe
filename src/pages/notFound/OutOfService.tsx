@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ const OutOfService: React.FC = () => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column' }}>
       <h3 style={{ fontSize: 40 }}>
-         {import.meta.env.VITE_IS_ENT ? t('The Flashcat webpage is') : t('The Nightingale webpage is')}  <span style={{ color: 'red' }}>{t('out of Service')}</span>
+         {import.meta.env.VITE_IS_ENT ? t('The Kxdigit webpage is') : t('The Stellar webpage is')}  <span style={{ color: 'red' }}>{t('out of Service')}</span>
       </h3>
       <img src='/image/out-of-service.png' />
     </div>

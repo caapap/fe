@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ moment.locale('zh-cn', momentLocaleZhCN);
 
 const localeMap = {
   zh_CN: zh_CN,
-  zh_HK: zh_TW,
   en_US: en_US,
 };
 

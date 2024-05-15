@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ interface IProps {
   setAllowedLeave: (allowed: boolean) => void;
 }
 
-const cachePageTitle = document.title || 'Nightingale';
+const cachePageTitle = document.title || 'Stellar';
 
 export default function Title(props: IProps) {
   const { t, i18n } = useTranslation('dashboard');

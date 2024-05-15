@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,10 +25,6 @@ const resources = {
   zh_CN: {
     common: common.zh_CN,
     datasource: datasource.zh_CN,
-  },
-  zh_HK: {
-    common: common.zh_HK,
-    datasource: datasource.zh_HK,
   },
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ interface IPageLayoutProps {
 
 const i18nMap = {
   zh_CN: '简体',
-  zh_HK: '繁體',
   en_US: 'En',
 };
 
@@ -67,7 +66,8 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
       >
         {t('profile')}
       </Menu.Item>
-      {import.meta.env.VITE_IS_ENT !== 'true' && (
+
+      {/* {import.meta.env.VITE_IS_ENT !== 'true' && (
         <Menu.Item
           onClick={() => {
             setThemeVisible(true);
@@ -75,7 +75,8 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
         >
           {t('themeSetting')}
         </Menu.Item>
-      )}
+      )} */}
+
       <Menu.Item
         onClick={() => {
           Logout().then(() => {
@@ -133,7 +134,7 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
                   <Version />
 
                   {/* 整合版本关闭文档链接 */}
-                  {import.meta.env.VITE_IS_ENT !== 'true' && (
+                  {/* {import.meta.env.VITE_IS_ENT !== 'true' && (
                     <Space style={{ marginRight: 16 }}>
                       <div style={{ marginRight: 32, position: 'relative' }}>
                         <a target='_blank' href={siteInfo?.document_url || 'https://flashcat.cloud/docs/'}>
@@ -159,7 +160,7 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
                         </AdvancedWrap>
                       )}
                     </Space>
-                  )}
+                  )} */}
 
                   {rightArea}
 

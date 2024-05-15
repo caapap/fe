@@ -12,9 +12,10 @@ export const getSideMenuBgColor = (color: SideMenuColors) => {
     case 'dark':
       return '#272a38';
     case 'theme':
-      return THEME_COLOR;
+     //return THEME_COLOR;
+      return '#272a38';
     default:
-      return THEME_COLOR;
+      return '#272a38';
   }
 };
 

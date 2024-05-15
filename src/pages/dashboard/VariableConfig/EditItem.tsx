@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -184,7 +184,7 @@ function EditItem(props: IProps) {
                       <QuestionCircleOutlined
                         style={{ marginLeft: 5 }}
                         onClick={() => {
-                          window.open('https://flashcat.cloud/media/?type=夜莺监控&source=aHR0cHM6Ly9kb3dubG9hZC5mbGFzaGNhdC5jbG91ZC9uOWUtMTMtZGFzaGJvYXJkLWludHJvLm1wNA==');
+                          window.open('https://flashcat.cloud/media/?type=星相监控&source=aHR0cHM6Ly9kb3dubG9hZC5mbGFzaGNhdC5jbG91ZC9uOWUtMTMtZGFzaGJvYXJkLWludHJvLm1wNA==');
                           // if (datasourceCate === 'prometheus') {
                           //   window.open('https://grafana.com/docs/grafana/latest/datasources/prometheus/#query-variable', '_blank');
                           // } else if (datasourceCate === 'elasticsearch') {
