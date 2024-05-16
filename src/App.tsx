@@ -27,7 +27,7 @@ import TaskOutput from '@/pages/taskOutput';
 import TaskHostOutput from '@/pages/taskOutput/host';
 import { getAuthorizedDatasourceCates, Cate } from '@/components/AdvancedWrap';
 import { GetProfile } from '@/services/account';
-import { getBusiGroups, getDatasourceBriefList } from '@/services/common';
+import { getBusiGroups, getDatasourceBriefList, getMenuPerm } from '@/services/common';
 import { getLicense } from '@/components/AdvancedWrap';
 import { getVersions } from '@/components/pageLayout/Version/services';
 import { getCleanBusinessGroupIds, getDefaultBusinessGroupKey } from '@/components/BusinessGroup';
@@ -72,6 +72,7 @@ export interface ICommonState {
   busiGroups: {
     name: string;
     id: number;
+    label_value?: string;
   }[];
   setBusiGroups: (groups: { name: string; id: number }[]) => void;
   curBusiId: number;
@@ -104,6 +105,7 @@ export interface ICommonState {
   dashboardDefaultRangeIndex?: string;
   esIndexMode: string;
   dashboardSaveMode: 'auto' | 'manual';
+  perms?: string[];
 }
 
 export const basePrefix = import.meta.env.VITE_PREFIX || '';
@@ -201,7 +203,9 @@ function App() {
         if (!anonymous) {
           const { dat: profile } = await GetProfile();
           const { dat: busiGroups } = await getBusiGroups();
+          const { dat: perms } = await getMenuPerm();
           const datasourceList = await getDatasourceBriefList();
+          const { dat: perms } = await getMenuPerm();
           const { licenseRulesRemaining, licenseExpireDays, feats } = await getLicense(t);
           let versions = { version: '', github_verison: '', newVersion: false };
           if (!isPlus) {
@@ -228,6 +232,7 @@ function App() {
               versions,
               feats,
               siteInfo,
+              perms,
             };
           });
         } else {

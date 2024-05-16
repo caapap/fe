@@ -111,9 +111,8 @@ export default function DetailV2(props: IProps) {
   const { isPreview = false, isBuiltin = false, gobackPath, builtinParams } = props;
   const { t, i18n } = useTranslation('dashboard');
   const history = useHistory();
-  const { datasourceList, profile, dashboardDefaultRangeIndex, dashboardSaveMode } = useContext(CommonStateContext);
-  const roles = _.get(profile, 'roles', []);
-  const isAuthorized = !_.some(roles, (item) => item === 'Guest') && !isPreview;
+  const { datasourceList, profile, dashboardDefaultRangeIndex, dashboardSaveMode, perms } = useContext(CommonStateContext);
+  const isAuthorized = _.includes(perms, '/dashboards/put') && !isPreview;
   const [dashboardMeta, setDashboardMeta] = useGlobalState('dashboardMeta');
   let { id } = useParams<URLParam>();
   const query = queryString.parse(useLocation().search);
@@ -319,7 +318,15 @@ export default function DetailV2(props: IProps) {
               <div className='dashboard-detail-content-header'>
                 <div className='variable-area'>
                   {variableConfig && (
-                    <VariableConfig isPreview={!isAuthorized} onChange={handleVariableChange} value={variableConfig} range={range} id={id} onOpenFire={stopAutoRefresh} />
+                    <VariableConfig
+                      isPreview={!isAuthorized}
+                      onChange={handleVariableChange}
+                      value={variableConfig}
+                      range={range}
+                      id={id}
+                      onOpenFire={stopAutoRefresh}
+                      dashboard={dashboard}
+                    />
                   )}
                 </div>
                 <DashboardLinks
@@ -413,6 +420,7 @@ export default function DetailV2(props: IProps) {
             configs: panelsMergeToConfigs(dashboard.configs, newPanels),
           });
         }}
+        dashboard={dashboard}
       />
       {/*迁移*/}
       <Modal
