@@ -34,14 +34,16 @@ const en_US = {
   full_screen: 'Full screen',
   exit_full_screen: 'Exit full screen',
   batch: {
-    import: 'Import dashboard JSON',
+    import: 'Import dashboard',
     label: 'Dashboard JSON',
-    import_grafana: 'Import Grafana dashboard JSON',
+    import_grafana: 'Import Grafana dashboard',
     import_grafana_tip: 'Imported panels only support the chart types and features that n9e currently supports, <a>feedback</a>',
     import_grafana_tip_version_error: 'Import of dashboard config less than v7 version is not supported',
     import_grafana_tip_version_warning: 'The imported dashboard config version is less than v8, some panels may not be displayed properly, do you want to continue importing?',
     continueToImport: 'Continue to import',
     noSelected: 'Please select any dashboard',
+    import_builtin: 'Import built-in dashboard',
+    import_builtin_board: 'Built-in dashboard',
     clone: {
       name: 'Name',
       result: 'Result',
@@ -253,6 +255,8 @@ const en_US = {
       valueField_tip: 'Value is a reserved keyword, used as the field name after time series data value calculation',
       valueField_tip2: 'You need to select a column whose value is a numeric type',
       colSpan: 'Col span',
+      colSpanTip: 'Deprecated soon, selecting the "Auto" option will use the layout direction settings below',
+      colSpanAuto: 'Auto',
       textSize: {
         title: 'Title textsize',
         value: 'Value textsize',
@@ -268,6 +272,13 @@ const en_US = {
         graphMode: 'Graph mode',
         none: 'None',
         area: 'Mini graph',
+        orientation: 'Orientation',
+        orientationTip: 'Selecting "Auto" will automatically select the layout direction based on the width and height of the chart.',
+        orientationValueMap: {
+          auto: 'Auto',
+          vertical: 'Vertical',
+          horizontal: 'Horizontal',
+        },
       },
       pie: {
         legengPosition: 'Legend position',
@@ -393,7 +404,7 @@ const en_US = {
     fullscreen: {
       notification: {
         esc: 'Press ESC to exit full screen mode',
-        theme: 'Theme',
+        theme: 'Switch theme',
       },
     },
     saved: 'Dashboard saved',

@@ -1,6 +1,6 @@
 {
   "name": "stellar-fe",
-  "version": "v1.5",
+  "version": "v1.1",
   "scripts": {
     "dev": "vite --port 8765 --host",
     "dev:advanced": "vite --port 8765 --host --mode advanced",
@@ -27,12 +27,13 @@
     "@codemirror/state": "^0.19.0",
     "@codemirror/stream-parser": "^0.19.9",
     "@codemirror/view": "^0.19.0",
-    "@fc-components/codemirror-promql": "^0.19.9",
+    "@fc-components/codemirror-promql": "^0.19.13",
     "@fc-components/menu": "^1.1.23",
     "@fc-components/use-antd-resizable-header": "^2.8.16",
     "@fc-plot/ts-graph": "^0.26.2",
     "@radix-ui/react-scroll-area": "^1.0.5",
     "@uiw/react-codemirror": "4.6.0",
+    "@uiw/react-md-editor": "^4.0.4",
     "ahooks": "3.1.5",
     "ansi_up": "^6.0.2",
     "antd": "4.21.0",
@@ -68,6 +69,7 @@
     "react-highlight-words": "^0.17.0",
     "react-hooks-global-state": "^2.0.0",
     "react-i18next": "^11.11.1",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-markdown": "^7.0.1",
     "react-quill": "^2.0.0",
     "react-router-dom": "^5.2.0",
@@ -107,5 +109,8 @@
     "typescript": "4.9.4",
     "vite": "^2.1.5",
     "vite-plugin-react-svg": "^0.2.0"
+  },
+  "overrides": {
+    "@types/react": "^17.0.14"
   }
 }

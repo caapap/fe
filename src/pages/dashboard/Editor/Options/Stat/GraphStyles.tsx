@@ -15,20 +15,21 @@
  *
  */
 import React, { useEffect } from 'react';
-import { Form, Radio, Select, Row, Col, InputNumber } from 'antd';
+import { Form, Radio, Select, Row, Col, InputNumber, Input } from 'antd';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { Panel } from '../../Components/Collapse';
 import { calcsOptions } from '../../config';
 import { useGlobalState } from '../../../globalState';
 
-const colSpans = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+const colSpans = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function GraphStyles() {
   const { t, i18n } = useTranslation('dashboard');
   const namePrefix = ['custom'];
   const [statFields, setStatFields] = useGlobalState('statFields');
   const fields = _.compact(_.concat(statFields, 'Value'));
+  const colSpan = Form.useWatch([...namePrefix, 'colSpan']);
 
   useEffect(() => {
     return () => {
@@ -49,10 +50,10 @@ export default function GraphStyles() {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label='图表模式' name={[...namePrefix, 'graphMode']}>
+            <Form.Item label={t('panel.custom.stat.graphMode')} name={[...namePrefix, 'graphMode']}>
               <Radio.Group buttonStyle='solid'>
-                <Radio.Button value='none'>不显示</Radio.Button>
-                <Radio.Button value='area'>迷你图</Radio.Button>
+                <Radio.Button value='none'>{t('panel.custom.stat.none')}</Radio.Button>
+                <Radio.Button value='area'>{t('panel.custom.stat.area')}</Radio.Button>
               </Radio.Group>
             </Form.Item>
           </Col>
@@ -93,12 +94,12 @@ export default function GraphStyles() {
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item label={t('panel.custom.colSpan')} name={[...namePrefix, 'colSpan']}>
+            <Form.Item label={t('panel.custom.colSpan')} name={[...namePrefix, 'colSpan']} tooltip={t('panel.custom.colSpanTip')}>
               <Select>
                 {_.map(colSpans, (item) => {
                   return (
                     <Select.Option key={item} value={item}>
-                      {item}
+                      {item === 0 ? t('panel.custom.colSpanAuto') : item}
                     </Select.Option>
                   );
                 })}
@@ -107,14 +108,34 @@ export default function GraphStyles() {
           </Col>
         </Row>
         <Row gutter={10}>
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item label={t('panel.custom.textSize.title')} name={[...namePrefix, 'textSize', 'title']}>
               <InputNumber placeholder='auto' style={{ width: '100%' }} min={12} max={100} />
             </Form.Item>
           </Col>
-          <Col span={12}>
+          <Col span={8}>
             <Form.Item label={t('panel.custom.textSize.value')} name={[...namePrefix, 'textSize', 'value']}>
               <InputNumber placeholder='auto' style={{ width: '100%' }} min={12} max={100} />
+            </Form.Item>
+          </Col>
+          <Col span={8}>
+            <Form.Item hidden={colSpan !== 0} label={t('panel.custom.stat.orientation')} name={[...namePrefix, 'orientation']} tooltip={t('panel.custom.stat.orientationTip')}>
+              <Select
+                options={[
+                  {
+                    label: t('panel.custom.stat.orientationValueMap.auto'),
+                    value: 'auto',
+                  },
+                  {
+                    label: t('panel.custom.stat.orientationValueMap.horizontal'),
+                    value: 'horizontal',
+                  },
+                  {
+                    label: t('panel.custom.stat.orientationValueMap.vertical'),
+                    value: 'vertical',
+                  },
+                ]}
+              />
             </Form.Item>
           </Col>
         </Row>

@@ -35,14 +35,21 @@ const zh_CN = {
   full_screen: '全屏',
   exit_full_screen: '退出全屏',
   batch: {
-    import: '导入仪表盘 JSON',
+    import: '导入仪表盘',
     label: '仪表盘 JSON',
+<<<<<<< HEAD
     import_grafana: '导入 Grafana 仪表盘 JSON',
     import_grafana_tip: '导入完的图表只支持星相目前支持的图表类型和功能，<a>问题反馈</a>',
+=======
+    import_grafana: '导入 Grafana 仪表盘',
+    import_grafana_tip: '导入完的图表只支持夜莺目前支持的图表类型和功能，<a>问题反馈</a>',
+>>>>>>> main
     import_grafana_tip_version_error: '不支持导入小于 v7 版本的仪表盘配置',
     import_grafana_tip_version_warning: '导入小于 v8 版本的仪表盘配置，可能会有部分图表不支持，以及图表无法正常渲染问题',
     continueToImport: '继续导入',
     noSelected: '请选择仪表盘',
+    import_builtin: '导入内置仪表盘',
+    import_builtin_board: '内置仪表盘',
     clone: {
       name: '名称',
       result: '结果',
@@ -265,6 +272,8 @@ const zh_CN = {
       valueField_tip: 'Value 是保留关键字，作为时序数据取值计算后的字段名',
       valueField_tip2: '需选择值为数值类型的字段',
       colSpan: '每行最多显示',
+      colSpanTip: '即将废弃，选择"自动"选项将使用下方的布局方向设置',
+      colSpanAuto: '自动',
       textSize: {
         title: '标题字体大小',
         value: '值字体大小',
@@ -280,6 +289,13 @@ const zh_CN = {
         graphMode: '图表模式',
         none: '不显示',
         area: '迷你图',
+        orientation: '布局方向',
+        orientationTip: '选择"自动"时，会根据图表的宽高自动选择布局方向',
+        orientationValueMap: {
+          auto: '自动',
+          vertical: '垂直',
+          horizontal: '水平',
+        },
       },
       pie: {
         legengPosition: '图例位置', // pie

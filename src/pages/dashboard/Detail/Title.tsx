@@ -14,26 +14,31 @@
  * limitations under the License.
  *
  */
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import querystring from 'query-string';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
-import { Button, Space, Dropdown, Menu, Switch, notification, Select, message } from 'antd';
-import { RollbackOutlined, SettingOutlined, SaveOutlined } from '@ant-design/icons';
+import { Button, Space, Dropdown, Menu, Switch, notification, Select, Input, message } from 'antd';
+import { RollbackOutlined, SettingOutlined, SaveOutlined, FullscreenOutlined, DownOutlined } from '@ant-design/icons';
 import { useKeyPress } from 'ahooks';
 import { TimeRangePickerWithRefresh, IRawTimeRange } from '@/components/TimeRangePicker';
 import { CommonStateContext } from '@/App';
-import { updateDashboardConfigs } from '@/services/dashboardV2';
+import { IS_ENT } from '@/utils/constant';
+import { updateDashboardConfigs, getBusiGroupsDashboards } from '@/services/dashboardV2';
+import DashboardLinks from '../DashboardLinks';
 import { AddPanelIcon } from '../config';
 import { visualizations } from '../Editor/config';
 import { dashboardTimeCacheKey } from './Detail';
 import FormModal from '../List/FormModal';
-import { IDashboard } from '../types';
+import { IDashboard, ILink } from '../types';
 import { dashboardThemeModeCacheKey, getDefaultThemeMode } from './utils';
 
 interface IProps {
   dashboard: IDashboard;
+  dashboardLinks?: ILink[];
+  setDashboardLinks: (links: ILink[]) => void;
+  handleUpdateDashboardConfigs: (id: number, params: any) => void;
   range: IRawTimeRange;
   setRange: (range: IRawTimeRange) => void;
   onAddPanel: (type: string) => void;
@@ -49,15 +54,32 @@ interface IProps {
 const cachePageTitle = document.title || 'Stellar';
 
 export default function Title(props: IProps) {
-  const { t, i18n } = useTranslation('dashboard');
-  const { dashboard, range, setRange, onAddPanel, isPreview, isBuiltin, isAuthorized, editable, updateAtRef, setAllowedLeave } = props;
+  const { t } = useTranslation('dashboard');
+  const {
+    dashboard,
+    dashboardLinks,
+    setDashboardLinks,
+    handleUpdateDashboardConfigs,
+    range,
+    setRange,
+    onAddPanel,
+    isPreview,
+    isBuiltin,
+    isAuthorized,
+    editable,
+    updateAtRef,
+    setAllowedLeave,
+  } = props;
   const history = useHistory();
   const location = useLocation();
   const { siteInfo, dashboardSaveMode } = useContext(CommonStateContext);
   const query = querystring.parse(location.search);
   const { viewMode } = query;
-  const themeMode = getDefaultThemeMode(query);
+  const themeMode = getDefaultThemeMode(query); // only for ENT version
   const isClickTrigger = useRef(false);
+  const [dashboardList, setDashboardList] = useState<IDashboard[]>([]);
+  const [dashboardListDropdownSearch, setDashboardListDropdownSearch] = useState('');
+  const [dashboardListDropdownVisible, setDashboardListDropdownVisible] = useState(false);
 
   useEffect(() => {
     document.title = `${dashboard.name} - ${siteInfo?.page_title || cachePageTitle}`;
@@ -86,26 +108,28 @@ export default function Title(props: IProps) {
         message: (
           <div>
             <div>{t('detail.fullscreen.notification.esc')}</div>
-            <div>
-              <Space>
-                {t('detail.fullscreen.notification.theme')}
-                <Switch
-                  checkedChildren='dark'
-                  unCheckedChildren='light'
-                  defaultChecked={themeMode === 'dark'}
-                  onChange={(checked) => {
-                    const newQuery = _.omit(querystring.parse(window.location.search), ['themeMode']);
-                    newQuery.themeMode = checked ? 'dark' : 'light';
-                    localStorage.setItem('dashboard_themeMode', checked ? 'dark' : 'light');
-                    history.replace({
-                      pathname: location.pathname,
-                      search: querystring.stringify(newQuery),
-                    });
-                    window.localStorage.setItem(dashboardThemeModeCacheKey, newQuery.themeMode);
-                  }}
-                />
-              </Space>
-            </div>
+            {IS_ENT && (
+              <div>
+                <Space>
+                  {t('detail.fullscreen.notification.theme')}
+                  <Switch
+                    checkedChildren='dark'
+                    unCheckedChildren='light'
+                    defaultChecked={themeMode === 'dark'}
+                    onChange={(checked) => {
+                      const newQuery = _.omit(querystring.parse(window.location.search), ['themeMode']);
+                      newQuery.themeMode = checked ? 'dark' : 'light';
+                      localStorage.setItem('dashboard_themeMode', checked ? 'dark' : 'light');
+                      history.replace({
+                        pathname: location.pathname,
+                        search: querystring.stringify(newQuery),
+                      });
+                      window.localStorage.setItem(dashboardThemeModeCacheKey, newQuery.themeMode);
+                    }}
+                  />
+                </Space>
+              </div>
+            )}
           </div>
         ),
         duration: 3,
@@ -113,16 +137,72 @@ export default function Title(props: IProps) {
     }
   }, [query.viewMode]);
 
+  useEffect(() => {
+    if (dashboard.group_id && isPreview === false) {
+      getBusiGroupsDashboards(_.toString(dashboard.group_id)).then((res) => {
+        setDashboardList(res);
+      });
+    }
+  }, [dashboard?.group_id]);
+
   return (
     <div
-      className={`dashboard-detail-header ${import.meta.env.VITE_IS_ENT !== 'true' ? 'n9e-page-header-content' : ''}`}
+      className={`dashboard-detail-header ${!IS_ENT ? 'n9e-page-header-content' : ''}`}
       style={{
         display: query.viewMode === 'fullscreen' ? 'none' : 'flex',
       }}
     >
       <div className='dashboard-detail-header-left'>
         {isPreview && !isBuiltin ? null : <RollbackOutlined className='back' onClick={() => history.push(props.gobackPath || '/dashboards')} />}
-        <div className='title'>{dashboard.name}</div>
+        {isPreview === true ? (
+          <div className='title'>{dashboard.name}</div>
+        ) : (
+          <Dropdown
+            trigger={['click']}
+            visible={dashboardListDropdownVisible}
+            onVisibleChange={(visible) => {
+              setDashboardListDropdownVisible(visible);
+            }}
+            overlay={
+              <div className='collects-payloads-dropdown-overlay p2 n9e-fill-color-2 n9e-border-base n9e-border-radius-base n9e-base-shadow'>
+                <Input
+                  className='mb1'
+                  placeholder={t('common:search_placeholder')}
+                  value={dashboardListDropdownSearch}
+                  onChange={(e) => {
+                    setDashboardListDropdownSearch(e.target.value);
+                  }}
+                />
+                <Menu>
+                  {_.map(
+                    _.filter(dashboardList, (item) => {
+                      return _.includes(_.toLower(item.name), _.toLower(dashboardListDropdownSearch));
+                    }),
+                    (item) => {
+                      return (
+                        <Menu.Item
+                          key={item.id}
+                          onClick={() => {
+                            history.push(`/dashboards/${item.ident || item.id}`);
+                            setDashboardListDropdownVisible(false);
+                            setDashboardListDropdownSearch('');
+                          }}
+                        >
+                          {item.name}
+                        </Menu.Item>
+                      );
+                    },
+                  )}
+                </Menu>
+              </div>
+            }
+          >
+            <Space style={{ cursor: 'pointer' }}>
+              <div className='title'>{dashboard.name}</div>
+              <DownOutlined />
+            </Space>
+          </Dropdown>
+        )}
       </div>
       <div className='dashboard-detail-header-right'>
         <Space>
@@ -151,6 +231,19 @@ export default function Title(props: IProps) {
               </Button>
             </Dropdown>
           )}
+          <TimeRangePickerWithRefresh
+            localKey={dashboardTimeCacheKey}
+            dateFormat='YYYY-MM-DD HH:mm:ss'
+            value={range}
+            onChange={(val) => {
+              history.replace({
+                pathname: location.pathname,
+                // 重新设置时间范围时，清空 __from 和 __to
+                search: querystring.stringify(_.omit(querystring.parse(window.location.search), ['__from', '__to'])),
+              });
+              setRange(val);
+            }}
+          />
           {isAuthorized && dashboardSaveMode === 'manual' && (
             <Button
               icon={<SaveOutlined />}
@@ -183,17 +276,16 @@ export default function Title(props: IProps) {
               }}
             />
           )}
-          <TimeRangePickerWithRefresh
-            localKey={dashboardTimeCacheKey}
-            dateFormat='YYYY-MM-DD HH:mm:ss'
-            value={range}
-            onChange={(val) => {
-              history.replace({
-                pathname: location.pathname,
-                // 重新设置时间范围时，清空 __from 和 __to
-                search: querystring.stringify(_.omit(querystring.parse(window.location.search), ['__from', '__to'])),
+          <DashboardLinks
+            editable={isAuthorized}
+            value={dashboardLinks}
+            onChange={(v) => {
+              const dashboardConfigs: any = dashboard.configs;
+              dashboardConfigs.links = v;
+              handleUpdateDashboardConfigs(dashboard.id, {
+                configs: JSON.stringify(dashboardConfigs),
               });
-              setRange(val);
+              setDashboardLinks(v);
             }}
           />
           <Button
@@ -213,25 +305,26 @@ export default function Title(props: IProps) {
                 window.dispatchEvent(new Event('resize'));
               }, 500);
             }}
-          >
-            {viewMode === 'fullscreen' ? t('exit_full_screen') : t('full_screen')}
-          </Button>
-          <Select
-            options={[
-              { label: 'light', value: 'light' },
-              { label: 'dark', value: 'dark' },
-            ]}
-            value={themeMode || 'light'}
-            onChange={(val) => {
-              const newQuery = _.omit(querystring.parse(window.location.search), ['themeMode']);
-              newQuery.themeMode = val;
-              history.replace({
-                pathname: location.pathname,
-                search: querystring.stringify(newQuery),
-              });
-              window.localStorage.setItem(dashboardThemeModeCacheKey, val);
-            }}
+            icon={<FullscreenOutlined />}
           />
+          {IS_ENT && (
+            <Select
+              options={[
+                { label: 'light', value: 'light' },
+                { label: 'dark', value: 'dark' },
+              ]}
+              value={themeMode || 'light'}
+              onChange={(val) => {
+                const newQuery = _.omit(query, ['themeMode']);
+                newQuery.themeMode = val;
+                history.replace({
+                  pathname: location.pathname,
+                  search: querystring.stringify(newQuery),
+                });
+                window.localStorage.setItem(dashboardThemeModeCacheKey, val);
+              }}
+            />
+          )}
         </Space>
       </div>
     </div>

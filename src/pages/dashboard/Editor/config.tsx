@@ -15,6 +15,7 @@
  *
  */
 import _ from 'lodash';
+import { PRIMARY_COLOR } from '@/utils/constant';
 import { colors } from '../Components/ColorRangeMenu/config';
 
 export const visualizations = [
@@ -80,7 +81,7 @@ export const calcsOptions = {
 };
 
 export const defaultThreshold = {
-  color: '#634CD9',
+  color: PRIMARY_COLOR,
   value: null,
   type: 'base',
 };
@@ -126,8 +127,8 @@ export const defaultCustomValuesMap = {
   timeseries: {
     drawStyle: 'lines',
     lineInterpolation: 'smooth',
-    lineWidth: 1,
-    fillOpacity: 0,
+    lineWidth: 2,
+    fillOpacity: 0.01,
     gradientMode: 'none',
     stack: 'off',
     scaleDistribution: {
@@ -139,7 +140,8 @@ export const defaultCustomValuesMap = {
     colorMode: 'value',
     calc: 'lastNotNull',
     valueField: 'Value',
-    colSpan: 1,
+    colSpan: 0, // 2024-06-06 v7.0.0-beta.10 版本新增 0 选项，表示自适应，colSpan 是一个即将废弃的属性
+    orientation: 'auto', // 2024-06-06 v7.0.0-beta.10 版本新增属性
     textSize: {},
   },
   pie: {
