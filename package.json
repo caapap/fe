@@ -1,11 +1,6 @@
 {
-<<<<<<< HEAD
   "name": "stellar-fe",
   "version": "v1.1",
-=======
-  "name": "n9e-fe",
-  "version": "v7.0.0-beta.13",
->>>>>>> main
   "scripts": {
     "dev": "vite --port 8765 --host",
     "dev:advanced": "vite --port 8765 --host --mode advanced",
