@@ -1,11 +1,11 @@
 import _ from 'lodash';
-import { isMathString } from '@/components/TimeRangePicker';
-
+import { isMathString, IRawTimeRange, parseRange } from '@/components/TimeRangePicker';
+import moment from 'moment';
 interface FormValue {
   datasourceCate: string;
   datasourceValue: number;
   query: {
-    [index: string]: string | null | undefined;
+    [index: string]: string | IRawTimeRange | null | undefined;
   };
 }
 
@@ -75,6 +75,8 @@ export const getFormValuesBySearch = (params: { [index: string]: string | null }
       const index = _.get(params, 'index_name');
       const indexPattern = _.get(params, 'index_pattern');
       const timestamp = _.get(params, 'timestamp', '@timestamp');
+      const range_start = _.get(params, 'start');
+      const range_end = _.get(params, 'end');
       if (index) {
         return {
           ...formValues,
@@ -82,6 +84,7 @@ export const getFormValuesBySearch = (params: { [index: string]: string | null }
             index,
             filter: getESFilterByQuery(params),
             date_field: timestamp,
+            range: range_start && range_end ? { start: moment.unix(Number(range_start)), end: moment.unix(Number(range_end)) } : undefined,
           },
         };
       } else if (indexPattern) {
@@ -90,6 +93,7 @@ export const getFormValuesBySearch = (params: { [index: string]: string | null }
           query: {
             filter: getESFilterByQuery(params),
             indexPattern,
+            range: range_start && range_end ? { start: moment.unix(Number(range_start)), end: moment.unix(Number(range_end)) } : undefined,
           },
         };
       }
@@ -107,6 +111,18 @@ export const getFormValuesBySearch = (params: { [index: string]: string | null }
         };
       }
     }
+    if (data_source_name === 'doris') {
+      const range_start = _.get(params, 'start');
+      const range_end = _.get(params, 'end');
+      return {
+        ...formValues,
+        query: {
+          condition: _.get(params, 'condition'),
+          time_field: _.get(params, 'time_field'),
+          range: range_start && range_end ? { start: moment.unix(Number(range_start)), end: moment.unix(Number(range_end)) } : undefined,
+        },
+      };
+    }
   }
   return undefined;
 };
@@ -122,10 +138,18 @@ export const formValuesIsInItems = (
   return _.some(items, (item: any) => {
     const itemFormValues = item.formValues;
     if (itemFormValues?.datasourceCate === formValues.datasourceCate && itemFormValues?.datasourceValue === formValues.datasourceValue) {
+      // sls、cls、loki 存在 query.query，如果 formValues.query.query 存在则也需要比较 query.query，否则排除 query.query 后比较
       if (formValues.query.query !== undefined) {
-        return _.isEqual(_.omit(itemFormValues?.query, ['range']), formValues.query);
+        return _.isEqual(_.omit(itemFormValues?.query, ['range']), _.omit(formValues.query, ['range']));
       }
-      return _.isEqual(_.omit(itemFormValues?.query, ['query', 'range']), _.omit(formValues.query, 'query'));
+      if (formValues.datasourceCate === 'es') {
+        // es数据源区分index和indexPattern，无法严格equal，所以以缓存中的formValues.query中的keys为标准，逐个对比是否相等
+        const omitedFormValuesQuery = _.omit(formValues.query, ['query', 'range'])
+        const keys = _.keys(omitedFormValuesQuery);
+        const pickedKeysItemFormValues = _.pick(itemFormValues?.query, keys);
+        return _.isEqual(pickedKeysItemFormValues, omitedFormValuesQuery);
+      }
+      return _.isEqual(_.omit(itemFormValues?.query, ['query', 'range', 'index', 'date_field']), _.omit(formValues.query, ['query', 'range', 'index', 'date_field']));
     }
   });
 };
@@ -145,10 +169,21 @@ export const getLocalItems = (params) => {
         let formValues = item.formValues || {};
         // 如果是绝对时间则设置默认值 last 1 hour
         if (!isMathString(formValues.query?.range?.start) || !isMathString(formValues.query?.range?.end)) {
-          _.set(formValues, 'query.range', {
-            start: 'now-1h',
-            end: 'now',
+          const parsed = parseRange({
+            start: formValues.query?.range?.start,
+            end: formValues.query?.range?.end,
           });
+          if (parsed.start && parsed.end) {
+            _.set(formValues, 'query.range', {
+              start: parsed.start,
+              end: parsed.end,
+            });
+          } else {
+            _.set(formValues, 'query.range', {
+              start: 'now-1h',
+              end: 'now',
+            });
+          }
         }
         return {
           ...item,
@@ -168,7 +203,22 @@ export const getLocalItems = (params) => {
   }
   const formValues = getFormValuesBySearch(params);
   if (formValues) {
-    if (!formValuesIsInItems(formValues, items)) {
+    if (formValuesIsInItems(formValues, items)) {
+      const range_start = _.get(params, 'start');
+      const range_end = _.get(params, 'end');
+      const item = _.find(items, (item) => {
+        return formValuesIsInItems(formValues, [item]);
+      });
+
+      const searchRange =
+        range_start && range_end
+          ? { start: !isMathString(range_start) ? moment.unix(Number(range_start)) : range_start, end: !isMathString(range_end) ? moment.unix(Number(range_end)) : range_end }
+          : undefined;
+      // 当命中缓存时，url search中的start和end 如存在，则优先级更高
+      if (item && searchRange) {
+        _.set(item, 'formValues.query.range', searchRange);
+      }
+    } else {
       items = [
         ...items,
         {

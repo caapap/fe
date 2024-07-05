@@ -18,6 +18,7 @@ import React, { useState, useRef, useEffect, useContext } from 'react';
 import _ from 'lodash';
 import moment from 'moment';
 import semver from 'semver';
+import i18next from 'i18next';
 import { useTranslation } from 'react-i18next';
 import { useInterval } from 'ahooks';
 import { v4 as uuidv4 } from 'uuid';
@@ -43,9 +44,10 @@ import Title from './Title';
 import { JSONParse } from '../utils';
 import Editor from '../Editor';
 import { defaultCustomValuesMap, defaultOptionsValuesMap } from '../Editor/config';
-import { sortPanelsByGridLayout, panelsMergeToConfigs, updatePanelsInsertNewPanelToGlobal } from '../Panels/utils';
+import { sortPanelsByGridLayout, panelsMergeToConfigs, updatePanelsInsertNewPanelToGlobal, ajustPanels } from '../Panels/utils';
 import { useGlobalState } from '../globalState';
 import { scrollToLastPanel } from './utils';
+import ajustInitialValues from '../Renderer/utils/ajustInitialValues';
 import './style.less';
 interface URLParam {
   id: string;
@@ -87,7 +89,7 @@ const builtinParamsToID = (builtinParams) => {
 message.config({
   maxCount: 1,
 });
-const getDefaultTimeRange = (query, t, dashboardDefaultRangeIndex?) => {
+const getDefaultTimeRange = (id, query, dashboardDefaultRangeIndex?) => {
   const defaultRange =
     dashboardDefaultRangeIndex !== undefined && dashboardDefaultRangeIndex !== ''
       ? rangeOptions[dashboardDefaultRangeIndex]
@@ -108,17 +110,17 @@ const getDefaultTimeRange = (query, t, dashboardDefaultRangeIndex?) => {
         end: moment(_.toNumber(query.__to)),
       };
     }
-    message.error(t('detail.invalidTimeRange'));
-    return getDefaultValue(dashboardTimeCacheKey, defaultRange);
+    message.error(i18next.t('dashboard:detail.invalidTimeRange'));
+    return getDefaultValue(`${dashboardTimeCacheKey}_${id}`, defaultRange);
   }
-  return getDefaultValue(dashboardTimeCacheKey, defaultRange);
+  return getDefaultValue(`${dashboardTimeCacheKey}_${id}`, defaultRange);
 };
 
 export default function DetailV2(props: IProps) {
   const { isPreview = false, isBuiltin = false, gobackPath, builtinParams } = props;
   const { t, i18n } = useTranslation('dashboard');
   const history = useHistory();
-  const { datasourceList, profile, dashboardDefaultRangeIndex, dashboardSaveMode, perms } = useContext(CommonStateContext);
+  const { datasourceList, profile, dashboardDefaultRangeIndex, dashboardSaveMode, perms, groupedDatasourceList } = useContext(CommonStateContext);
   const isAuthorized = _.includes(perms, '/dashboards/put') && !isPreview;
   const [dashboardMeta, setDashboardMeta] = useGlobalState('dashboardMeta');
   let { id } = useParams<URLParam>();
@@ -132,7 +134,7 @@ export default function DetailV2(props: IProps) {
   const [variableConfigWithOptions, setVariableConfigWithOptions] = useState<IVariable[]>();
   const [dashboardLinks, setDashboardLinks] = useState<ILink[]>();
   const [panels, setPanels] = useState<any[]>([]);
-  const [range, setRange] = useState<IRawTimeRange>(getDefaultTimeRange(query, t, dashboardDefaultRangeIndex));
+  const [range, setRange] = useState<IRawTimeRange>(getDefaultTimeRange(id, query, dashboardDefaultRangeIndex));
   const [editable, setEditable] = useState(true);
   const [editorData, setEditorData] = useState({
     visible: false,
@@ -182,7 +184,7 @@ export default function DetailV2(props: IProps) {
           }) as IVariable[],
         );
         setDashboardLinks(configs.links);
-        setPanels(sortPanelsByGridLayout(configs.panels));
+        setPanels(sortPanelsByGridLayout(ajustPanels(configs.panels)));
         if (cbk) {
           cbk();
         }
@@ -298,22 +300,7 @@ export default function DetailV2(props: IProps) {
                       configs: panelsMergeToConfigs(dashboard.configs, newPanels),
                     });
                   } else {
-                    setEditorData({
-                      visible: true,
-                      id: uuidv4(),
-                      initialValues: {
-                        name: 'Panel Title',
-                        type,
-                        targets: [
-                          {
-                            refId: 'A',
-                            expr: '',
-                          },
-                        ],
-                        custom: defaultCustomValuesMap[type],
-                        options: defaultOptionsValuesMap[type],
-                      },
-                    });
+                    setEditorData(ajustInitialValues(type, groupedDatasourceList, panels, variableConfig));
                   }
                 }}
               />

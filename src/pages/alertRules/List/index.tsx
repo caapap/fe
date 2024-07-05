@@ -24,7 +24,6 @@ import { Table, Tag, Switch, Modal, Space, Button, Row, Col, message, Select, To
 import { ColumnType } from 'antd/lib/table';
 import { EyeOutlined, SearchOutlined } from '@ant-design/icons';
 import RefreshIcon from '@/components/RefreshIcon';
-import SearchInput from '@/components/BaseSearchInput';
 import usePagination from '@/components/usePagination';
 import { getBusiGroupsAlertRules, updateAlertRules, deleteStrategy } from '@/services/warning';
 import { CommonStateContext } from '@/App';
@@ -33,9 +32,11 @@ import { DatasourceSelect, ProdSelect } from '@/components/DatasourceSelect';
 import localeCompare from '@/pages/dashboard/Renderer/utils/localeCompare';
 import { AlertRuleType, AlertRuleStatus } from '../types';
 import MoreOperations from './MoreOperations';
+import Import from './Import';
 import { allCates } from '@/components/AdvancedWrap/utils';
 import OrganizeColumns, { getDefaultColumnsConfigs, setDefaultColumnsConfigs, ajustColumns } from '@/components/OrganizeColumns';
 import { defaultColumnsConfigs, LOCAL_STORAGE_KEY } from './constants';
+import { priorityColor } from '@/utils/constant';
 
 interface ListProps {
   gids?: string;
@@ -56,7 +57,7 @@ export default function List(props: ListProps) {
   const { gids } = props;
   const { t } = useTranslation('alertRules');
   const history = useHistory();
-  const { datasourceList } = useContext(CommonStateContext);
+  const { datasourceList, groupedDatasourceList, datasourceCateOptions } = useContext(CommonStateContext);
   const pagination = usePagination({ PAGESIZE_KEY: 'alert-rules-pagesize' });
   let defaultFilter = {} as Filter;
   try {
@@ -132,6 +133,35 @@ export default function List(props: ListProps) {
             >
               {data}
             </Link>
+          );
+        },
+      },
+      {
+        title: t('table.severity'),
+        dataIndex: 'severities',
+        render: (data) => {
+          return (
+            <div
+              style={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 4,
+              }}
+            >
+              {_.map(data, (severity) => {
+                return (
+                  <Tag
+                    key={severity}
+                    color={priorityColor[severity - 1]}
+                    style={{
+                      marginRight: 0,
+                    }}
+                  >
+                    S{severity}
+                  </Tag>
+                );
+              })}
+            </div>
           );
         },
       },
@@ -402,7 +432,7 @@ export default function List(props: ListProps) {
             </Select>
             <Input
               placeholder={t('search_placeholder')}
-              style={{ width: 300 }}
+              style={{ width: 200 }}
               value={queryValue}
               onChange={(e) => {
                 setQueryValue(e.target.value);
@@ -415,7 +445,7 @@ export default function List(props: ListProps) {
 
         <Col>
           <Space>
-            {businessGroup.isLeaf && (
+            {businessGroup.isLeaf && gids !== '-2' && (
               <Button
                 type='primary'
                 onClick={() => {
@@ -426,7 +456,23 @@ export default function List(props: ListProps) {
                 {t('common:btn.add')}
               </Button>
             )}
-            {businessGroup.isLeaf && businessGroup.id && (
+            {businessGroup.isLeaf && businessGroup.id && gids !== '-2' && (
+              <Button
+                onClick={() => {
+                  if (businessGroup.id) {
+                    Import({
+                      busiId: businessGroup.id,
+                      refreshList: fetchData,
+                      groupedDatasourceList,
+                      datasourceCateOptions,
+                    });
+                  }
+                }}
+              >
+                {t('common:btn.import')}
+              </Button>
+            )}
+            {businessGroup.isLeaf && businessGroup.id && gids !== '-2' && (
               <MoreOperations bgid={businessGroup.id} selectRowKeys={selectRowKeys} selectedRows={selectedRows} getAlertRules={fetchData} />
             )}
             <Button

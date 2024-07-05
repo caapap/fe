@@ -16,6 +16,7 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 import _ from 'lodash';
+import { Form } from 'antd';
 import { useDebounceFn } from 'ahooks';
 import { IRawTimeRange } from '@/components/TimeRangePicker';
 import { datasource as tdengineQuery } from '@/plugins/TDengine';
@@ -44,13 +45,16 @@ interface IProps {
   scopedVars?: any;
   inspect?: boolean;
   type?: string;
+  custom: any;
 }
 
-export default function usePrometheus(props: IProps) {
+export default function useQuery(props: IProps) {
   const { dashboardId, datasourceCate, time, targets, variableConfig, inViewPort, spanNulls, datasourceValue } = props;
+  const form = Form.useFormInstance();
   const [series, setSeries] = useState<any[]>([]);
   const [query, setQuery] = useState<any[]>([]);
   const [error, setError] = useState('');
+  const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const cachedVariableValues = _.map(variableConfig, (item) => {
     return getVaraiableSelected(item.name, item.type, dashboardId);
@@ -63,8 +67,16 @@ export default function usePrometheus(props: IProps) {
     ...plusDatasource,
   };
   const { run: fetchData } = useDebounceFn(
-    () => {
+    async () => {
       if (!datasourceCate) return;
+      // 如果在编辑状态，需要校验表单
+      if (form && typeof form.validateFields === 'function') {
+        try {
+          await form.validateFields();
+        } catch (e) {
+          return;
+        }
+      }
       setLoading(true);
       fetchQueryMap[datasourceCate](props)
         .then(({ series, query }: { series: any[]; query: any[] }) => {
@@ -87,6 +99,7 @@ export default function usePrometheus(props: IProps) {
         })
         .finally(() => {
           setLoading(false);
+          setLoaded(true);
         });
     },
     {
@@ -123,5 +136,5 @@ export default function usePrometheus(props: IProps) {
     setSeries(_series);
   }, [JSON.stringify(_.map(targets, 'legend'))]);
 
-  return { query, series, error, loading };
+  return { query, series, error, loading, loaded };
 }

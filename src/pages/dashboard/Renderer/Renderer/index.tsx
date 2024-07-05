@@ -35,6 +35,7 @@ import {
   ClearOutlined,
 } from '@ant-design/icons';
 import { IRawTimeRange } from '@/components/TimeRangePicker';
+import PanelEmpty from '../components/PanelEmpty';
 import Timeseries from './Timeseries';
 import Stat from './Stat';
 import Table from './Table';
@@ -81,7 +82,7 @@ function index(props: IProps) {
   const bodyWrapRef = useRef<HTMLDivElement>(null);
   const [inViewPort] = useInViewport(ref);
   const [inspect, setInspect] = useState(false);
-  const { query, series, error, loading } = useQuery({
+  const { query, series, error, loading, loaded } = useQuery({
     id,
     dashboardId,
     time,
@@ -94,6 +95,7 @@ function index(props: IProps) {
     scopedVars: values.scopedVars,
     inspect,
     type: values.type,
+    custom: values.custom,
   });
   const name = replaceFieldWithVariable(dashboardId, values.name, variableConfig, values.scopedVars);
   const description = replaceFieldWithVariable(dashboardId, values.description, variableConfig, values.scopedVars);
@@ -195,141 +197,141 @@ function index(props: IProps) {
             {loading ? (
               <SyncOutlined spin style={{ marginRight: 8 }} />
             ) : (
-              !isPreview && (
-                <Space size={2} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                  {!name && <DragOutlined className='renderer-header-controller dashboards-panels-item-drag-handle' />}
-                  <Dropdown
-                    trigger={['click']}
-                    placement='bottom'
-                    getPopupContainer={() => ref.current!}
-                    overlayStyle={{
-                      minWidth: '130px',
-                    }}
-                    visible={visible}
-                    onVisibleChange={(visible) => {
-                      setVisible(visible);
-                    }}
-                    overlay={
-                      <Menu>
-                        <Menu.Item
-                          onClick={() => {
-                            setVisible(true);
-                            setTime({
-                              ...time,
-                              refreshFlag: _.uniqueId('refreshFlag_ '),
-                            });
-                          }}
-                          key='refresh_btn'
-                        >
-                          <div>
-                            <SyncOutlined style={{ marginRight: 8 }} />
-                            {t('refresh_btn')}
-                          </div>
-                        </Menu.Item>
-                        {!values.repeatPanelId && (
-                          <Menu.Item
-                            onClick={() => {
-                              setVisible(false);
-                              if (onEditClick) onEditClick();
-                            }}
-                            key='edit_btn'
-                          >
-                            <SettingOutlined style={{ marginRight: 8 }} />
-                            {t('common:btn.edit')}
-                          </Menu.Item>
-                        )}
-                        {!values.repeatPanelId && (
-                          <Menu.Item
-                            onClick={() => {
-                              setVisible(false);
-                              if (onCloneClick) onCloneClick();
-                            }}
-                            key='clone_btn'
-                          >
-                            <CopyOutlined style={{ marginRight: 8 }} />
-                            {t('common:btn.clone')}
-                          </Menu.Item>
-                        )}
+              <Space size={2} style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                {!isPreview && !name && <DragOutlined className='renderer-header-controller dashboards-panels-item-drag-handle' />}
+                <Dropdown
+                  trigger={['click']}
+                  placement='bottom'
+                  getPopupContainer={() => ref.current!}
+                  overlayStyle={{
+                    minWidth: '130px',
+                  }}
+                  visible={visible}
+                  onVisibleChange={(visible) => {
+                    setVisible(visible);
+                  }}
+                  overlay={
+                    <Menu>
+                      <Menu.Item
+                        onClick={() => {
+                          setVisible(true);
+                          setTime({
+                            ...time,
+                            refreshFlag: _.uniqueId('refreshFlag_ '),
+                          });
+                        }}
+                        key='refresh_btn'
+                      >
+                        <div>
+                          <SyncOutlined style={{ marginRight: 8 }} />
+                          {t('refresh_btn')}
+                        </div>
+                      </Menu.Item>
+                      {!isPreview && !values.repeatPanelId && (
                         <Menu.Item
                           onClick={() => {
                             setVisible(false);
-                            if (onShareClick) onShareClick();
+                            if (onEditClick) onEditClick();
                           }}
-                          key='share_btn'
+                          key='edit_btn'
                         >
-                          <ShareAltOutlined style={{ marginRight: 8 }} />
-                          {t('share_btn')}
+                          <SettingOutlined style={{ marginRight: 8 }} />
+                          {t('common:btn.edit')}
                         </Menu.Item>
-                        {values.type === 'table' && (
+                      )}
+                      {!isPreview && !values.repeatPanelId && (
+                        <Menu.Item
+                          onClick={() => {
+                            setVisible(false);
+                            if (onCloneClick) onCloneClick();
+                          }}
+                          key='clone_btn'
+                        >
+                          <CopyOutlined style={{ marginRight: 8 }} />
+                          {t('common:btn.clone')}
+                        </Menu.Item>
+                      )}
+                      <Menu.Item
+                        onClick={() => {
+                          setVisible(false);
+                          if (onShareClick) onShareClick();
+                        }}
+                        key='share_btn'
+                      >
+                        <ShareAltOutlined style={{ marginRight: 8 }} />
+                        {t('share_btn')}
+                      </Menu.Item>
+                      {values.type === 'table' && (
+                        <Menu.Item
+                          onClick={() => {
+                            tableRef.current.exportCsv();
+                            setVisible(false);
+                          }}
+                          key='export_btn'
+                        >
+                          <ExportOutlined style={{ marginRight: 8 }} />
+                          {t('export_btn')}
+                        </Menu.Item>
+                      )}
+                      {values.type === 'table' && (
+                        <Tooltip title={t('clear_cache_btn_tip')} placement='left'>
                           <Menu.Item
                             onClick={() => {
-                              tableRef.current.exportCsv();
+                              window.localStorage.removeItem(`dashboard-table2.1-resizable-${values.id}`);
                               setVisible(false);
                             }}
-                            key='export_btn'
+                            key='clear_cache_btn'
                           >
-                            <ExportOutlined style={{ marginRight: 8 }} />
-                            {t('export_btn')}
+                            <ClearOutlined style={{ marginRight: 8 }} />
+                            {t('clear_cache_btn')}
                           </Menu.Item>
-                        )}
-                        {values.type === 'table' && (
-                          <Tooltip title={t('clear_cache_btn_tip')} placement='left'>
-                            <Menu.Item
-                              onClick={() => {
-                                window.localStorage.removeItem(`dashboard-table2.1-resizable-${values.id}`);
-                                setVisible(false);
-                              }}
-                              key='clear_cache_btn'
-                            >
-                              <ClearOutlined style={{ marginRight: 8 }} />
-                              {t('clear_cache_btn')}
-                            </Menu.Item>
-                          </Tooltip>
-                        )}
+                        </Tooltip>
+                      )}
 
+                      <Menu.Item
+                        onClick={() => {
+                          setVisible(false);
+                          setTime({
+                            ...time,
+                            refreshFlag: _.uniqueId('refreshFlag_ '),
+                          });
+                          setInspect(true);
+                        }}
+                        key='inspect_btn'
+                      >
+                        <InfoCircleOutlined style={{ marginRight: 8 }} />
+                        {t('inspect_btn')}
+                      </Menu.Item>
+                      {!isPreview && !values.repeatPanelId && (
                         <Menu.Item
                           onClick={() => {
                             setVisible(false);
-                            setTime({
-                              ...time,
-                              refreshFlag: _.uniqueId('refreshFlag_ '),
-                            });
-                            setInspect(true);
+                            if (onDeleteClick) onDeleteClick();
                           }}
-                          key='inspect_btn'
+                          key='delete_btn'
                         >
-                          <InfoCircleOutlined style={{ marginRight: 8 }} />
-                          {t('inspect_btn')}
+                          <DeleteOutlined style={{ marginRight: 8 }} />
+                          {t('common:btn.delete')}
                         </Menu.Item>
-                        {!values.repeatPanelId && (
-                          <Menu.Item
-                            onClick={() => {
-                              setVisible(false);
-                              if (onDeleteClick) onDeleteClick();
-                            }}
-                            key='delete_btn'
-                          >
-                            <DeleteOutlined style={{ marginRight: 8 }} />
-                            {t('common:btn.delete')}
-                          </Menu.Item>
-                        )}
-                      </Menu>
-                    }
-                  >
-                    <MoreOutlined className='renderer-header-controller' />
-                  </Dropdown>
-                </Space>
-              )
+                      )}
+                    </Menu>
+                  }
+                >
+                  <MoreOutlined className='renderer-header-controller' />
+                </Dropdown>
+              </Space>
             )}
           </div>
         </div>
-        <div className='renderer-body' style={{ height: values.name ? `calc(100% - 34px)` : '100%' }}>
-          {_.isEmpty(series) && values.type !== 'text' && values.type !== 'iframe' ? (
-            <div className='renderer-body-content-empty'>No Data</div>
-          ) : (
-            <>{RendererCptMap[values.type] ? RendererCptMap[values.type]() : <div className='unknown-type'>{`无效的图表类型 ${values.type}`}</div>}</>
-          )}
-        </div>
+        {loaded && (
+          <div className='renderer-body' style={{ height: values.name ? `calc(100% - 34px)` : '100%' }}>
+            {_.isEmpty(series) && values.type !== 'text' && values.type !== 'iframe' ? (
+              <PanelEmpty values={values} bodyWrapRef={bodyWrapRef} />
+            ) : (
+              <>{RendererCptMap[values.type] ? RendererCptMap[values.type]() : <div className='unknown-type'>{`无效的图表类型 ${values.type}`}</div>}</>
+            )}
+          </div>
+        )}
       </div>
       <Drawer
         title={t('panel.inspect.title')}
