@@ -199,7 +199,7 @@ function App() {
         }
         document.title = siteInfo?.page_title || 'Stellar';
         if (iconLink) {
-          iconLink.href = siteInfo?.favicon_url || '/image/favicon.ico';
+          iconLink.href = siteInfo?.favicon_url || '/image/favicon.svg';
         }
         // 非匿名访问，需要初始化一些公共数据
         if (!anonymous) {
