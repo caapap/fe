@@ -23,9 +23,10 @@ const en_US = {
     bgids: 'Authorized business groups',
   },
   default_filter: {
-    title: 'Preset filters',
-    public: 'Public dashboards',
-    all: 'All dashboards',
+    title: 'Preset Filters',
+    public: 'Public Dashboards',
+    all: 'My Business Groups Dashboards',
+    all_tip: 'Display all my business groups dashboards',
   },
   create_title: 'Create Dashboard',
   edit_title: 'Edit Dashboard',
@@ -33,6 +34,7 @@ const en_US = {
   cluster: 'Cluster',
   full_screen: 'Full screen',
   exit_full_screen: 'Exit full screen',
+  copyPanelTip: 'Panel copied. Click "Add panel" to paste.',
   batch: {
     import: 'Import dashboard',
     label: 'Dashboard JSON',
@@ -98,6 +100,10 @@ const en_US = {
       businessGroupIdent: 'Business group ident',
     },
     hide: 'Hide',
+    hide_map: {
+      yes: 'Yes',
+      no: 'No',
+    },
     definition: 'Definition',
     definition_msg1: 'Please enter variable definition',
     definition_msg2: 'Variable definition must be valid JSON',
@@ -183,6 +189,8 @@ const en_US = {
           showItem: 'Show item',
           hideItem: 'Hide item',
         },
+        heightInPercentage: 'Height in percentage',
+        heightInPercentage_tip: 'Legend height occupies the maximum height percentage of the panel, the minimum value is 20%, the maximum value is 80%',
       },
       thresholds: {
         title: 'Thresholds',
@@ -411,6 +419,8 @@ const en_US = {
       },
     },
     expression_placeholder: 'Math operations on one or more queries. You reference the query by ${refId} ie. $A, $B, $C etc. The sum of two scalar values: $A + $B > 10',
+    legendTip: 'Series name override or template, {{hostname}} will be replaced with label value for hostname',
+    legendTip2: 'Series name override or template, {{hostname}} will be replaced with label value for hostname, currently only effective under time series data',
   },
   detail: {
     datasource_empty: 'Please configure the data source first',
@@ -431,6 +441,7 @@ const en_US = {
       discardText: 'Discard',
       okText: 'Save',
     },
+    noPanelToPaste: 'No panel to paste',
   },
   settings: {
     graphTooltip: {
@@ -460,6 +471,7 @@ const en_US = {
     heatmap: 'Heatmap',
     iframe: 'Iframe',
     row: 'Row',
+    pastePanel: 'Paste panel',
   },
   calcs: {
     lastNotNull: 'Last not null value',

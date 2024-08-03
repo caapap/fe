@@ -21,7 +21,7 @@ import queryString from 'query-string';
 import { getLabelNames, getMetricSeries, getMetricSeriesV2, getLabelValues, getMetric, getQueryResult, getESVariableResult } from '@/services/dashboardV2';
 import { IRawTimeRange, parseRange } from '@/components/TimeRangePicker';
 import { IVariable } from './definition';
-import { normalizeESQueryRequestBody } from './utils';
+import { normalizeESQueryRequestBody, ajustVarSingleValue, escapeJsonString, escapePromQLString } from './utils';
 
 // https://grafana.com/docs/grafana/latest/datasources/prometheus/#query-variable 根据文档解析表达式
 // 每一个promtheus接口都接受start和end参数来限制返回值
@@ -41,6 +41,7 @@ export const convertExpressionToQuery = (expression: string, range: IRawTimeRang
       const end = moment(parsedRange.end).valueOf();
       return getESVariableResult(datasourceValue, config?.index!, normalizeESQueryRequestBody(query, config?.date_field, start, end));
     } catch (e) {
+      console.error(e);
       return Promise.resolve([]);
     }
   } else {
@@ -68,8 +69,13 @@ export const convertExpressionToQuery = (expression: string, range: IRawTimeRang
         return getLabelValues(label, { start, end }, datasourceValue).then((res) => res.data);
       }
     } else if (expression.startsWith('metrics(')) {
-      const metric = expression.substring('metrics('.length, expression.length - 1);
-      return getMetric({ start, end }, datasourceValue).then((res) => res.data.filter((item) => item.includes(metric)));
+      const metricRegexStr = expression.substring('metrics('.length, expression.length - 1);
+      return getMetric({ start, end }, datasourceValue).then((res) =>
+        res.data.filter((item) => {
+          // 2024-07-24 这里需要对 metricRegexStr 进行正则匹配
+          return item.match(new RegExp(metricRegexStr));
+        }),
+      );
     } else if (expression.startsWith('query_result(')) {
       let promql = expression.substring('query_result('.length, expression.length - 1);
       promql = replaceFieldWithVariable(promql, dashboardId, getOptionsList({}, range));
@@ -110,7 +116,7 @@ const replaceAllPolyfill = (str, substr, newSubstr): string => {
 function getVarsValue(id: string, vars?: IVariable[]) {
   const varsValue = {};
   _.forEach(vars, (item) => {
-    varsValue[item.name] = getVaraiableSelected(item.name, item.type, id);
+    varsValue[item.name] = getVaraiableSelected(item, id);
   });
   return varsValue;
 }
@@ -140,7 +146,7 @@ export function setVaraiableSelected({
   vars,
 }: {
   name: string;
-  value: string | string[];
+  value?: string | string[];
   id: string;
   urlAttach?: boolean;
   vars?: IVariable[];
@@ -151,7 +157,8 @@ export function setVaraiableSelected({
   urlAttach && attachVariable2Url(name, value, id, vars);
 }
 
-export function getVaraiableSelected(name: string, type: string, id: string) {
+export function getVaraiableSelected(varaiableItem: IVariable, id: string) {
+  const { name, type, multi } = varaiableItem;
   const { search } = window.location;
   const searchObj = queryString.parse(search);
   let v: any = searchObj[name];
@@ -176,22 +183,47 @@ export function getVaraiableSelected(name: string, type: string, id: string) {
     if (type === 'datasource' && !_.isNaN(_.toNumber(v))) {
       return _.toNumber(v);
     }
-    // all 是变量全选的特殊值
-    if (v === 'all') {
-      return ['all'];
+    if (multi) {
+      if (v === 'all') {
+        return ['all'];
+      }
+      if (_.isString(v)) {
+        return [v];
+      }
+    } else {
+      if (_.isArray(v)) {
+        return v[0];
+      }
     }
     return v;
   } else {
-    if (v === null) return undefined;
+    if (v === null || v === undefined) return undefined;
     if (_.isArray(v) && v.length === 0) {
       return [];
     }
     if (type === 'datasource' && !_.isNaN(_.toNumber(v))) {
       return _.toNumber(v);
     }
+    if (multi) {
+      if (v === 'all') {
+        return ['all'];
+      }
+      if (_.isString(v)) {
+        return [v];
+      }
+    } else {
+      if (_.isArray(v)) {
+        return v[0];
+      }
+    }
     return v;
   }
 }
+
+const replaceAllSeparatorMap = {
+  prometheus: '|',
+  elasticsearch: ' OR ',
+};
 
 export const replaceExpressionVarsSpecifyRule = (
   params: {
@@ -204,6 +236,7 @@ export const replaceExpressionVarsSpecifyRule = (
     regex: string;
     getPlaceholder: (expression: string) => string;
   },
+  isEscapeJsonString = false,
 ) => {
   const { expression, formData, limit, id } = params;
   const { regex, getPlaceholder } = rule;
@@ -212,28 +245,71 @@ export const replaceExpressionVarsSpecifyRule = (
   if (vars && vars.length > 0) {
     for (let i = 0; i < limit; i++) {
       if (formData[i]) {
-        const { name, options, reg, value, allValue, type } = formData[i];
+        const { name, options, reg, value, allValue, type, datasource } = formData[i];
+        const separator = replaceAllSeparatorMap[datasource?.cate] || replaceAllSeparatorMap.prometheus;
         const placeholder = getPlaceholder(name);
-        const selected = getVaraiableSelected(name, type, id);
+        const selected = getVaraiableSelected(formData[i], id);
         if (vars.includes(placeholder)) {
           if (_.isEqual(selected, ['all'])) {
             if (allValue) {
               newExpression = replaceAllPolyfill(newExpression, placeholder, allValue);
             } else {
-              newExpression = replaceAllPolyfill(
-                newExpression,
-                placeholder,
-                `(${_.trim((options as string[]).filter((i) => !reg || !stringToRegex(reg) || (stringToRegex(reg) as RegExp).test(i)).join('|'), '|')})`,
-              );
+              let newValue = `(${_.trim(
+                _.join(
+                  _.map(
+                    _.filter(options, (i) => !reg || !stringToRegex(reg) || (stringToRegex(reg) as RegExp).test(i)),
+                    (item) => {
+                      // 2024-07-24 如果是 prometheus 数据源的变量，需要对 {}[]().- 进行转义
+                      if (datasource?.cate === 'prometheus') {
+                        return escapePromQLString(item);
+                      }
+                      if (datasource?.cate === 'elasticsearch') {
+                        return `"${item}"`;
+                      }
+                      return item;
+                    },
+                  ),
+                  separator,
+                ),
+                separator,
+              )})`;
+              // 2024-07-09 如果是 ES 数据源的变量，在变量内部处理时需要做转义处理
+              if (datasource?.cate === 'elasticsearch' && isEscapeJsonString) {
+                newValue = escapeJsonString(newValue);
+              }
+
+              newExpression = replaceAllPolyfill(newExpression, placeholder, newValue);
             }
           } else if (Array.isArray(selected)) {
-            const realSelected = _.size(selected) === 0 ? '' : _.size(selected) === 1 ? selected[0] : `(${_.trim((selected as string[]).join('|'), '|')})`;
+            let newValue = `(${_.trim(
+              _.join(
+                _.map(selected, (item) => {
+                  // 2024-07-24 如果是 prometheus 数据源的变量，需要对 {}[]().- 进行转义
+                  if (datasource?.cate === 'prometheus') {
+                    return escapePromQLString(item);
+                  }
+                  if (datasource?.cate === 'elasticsearch') {
+                    return `"${item}"`;
+                  }
+                  return item;
+                }),
+                separator,
+              ),
+              separator,
+            )})`;
+            // 2024-07-09 如果是 ES 数据源的变量，在变量内部处理时需要做转义处理
+            if (datasource?.cate === 'elasticsearch' && isEscapeJsonString) {
+              newValue = escapeJsonString(newValue);
+            }
+            // 2024-07-09 如果是 ES 数据源的变量，并且不是变量内部处理时，需要将变量值加上引号
+            const headSelected = datasource?.cate === 'elasticsearch' && !isEscapeJsonString ? `"${selected[0]}"` : selected[0];
+            const realSelected = _.size(selected) === 0 ? '' : _.size(selected) === 1 ? headSelected : newValue;
             newExpression = replaceAllPolyfill(newExpression, placeholder, realSelected);
           } else if (typeof selected === 'string') {
-            newExpression = replaceAllPolyfill(newExpression, placeholder, selected as string);
+            newExpression = replaceAllPolyfill(newExpression, placeholder, ajustVarSingleValue(newExpression, placeholder, selected, formData[i], isEscapeJsonString));
           } else if (selected === null || selected === undefined) {
             // 未选择或填写变量值时替换为传入的value
-            newExpression = replaceAllPolyfill(newExpression, placeholder, value ? (_.isArray(value) ? _.trim(_.join(value, '|'), '|') : value) : '');
+            newExpression = replaceAllPolyfill(newExpression, placeholder, value ? (_.isArray(value) ? _.trim(_.join(value, separator), separator) : value) : '');
             if (type === 'datasource') {
               newExpression = !_.isNaN(_.toNumber(newExpression)) ? (_.toNumber(newExpression) as any) : newExpression;
             }
@@ -252,7 +328,7 @@ export const replaceExpressionVarsSpecifyRule = (
   return newExpression;
 };
 
-export const replaceExpressionVars = (expression: string, formData: IVariable[], limit: number, id: string) => {
+export const replaceExpressionVars = (expression: string, formData: IVariable[], limit: number, id: string, isEscapeJsonString = false) => {
   let newExpression = expression;
   newExpression = replaceExpressionVarsSpecifyRule(
     { expression: newExpression, formData, limit, id },
@@ -260,6 +336,7 @@ export const replaceExpressionVars = (expression: string, formData: IVariable[],
       regex: '\\$[0-9a-zA-Z_]+',
       getPlaceholder: (expression: string) => `$${expression}`,
     },
+    isEscapeJsonString,
   );
   newExpression = replaceExpressionVarsSpecifyRule(
     { expression: newExpression, formData, limit, id },
@@ -267,6 +344,7 @@ export const replaceExpressionVars = (expression: string, formData: IVariable[],
       regex: '\\${[0-9a-zA-Z_]+}',
       getPlaceholder: (expression: string) => '${' + expression + '}',
     },
+    isEscapeJsonString,
   );
   return newExpression;
 };

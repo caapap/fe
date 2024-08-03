@@ -5,7 +5,10 @@ const zh_CN = {
     '404_btn': '回到首页',
   },
   business_group: '业务组',
+  business_groups: '业务组',
   search_placeholder: '请输入搜索关键字',
+  my_business_group: '我的业务组',
+  all_business_group: '全部业务组',
   nodata: '暂无数据',
   btn: {
     add: '新增',
@@ -36,6 +39,7 @@ const zh_CN = {
     test: '测试',
     expand: '展开',
     collapse: '收起',
+    copy: '拷贝',
   },
   table: {
     name: '名称',
@@ -185,5 +189,6 @@ const zh_CN = {
   'msg.sort.success': '排序成功',
 
   copy_success: '复制成功 {{num}} 条记录',
+  request_fail_msg: '网络请求超时，请稍后重试',
 };
 export default zh_CN;

@@ -5,15 +5,16 @@ import classNames from 'classnames';
 import { Link, useHistory, useLocation } from 'react-router-dom';
 import queryString from 'query-string';
 import { Input, Tree } from 'antd';
-import { LeftOutlined, RightOutlined, SettingOutlined, SearchOutlined, DownOutlined } from '@ant-design/icons';
+import { LeftOutlined, RightOutlined, SettingOutlined, SearchOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { getBusiGroups } from '@/services/common';
 import { CommonStateContext } from '@/App';
 import { listToTree, getCollapsedKeys, getCleanBusinessGroupIds, getDefaultBusinessGroupKey, getDefaultBusiness } from './utils';
 import BusinessGroupSelect from './BusinessGroupSelect';
+import BusinessGroupSelectWithAll from './BusinessGroupSelectWithAll';
+import { getBusiGroups } from './services';
 import './style.less';
 
-export { listToTree, getCollapsedKeys, getCleanBusinessGroupIds, BusinessGroupSelect, getDefaultBusinessGroupKey, getDefaultBusiness };
+export { listToTree, getCollapsedKeys, getCleanBusinessGroupIds, BusinessGroupSelect, getDefaultBusinessGroupKey, getDefaultBusiness, BusinessGroupSelectWithAll, getBusiGroups };
 
 interface IProps {
   onSelect?: (key: string, item: any) => void;
@@ -55,7 +56,7 @@ export default function index(props: IProps) {
   const location = useLocation();
   const query = queryString.parse(location.search);
   const history = useHistory();
-  const { title = t('common:business_group'), renderHeadExtra, onSelect, showSelected = true } = props;
+  const { title = t('common:business_groups'), renderHeadExtra, onSelect, showSelected = true } = props;
   const [collapse, setCollapse] = useState(localStorage.getItem('leftlist') === '1');
   const [width, setWidth] = useState(_.toNumber(localStorage.getItem('leftwidth') || 200));
   const { busiGroups, siteInfo } = useContext(CommonStateContext);
@@ -111,9 +112,11 @@ export default function index(props: IProps) {
             onPressEnter={(e) => {
               e.preventDefault();
               const value = e.currentTarget.value;
-              getBusiGroups(value).then((res) => {
-                setBusinessTreeGroupData(listToTree(res.dat || [], siteInfo?.businessGroupSeparator));
-                setBusiGroupsListData(res.dat || []);
+              getBusiGroups({
+                query: value,
+              }).then((res) => {
+                setBusinessTreeGroupData(listToTree(res || [], siteInfo?.businessGroupSeparator));
+                setBusiGroupsListData(res || []);
               });
             }}
           />

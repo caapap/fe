@@ -24,8 +24,6 @@ import flatten from '@/utils/flatten';
 import { ITarget } from '../../types';
 import { getVaraiableSelected } from '../../VariableConfig/constant';
 import { IVariable } from '../../VariableConfig/definition';
-import replaceExpressionBracket from '../utils/replaceExpressionBracket';
-import { getSerieName } from './utils';
 import prometheusQuery from './prometheus';
 import elasticsearchQuery from './elasticsearch';
 
@@ -57,7 +55,7 @@ export default function useQuery(props: IProps) {
   const [loaded, setLoaded] = useState(false);
   const [loading, setLoading] = useState(false);
   const cachedVariableValues = _.map(variableConfig, (item) => {
-    return getVaraiableSelected(item.name, item.type, dashboardId);
+    return getVaraiableSelected(item, dashboardId);
   });
   const flag = useRef(false);
   const fetchQueryMap = {
@@ -72,7 +70,8 @@ export default function useQuery(props: IProps) {
       // 如果在编辑状态，需要校验表单
       if (form && typeof form.validateFields === 'function') {
         try {
-          await form.validateFields();
+          // 2024-07-16 暂时关闭表单校验，因为会导致一些表单项无法获取标签数据
+          // await form.validateFields();
         } catch (e) {
           return;
         }
@@ -123,18 +122,6 @@ export default function useQuery(props: IProps) {
       fetchData();
     }
   }, [inViewPort]);
-
-  useEffect(() => {
-    // 目前只有 prometheus 支持 legend 替换
-    const _series = _.map(series, (item) => {
-      const target = _.find(targets, (t) => t.expr === item.expr);
-      return {
-        ...item,
-        name: target?.legend ? replaceExpressionBracket(target?.legend, item.metric) : getSerieName(item.metric),
-      };
-    });
-    setSeries(_series);
-  }, [JSON.stringify(_.map(targets, 'legend'))]);
 
   return { query, series, error, loading, loaded };
 }
