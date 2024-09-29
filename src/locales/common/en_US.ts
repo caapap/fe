@@ -10,6 +10,13 @@ const en_US = {
   my_business_group: 'My Business Group',
   all_business_group: 'All Business Group',
   nodata: 'No Data',
+  log_detail: 'Log Detail',
+  document_link: 'Document',
+  required: 'Required',
+  host: {
+    tags: 'User Tags',
+    host_tags: 'Host Tags',
+  },
   btn: {
     add: 'Add',
     create: 'Create',
@@ -54,6 +61,8 @@ const en_US = {
     note: 'Note',
     operations: 'Operations',
     total: 'Total {{total}} items',
+    host: 'Host',
+    error_msg: 'Error message',
   },
   datasource: {
     prod: 'Type',

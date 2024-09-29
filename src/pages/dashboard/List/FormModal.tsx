@@ -133,12 +133,7 @@ function index(props: Props & ModalWrapProps) {
           <Input />
         </Form.Item>
         <Form.Item label={t('tags')} name='tags'>
-          <Select
-            mode='tags'
-            dropdownStyle={{
-              display: 'none',
-            }}
-          />
+          <Select mode='tags' tokenSeparators={[' ']} open={false} />
         </Form.Item>
         <Form.Item label={t('settings.graphTooltip.label')} name='graphTooltip' tooltip={t('settings.graphTooltip.tip')}>
           <Radio.Group

@@ -82,7 +82,7 @@ export default function index() {
             </Select>
           </Form.Item>
         </Col>
-        <Col span={24}>
+        <Col span={12}>
           <Form.Item label={t('panel.options.legend.behaviour.label')} name={[...namePrefix, 'behaviour']} initialValue='showItem'>
             <Select
               options={[
@@ -93,6 +93,22 @@ export default function index() {
                 {
                   label: t('panel.options.legend.behaviour.hideItem'),
                   value: 'hideItem',
+                },
+              ]}
+            />
+          </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item label={t('panel.options.legend.selectMode.label')} name={[...namePrefix, 'selectMode']} initialValue='single'>
+            <Select
+              options={[
+                {
+                  label: t('panel.options.legend.selectMode.single'),
+                  value: 'single',
+                },
+                {
+                  label: t('panel.options.legend.selectMode.multiple'),
+                  value: 'multiple',
                 },
               ]}
             />
@@ -109,7 +125,7 @@ export default function index() {
             name={[...namePrefix, 'detailUrl']}
             tooltip={{
               overlayInnerStyle: { width: 330 },
-              title: <Trans ns='dashboard' i18nKey='dashboard:link.url_tip' components={{ 1: <br /> }} />,
+              title: <Trans ns='dashboard' i18nKey='dashboard:var.help_tip' components={{ 1: <br /> }} />,
             }}
           >
             <Input style={{ width: '100%' }} />

@@ -61,9 +61,13 @@ export const convertExpressionToQuery = (expression: string, range: IRawTimeRang
           end >= moment().subtract(1, 'day').unix() &&
           (currentDatasource?.settings?.['prometheus.tsdb_type'] === 'VictoriaMetrics' || currentDatasource?.settings?.tsdb_type === 'VictoriaMetrics')
         ) {
-          return getMetricSeriesV2({ metric, start, end }, datasourceValue).then((res) => Array.from(new Set(_.map(res.data, (item) => item[label!.trim()]))));
+          return getMetricSeriesV2({ metric, start, end }, datasourceValue).then((res) =>
+            _.without(Array.from(new Set(_.map(res.data, (item) => item[_.trim(label)]))), undefined),
+          );
         }
-        return getMetricSeries({ 'match[]': metric.trim(), start, end }, datasourceValue).then((res) => Array.from(new Set(_.map(res.data, (item) => item[label!.trim()]))));
+        return getMetricSeries({ 'match[]': metric.trim(), start, end }, datasourceValue).then((res) =>
+          _.without(Array.from(new Set(_.map(res.data, (item) => item[_.trim(label)]))), undefined),
+        );
       } else {
         const label = expression.substring('label_values('.length, expression.length - 1);
         return getLabelValues(label, { start, end }, datasourceValue).then((res) => res.data);
@@ -130,7 +134,8 @@ function attachVariable2Url(key, value, id: string, vars?: IVariable[]) {
     newQuery[key] = _.isEmpty(value) && !_.isNumber(value) ? undefined : value;
   });
   // 当清空变量值时，需要在开启固定变量值模式，以防止变量值又处理默认值逻辑
-  if (value === undefined) {
+  // 2024-09-03 新增 _.isEqual(value, []) 考虑多选的情况
+  if (value === undefined || _.isEqual(value, [])) {
     newQuery['__variable_value_fixed'] = 'true';
   }
   const newurl = `${protocol}//${host}${pathname}?${queryString.stringify(newQuery)}`;
@@ -197,7 +202,7 @@ export function getVaraiableSelected(varaiableItem: IVariable, id: string) {
     }
     return v;
   } else {
-    if (v === null || v === undefined) return undefined;
+    if (v === null || v === undefined || v === '') return undefined;
     if (_.isArray(v) && v.length === 0) {
       return [];
     }
@@ -259,14 +264,11 @@ export const replaceExpressionVarsSpecifyRule = (
                   _.map(
                     _.filter(options, (i) => !reg || !stringToRegex(reg) || (stringToRegex(reg) as RegExp).test(i)),
                     (item) => {
-                      // 2024-07-24 如果是 prometheus 数据源的变量，需要对 {}[]().- 进行转义
-                      if (datasource?.cate === 'prometheus') {
-                        return escapePromQLString(item);
-                      }
                       if (datasource?.cate === 'elasticsearch') {
                         return `"${item}"`;
                       }
-                      return item;
+                      // 2024-07-24 如果是 prometheus 数据源的变量，需要对 {}[]().- 进行转义
+                      return escapePromQLString(item);
                     },
                   ),
                   separator,
@@ -284,14 +286,11 @@ export const replaceExpressionVarsSpecifyRule = (
             let newValue = `(${_.trim(
               _.join(
                 _.map(selected, (item) => {
-                  // 2024-07-24 如果是 prometheus 数据源的变量，需要对 {}[]().- 进行转义
-                  if (datasource?.cate === 'prometheus') {
-                    return escapePromQLString(item);
-                  }
                   if (datasource?.cate === 'elasticsearch') {
                     return `"${item}"`;
                   }
-                  return item;
+                  // 2024-07-24 如果是 prometheus 数据源的变量，需要对 {}[]().- 进行转义
+                  return escapePromQLString(item);
                 }),
                 separator,
               ),
@@ -301,8 +300,15 @@ export const replaceExpressionVarsSpecifyRule = (
             if (datasource?.cate === 'elasticsearch' && isEscapeJsonString) {
               newValue = escapeJsonString(newValue);
             }
+            let headSelected = escapePromQLString(selected[0]);
             // 2024-07-09 如果是 ES 数据源的变量，并且不是变量内部处理时，需要将变量值加上引号
-            const headSelected = datasource?.cate === 'elasticsearch' && !isEscapeJsonString ? `"${selected[0]}"` : selected[0];
+            if (datasource?.cate === 'elasticsearch') {
+              if (!isEscapeJsonString) {
+                headSelected = `"${selected[0]}"`;
+              } else {
+                headSelected = selected[0];
+              }
+            }
             const realSelected = _.size(selected) === 0 ? '' : _.size(selected) === 1 ? headSelected : newValue;
             newExpression = replaceAllPolyfill(newExpression, placeholder, realSelected);
           } else if (typeof selected === 'string') {

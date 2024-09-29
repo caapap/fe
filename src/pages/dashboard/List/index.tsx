@@ -19,7 +19,7 @@
  */
 import React, { useState, useEffect, useContext } from 'react';
 import { Link } from 'react-router-dom';
-import { Table, Tag, Modal, Space, Button, Dropdown, Menu, message } from 'antd';
+import { Table, Tag, Modal, Space, Button, Dropdown, Menu, message, Tooltip } from 'antd';
 import { FundViewOutlined, EditOutlined, ShareAltOutlined, MoreOutlined } from '@ant-design/icons';
 import moment from 'moment';
 import _ from 'lodash';
@@ -29,7 +29,7 @@ import { Dashboard as DashboardType } from '@/store/dashboardInterface';
 import { getBusiGroupsDashboards, getBusiGroupsPublicDashboards, cloneDashboard, removeDashboards, getDashboard, updateDashboardPublic } from '@/services/dashboardV2';
 import PageLayout from '@/components/pageLayout';
 import { CommonStateContext } from '@/App';
-import BusinessGroupSideBarWithAll, { getDefaultGids } from '@/components/BusinessGroup/BusinessGroupSideBarWithAll';
+import BusinessGroupSideBarWithAll, { getDefaultGidsInDashboard } from '@/components/BusinessGroup/BusinessGroupSideBarWithAll';
 import usePagination from '@/components/usePagination';
 import { getDefaultColumnsConfigs, ajustColumns } from '@/components/OrganizeColumns';
 import { getBusiGroups } from '@/components/BusinessGroup';
@@ -53,7 +53,7 @@ const getDefaultPublicSelectGids = (localKey: string) => {
 export default function index() {
   const { t } = useTranslation('dashboard');
   const { businessGroup, perms } = useContext(CommonStateContext);
-  const [gids, setGids] = useState<string | undefined>(getDefaultGids(N9E_GIDS_LOCALKEY, businessGroup));
+  const [gids, setGids] = useState<string | undefined>(getDefaultGidsInDashboard(N9E_GIDS_LOCALKEY, businessGroup));
   const [list, setList] = useState<any[]>([]);
   const [selectRowKeys, setSelectRowKeys] = useState<number[]>([]);
   const [refreshKey, setRefreshKey] = useState(_.uniqueId('refreshKey_'));
@@ -222,14 +222,44 @@ export default function index() {
                       if (val === 1 && record.public_cate !== undefined) {
                         if (record.public_cate === 0) {
                           content = (
-                            <Link
-                              target='_blank'
-                              to={{
-                                pathname: `/dashboards/share/${record.id}`,
-                              }}
+                            <Tooltip
+                              overlayClassName='ant-tooltip-with-link'
+                              title={
+                                <>
+                                  <div>
+                                    <Link
+                                      target='_blank'
+                                      to={{
+                                        pathname: `/dashboards/share/${record.id}`,
+                                        search: 'themeMode=dark',
+                                      }}
+                                    >
+                                      {t('public.theme_link.dark')}
+                                    </Link>
+                                  </div>
+                                  <div>
+                                    <Link
+                                      target='_blank'
+                                      to={{
+                                        pathname: `/dashboards/share/${record.id}`,
+                                        search: 'themeMode=light',
+                                      }}
+                                    >
+                                      {t('public.theme_link.light')}
+                                    </Link>
+                                  </div>
+                                </>
+                              }
                             >
-                              <ShareAltOutlined /> {t(`public.cate.${record.public_cate}`)}
-                            </Link>
+                              <Link
+                                target='_blank'
+                                to={{
+                                  pathname: `/dashboards/share/${record.id}`,
+                                }}
+                              >
+                                <ShareAltOutlined /> {t(`public.cate.${record.public_cate}`)}
+                              </Link>
+                            </Tooltip>
                           );
                         } else {
                           content = t(`public.cate.${record.public_cate}`);

@@ -14,8 +14,8 @@
  * limitations under the License.
  *
  */
-import * as datasource from './datasource';
-import * as common from './common';
+import * as datasource from "./datasource";
+import * as common from "./common";
 
 const resources = {
   en_US: {

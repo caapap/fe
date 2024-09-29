@@ -10,7 +10,10 @@ const zh_CN = {
   ident_copy_success: '复制成功 {{num}} 条记录',
   not_grouped: '未归组',
   host_ip: 'IP',
-  tags: '标签',
+  host_tags: '机器标签',
+  host_tags_tip: 'categraf global_labels 配置的标签，会追加到此机器上报的时序数据中',
+  tags: '用户标签',
+  tags_tip: '用户在页面配置的标签，会追加到此机器上报的时序数据中',
   group_obj: '业务组',
   target_up: '状态',
   mem_util: '内存',
@@ -59,6 +62,12 @@ const zh_CN = {
   update_busi: {
     title: '修改业务组',
     label: '归属业务组',
+    mode: {
+      label: '模式',
+      reset: '覆盖',
+      add: '新增',
+      del: '删除',
+    },
   },
   remove_busi: {
     title: '移出业务组',

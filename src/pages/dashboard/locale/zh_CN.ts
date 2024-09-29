@@ -22,6 +22,10 @@ const zh_CN = {
       2: '授权访问',
     },
     bgids: '授权业务组',
+    theme_link: {
+      dark: '暗色主题链接',
+      light: '亮色主题链接',
+    },
   },
   default_filter: {
     title: '预置筛选',
@@ -37,12 +41,14 @@ const zh_CN = {
   exit_full_screen: '退出全屏',
   copyPanelTip: '图表已复制。单击 "添加图表" 进行粘贴。',
   batch: {
-    import: '导入仪表盘',
+    import: '导入仪表盘 JSON',
     label: '仪表盘 JSON',
     import_grafana: '导入 Grafana 仪表盘 JSON',
     import_grafana_tip: '导入完的图表只支持星相目前支持的图表类型和功能，<a>问题反馈</a>',
     import_grafana_tip_version_error: '不支持导入小于 v7 版本的仪表盘配置',
     import_grafana_tip_version_warning: '导入小于 v8 版本的仪表盘配置，可能会有部分图表不支持，以及图表无法正常渲染问题',
+    import_grafana_url: 'Grafana 仪表盘链接（推荐）',
+    import_grafana_url_label: 'Grafana 仪表盘链接',
     continueToImport: '继续导入',
     noSelected: '请选择仪表盘',
     import_builtin: '导入内置仪表盘',
@@ -57,27 +63,6 @@ const zh_CN = {
     title: '仪表盘链接',
     name: '链接名称',
     url: '链接地址',
-    url_tip: `
-      变量使用说明
-      <1 />
-      \${variable_name}: 显示仪表盘变量值
-      <1 />
-      \${__field.name}: 显示序列的名称
-      <1 />
-      \${__field.value}: 显示序列的数值
-      <1 />
-      \${__field.labels.X}: 显示指定的标签值
-      <1 />
-      \${__field.labels.__name__}: 显示指标名
-      <1 />
-      \${__from}: 起始时间, 毫秒
-      <1 />
-      \${__from_date_seconds}: 起始时间, 秒
-      <1 />
-      \${__from_date_iso}: 起始时间, ISO 8601/RFC 3339
-      <1 />
-      上面语法适用于 \${__to}
-      `,
     isNewBlank: '是否新窗口打开',
   },
   var: {
@@ -134,6 +119,37 @@ const zh_CN = {
       ident: '业务组标识',
       invalid: '没有找到当前业务组的标识，请先先去业务组管理设置',
     },
+    help_tip: `
+      变量使用说明
+      <1 />
+      \${variable_name}: 仪表盘变量值
+      <1 />
+      \${__field.name}: 图例的名称
+      <1 />
+      \${__field.value}: 图例的数值
+      <1 />
+      \${__field.labels.X}: 标签值
+      <1 />
+      \${__field.labels.__name__}: 指标名
+      <1 />
+      \${__interval}: 时间间隔（秒）, 例如 15s
+      <1 />
+      \${__interval_ms}: 时间间隔（毫秒）, 例如 15000ms
+      <1 />
+      \${__range}: 时间范围（秒）, 例如 3600s
+      <1 />
+      \${__range_ms}: 时间范围（毫秒）, 例如 3600000ms
+      <1 />
+      \${__rate_interval}: 时间间隔（秒）, __interval * 4
+      <1 />
+      \${__from}: 起始时间（毫秒）
+      <1 />
+      \${__from_date_seconds}: 起始时间（秒）
+      <1 />
+      \${__from_date_iso}: 起始时间, ISO 8601/RFC 3339
+      <1 />
+      上面语法适用于 \${__to}
+    `,
   },
   row: {
     edit_title: '编辑分组',
@@ -189,6 +205,11 @@ const zh_CN = {
           label: '单击触发行为',
           showItem: '显示项目',
           hideItem: '隐藏项目',
+        },
+        selectMode: {
+          label: '选择模式',
+          single: '单选',
+          multiple: '多选',
         },
         heightInPercentage: '高度百分比',
         heightInPercentage_tip: 'Legend 高度占据面板的最大高度百分比，最小值为 20%，最大值为 80%',
@@ -274,6 +295,8 @@ const zh_CN = {
       valueField: '值字段',
       valueField_tip: 'Value 是保留关键字，作为时序数据取值计算后的字段名',
       valueField_tip2: '需选择值为数值类型的字段',
+      nameField: '名称字段',
+      nameField_tip: '以名称字段的值作为系列的名称',
       colSpan: '每行最多显示',
       colSpanTip: '即将废弃，选择"自动"选项将使用下方的布局方向设置',
       colSpanAuto: '自动',
@@ -301,12 +324,14 @@ const zh_CN = {
         },
       },
       pie: {
+        countOfValueField: '值字段计数',
+        countOfValueField_tip: '开启后，将会根据 "值字段" 的值进行计数，否则将以 "值字段" 的值作为数据展示',
         legengPosition: '图例位置', // pie
         max: '最多展示块数',
         max_tip: '超过的块数则合并展示为其他',
         donut: '环图模式',
-        labelWithName: 'label是否包含名称',
-        labelWithValue: 'label显示指标值',
+        labelWithName: 'Label 是否包含名称',
+        labelWithValue: 'Label 显示指标值',
         detailName: '链接名称',
         detailUrl: '链接地址',
       },
@@ -403,6 +428,11 @@ const zh_CN = {
         colorField: '颜色字段',
         barMaxWidth: '条形最大宽度',
         colorField_tip: 'Name 是保留关键字，作为序列名值的字段名',
+      },
+      barGauge: {
+        topn: '最多排名',
+        combine_other: '其他',
+        combine_other_tip: '超过最多排名的数据将会合并为一个其他项',
       },
     },
     inspect: {

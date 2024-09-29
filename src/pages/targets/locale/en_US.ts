@@ -11,7 +11,10 @@ const en_US = {
   filterDowntimeMin_plural: '{{count}} minutes',
   not_grouped: 'Ungrouped',
   host_ip: 'IP',
+  host_tags: 'Host tags',
+  host_tags_tip: 'Tags configured in categraf global_labels will be appended to the time series data reported by this host',
   tags: 'Tags',
+  tags_tip: 'Tags configured on the page will be appended to the time series data reported by this host',
   group_obj: 'Business group',
   target_up: 'Status',
   mem_util: 'Memory',
@@ -60,6 +63,12 @@ const en_US = {
   update_busi: {
     title: 'Update business group',
     label: 'Business group',
+    mode: {
+      label: 'Mode',
+      reset: 'Reset',
+      add: 'Add',
+      del: 'Delete',
+    },
   },
   remove_busi: {
     title: 'Remove business group',

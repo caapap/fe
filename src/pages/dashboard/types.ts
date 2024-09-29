@@ -93,6 +93,7 @@ export interface IOptions {
     detailName: string;
     detailUrl: string;
     behaviour: 'showItem' | 'hideItem';
+    selectMode: 'single' | 'multiple';
   };
   tooltip?: {
     mode: 'single' | 'all';
@@ -176,9 +177,11 @@ export interface IBarGaugeStyles {
   version: string;
   displayMode: 'basic';
   calc: string;
+  valueField?: string;
+  nameField?: string;
   maxValue: number;
   baseColor: string;
-  serieWidth: number;
+  serieWidth: number | null;
   sortOrder: 'none' | 'asc' | 'desc';
   detailUrl: string | undefined;
 }
@@ -254,6 +257,8 @@ export interface IDashboardConfig {
   panels: IPanel[];
   graphTooltip: 'default' | 'sharedCrosshair' | 'sharedTooltip';
   graphZoom: 'default' | 'updateTimeRange';
+  mode?: 'iframe';
+  iframe_url?: string;
 }
 
 export interface IDashboard {

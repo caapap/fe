@@ -49,7 +49,20 @@ export default function Preview(props: IProps) {
               dataIndex: 'ident',
             },
             {
-              title: t('common:table.tag'),
+              title: t('common:host.host_tags'),
+              dataIndex: 'host_tags',
+              render: (val) => {
+                return _.map(val, (item) => {
+                  return (
+                    <Tag key={item} color='purple'>
+                      {item}
+                    </Tag>
+                  );
+                });
+              },
+            },
+            {
+              title: t('common:host.tags'),
               dataIndex: 'tags',
               render: (val) => {
                 return _.map(val, (item) => {
@@ -63,9 +76,17 @@ export default function Preview(props: IProps) {
             },
             {
               title: t('common:business_group'),
-              dataIndex: 'group_obj',
-              render(groupObj) {
-                return groupObj ? groupObj.name : t('not_grouped');
+              dataIndex: 'group_objs',
+              render(groupObjs: any[]) {
+                return _.isEmpty(groupObjs)
+                  ? t('not_grouped')
+                  : _.map(groupObjs, (item) => {
+                      return (
+                        <Tag color='purple' key={item.id}>
+                          {item.name}
+                        </Tag>
+                      );
+                    });
               },
             },
           ]}
