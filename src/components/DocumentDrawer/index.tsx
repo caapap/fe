@@ -18,7 +18,6 @@ interface Props {
 
 const filenameMap = {
   zh_CN: '',
-  zh_HK: '_hk',
   en_US: '_en',
 };
 

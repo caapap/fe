@@ -5,7 +5,6 @@ import ModalHOC, { ModalWrapProps } from '@/components/ModalHOC';
 import Markdown from '@/components/Markdown';
 import categraf_zh_CN from '../../../../../public/docs/categraf/categraf_zh_CN.md';
 import categraf_en_US from '../../../../../public/docs/categraf/categraf_en_US.md';
-import categraf_zh_HK from '../../../../../public/docs/categraf/categraf_zh_HK.md';
 
 interface Props {
   darkMode: boolean;
@@ -18,9 +17,6 @@ function index(props: Props & ModalWrapProps) {
   let categrafDoc = categraf_zh_CN;
   if (i18n.language === 'en_US') {
     categrafDoc = categraf_en_US;
-  }
-  if (i18n.language === 'zh_HK') {
-    categrafDoc = categraf_zh_HK;
   }
 
   return (
