@@ -2,9 +2,9 @@ name: Build With Vite
 
 on:
   push:
-    branches: [master, v5.1]
+    branches: [stellar]
   pull_request:
-    branches: [master, v5.1]
+    branches: [stellar]
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [12.x]
+        node-version: [16.x]
 
     steps:
       - uses: actions/checkout@v2
@@ -26,3 +26,34 @@ jobs:
         run: |
           npm install
           npm run build
+
+      - name: Get version from package.json
+        id: get_version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          
+      - name: Create ZIP file
+        run: |
+          zip -r stellar-fe-${{ steps.get_version.outputs.VERSION }}.zip pub
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./stellar-fe-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_name: stellar-fe-${{ steps.get_version.outputs.VERSION }}.zip
+          asset_content_type: application/zip
