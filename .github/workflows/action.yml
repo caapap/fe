@@ -5,6 +5,7 @@ on:
     branches: [stellar]
   pull_request:
     branches: [stellar]
+  workflow_dispatch: # 允许手动触发
 
 jobs:
   build:
