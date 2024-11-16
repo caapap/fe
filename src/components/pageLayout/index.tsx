@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,9 +45,9 @@ interface IPageLayoutProps {
 
 const i18nMap = {
   zh_CN: '简体',
-  zh_HK: '繁體',
+  // zh_HK: '繁體',
   en_US: 'En',
-  ja_JP: '日本語',
+  // ja_JP: '日本語',
 };
 
 const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introIcon, children, customArea, showBack, backPath, docFn }) => {
@@ -144,13 +144,13 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
 
                   <Space style={{ marginRight: 16 }}>
                     {/* 整合版本关闭文档链接 */}
-                    {!IS_ENT && (
+                    {/* {!IS_ENT && (
                       <div style={{ marginRight: 8, position: 'relative' }}>
                         <a target='_blank' href={siteInfo?.document_url || 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/introduction/'}>
                           {t('docs')}
                         </a>
                       </div>
-                    )}
+                    )} */}
                     {profile?.admin && (
                       <AdvancedWrap var='VITE_IS_PRO,VITE_IS_ENT'>
                         <Link to='/audits'>{t('audits:title')}</Link>

@@ -51,23 +51,23 @@ export default function index() {
             onChange={(activeKey) => {
               setActiveKey(activeKey);
             }}
-            tabBarExtraContent={
-              activeKey &&
-              documentMap[activeKey] && (
-                <a
-                  onClick={() => {
-                    DocumentDrawer({
-                      language: i18n.language,
-                      title: t('common:document_link'),
-                      type: 'iframe',
-                      documentPath: documentMap[activeKey],
-                    });
-                  }}
-                >
-                  {t('common:document_link')}
-                </a>
-              )
-            }
+            // tabBarExtraContent={
+            //   activeKey &&
+            //   documentMap[activeKey] && (
+            //     <a
+            //       onClick={() => {
+            //         DocumentDrawer({
+            //           language: i18n.language,
+            //           title: t('common:document_link'),
+            //           type: 'iframe',
+            //           documentPath: documentMap[activeKey],
+            //         });
+            //       }}
+            //     >
+            //       {t('common:document_link')}
+            //     </a>
+            //   )
+            // }
           >
             {data.map((item) => {
               return (

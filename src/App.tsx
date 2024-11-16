@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -173,7 +173,9 @@ function App() {
       newVersion: false,
     },
     isPlus,
-    sideMenuBgMode: localStorage.getItem('sideMenuBgMode') || 'theme',
+    // sideMenuBgMode: localStorage.getItem('sideMenuBgMode') || 'theme',
+    sideMenuBgMode: localStorage.getItem('sideMenuBgMode') || 'dark',
+    // 设置侧边栏背景模式为 深色
     setSideMenuBgMode: (mode: string) => {
       window.localStorage.setItem('sideMenuBgMode', mode);
       setCommonState((state) => ({ ...state, sideMenuBgMode: mode }));
@@ -206,9 +208,9 @@ function App() {
             console.error(e);
           }
         }
-        document.title = siteInfo?.page_title || 'Nightingale';
+        document.title = siteInfo?.page_title || 'Stellar';
         if (iconLink) {
-          iconLink.href = siteInfo?.favicon_url || '/image/stellar.ico';
+          iconLink.href = siteInfo?.favicon_url || '/image/logo-light.png';
         }
         // 非匿名访问，需要初始化一些公共数据
         if (!anonymous) {
@@ -305,7 +307,7 @@ function App() {
                 <Content />
               </>
             </Switch>
-            <Feedback />
+            {/* <Feedback /> */}
           </Router>
         </ConfigProvider>
       </CommonStateContext.Provider>

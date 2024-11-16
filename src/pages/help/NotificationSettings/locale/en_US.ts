@@ -19,10 +19,10 @@ const en_US = {
       Generally speaking, the monitoring system focuses on data collection, storage, analysis, and alarm event generation. For the subsequent distribution, noise reduction, recognition, upgrade, scheduling, and collaboration of events, it is usually solved by a separate product, which is collectively called an event OnCall product. OnCall products are widely used in companies that practice the SRE concept.
       <br />
       <br />
-      OnCall products usually can connect to various monitoring systems, such as Prometheus, Nightingale, Zabbix, ElastAlert, Blue Whale, various cloud monitoring, etc. Each monitoring system pushes alarm events to the OnCall center through WebHook, and users complete subsequent distribution, noise reduction, and processing in the OnCall center.
+      OnCall products usually can connect to various monitoring systems, such as Prometheus, Stellar, Zabbix, ElastAlert, Blue Whale, various cloud monitoring, etc. Each monitoring system pushes alarm events to the OnCall center through WebHook, and users complete subsequent distribution, noise reduction, and processing in the OnCall center.
       <br />
       <br />
-      The OnCall product is first launched overseas with <a1>PagerDuty</a1> and domestically with <a2>FlashDuty</a2>, Everyone can register for a free trial。
+      The OnCall product is first launched overseas with <a1>PagerDuty</a1> and domestically with <a2>FlashDuty</a2>。
     `,
   },
   script: {

@@ -19,10 +19,10 @@ const zh_CN = {
       通常来讲，监控系统专注在数据采集、存储、分析、告警事件生成，对于事件的后续分发、降噪、认领、升级、排班、协同，通常由单独的产品来解决，这类产品统一称为事件 OnCall 类产品，OnCall 产品被广泛应用在践行 SRE 理念的公司。
       <br />
       <br />
-      OnCall 产品通常可以对接各类监控系统，比如 Prometheus、Nightingale、Zabbix、ElastAlert、蓝鲸、各类云监控，各个监控系统通过 WebHook 的方式把告警事件推给 OnCall 中心，用户在 OnCall 中心完成后续的分发、降噪、处理。
+      OnCall 产品通常可以对接各类监控系统，比如 Prometheus、Stellar、Zabbix、ElastAlert、蓝鲸、各类云监控，各个监控系统通过 WebHook 的方式把告警事件推给 OnCall 中心，用户在 OnCall 中心完成后续的分发、降噪、处理。
       <br />
       <br />
-      OnCall 产品国外首推 <a1>PagerDuty</a1>，国内首推 <a2>FlashDuty</a2>，大家可以免费注册试用。
+      OnCall 产品国外首推 <a1>PagerDuty</a1>，国内首推 <a2>FlashDuty</a2>。
     `,
   },
   script: {

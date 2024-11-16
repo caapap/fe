@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,14 +119,18 @@ export default function Login() {
   };
 
   return (
-    <div className='login-warp'>
-      {/* <img src={'/image/login-left-top-corner.png'} className='left-top-bg'></img> */}
-      {/* <img src={'/image/login-right-bottom-corner.png'} className='right-bottom-bg'></img> */}
-      <div className='banner integration'>
-        <img src={'/image/login-dashboard.svg'} style={{ margin: '0 60px', zIndex: 5, width: 632 }}></img>
-      </div>
-      <div className='login-panel'>
-        <div className='login-main  integration'>
+    <div
+      className='login-warp'
+      style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        backgroundColor: '#FFFFFF',
+      }}
+    >
+      <div className='login-panel' style={{ width: '100%', maxWidth: '400px' }}>
+        <div className='login-main integration'>
           <div className='login-title'>
             <img src={siteInfo?.login_page_logo_url || '/image/login-logo.png'} style={{ width: '120px' }} />
           </div>
