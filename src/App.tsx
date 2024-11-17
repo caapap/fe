@@ -208,7 +208,7 @@ function App() {
             console.error(e);
           }
         }
-        document.title = siteInfo?.page_title || 'Stellar';
+        document.title = siteInfo?.page_title || '星相运维平台';
         if (iconLink) {
           iconLink.href = siteInfo?.favicon_url || '/image/logo-light.png';
         }

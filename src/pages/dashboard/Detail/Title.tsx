@@ -53,7 +53,7 @@ interface IProps {
   setAllowedLeave: (allowed: boolean) => void;
 }
 
-const cachePageTitle = document.title || 'Nightingale';
+const cachePageTitle = document.title || 'Stellar';
 
 export default function Title(props: IProps) {
   const { t } = useTranslation('dashboard');
