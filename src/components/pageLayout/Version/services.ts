@@ -17,7 +17,7 @@ export const getVersions = function (): Promise<Versions> {
     if (semver.valid(data.version) && semver.valid(data.github_verison) && semver.gt(data.github_verison, data.version)) {
       return {
         ...data,
-        newVersion: true,
+        newVersion: false,
       };
     }
     return {
