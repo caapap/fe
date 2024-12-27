@@ -2,8 +2,9 @@ name: Build With Vite
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches: [stellar]
+  pull_request:
+    branches: [stellar]
   workflow_dispatch: # 允许手动触发
 
 jobs:
@@ -39,14 +40,12 @@ jobs:
 
       - name: Create Release
         id: create_release
-        #uses: actions/create-release@v1
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ steps.get_version.outputs.VERSION }}
-          #release_name: ${{ steps.get_version.outputs.VERSION }}
-          name: ${{ steps.get_version.outputs.VERSION }}
+          release_name: ${{ steps.get_version.outputs.VERSION }}
           draft: false
           prerelease: false
 
