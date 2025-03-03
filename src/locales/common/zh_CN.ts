@@ -55,6 +55,7 @@ const zh_CN = {
     expand: '展开',
     collapse: '收起',
     copy: '拷贝',
+    copy2: '复制',
   },
   table: {
     name: '名称',
@@ -95,6 +96,7 @@ const zh_CN = {
       op_not_in: '不包含',
       preview: '数据源预览',
     },
+    managePageLink: '数据源管理',
   },
   confirm: {
     delete: '确认删除吗？',
@@ -122,6 +124,7 @@ const zh_CN = {
     second: '秒',
     minute: '分钟',
     hour: '小时',
+    day: '天',
     weekdays: ['周日', '周一', '周二', '周三', '周四', '周五', '周六'],
   },
   severity: {
@@ -136,6 +139,8 @@ const zh_CN = {
     },
   },
   invalidDatasource: '无效的数据源',
+  copyToClipboard: '复制到剪贴板',
+  copyToClipboardFailed: '复制到剪贴板失败',
 
   // 临时把 task 的翻译放在这里
   tpl: '自愈脚本',
@@ -172,6 +177,7 @@ const zh_CN = {
   'tpl.modify': '编辑脚本',
   'tpl.create.task': '创建任务',
   'tpl.callback': '告警自愈回调地址',
+  'tpl.allOptionLabel': '全部脚本',
 
   task: '自愈任务',
   'task.create': '创建任务',
@@ -201,6 +207,7 @@ const zh_CN = {
   'task.save.execute': '保存立刻执行',
   'task.tip.title': '提示信息',
   'task.tip.content': '如果你的角色是管理员，则可以在任意机器执行脚本；否则，只能对有管理权限的业务组下的机器执行脚本',
+  'task.allOptionLabel': '全部任务',
 
   'last.7.days': '最近 7 天',
   'last.15.days': '最近 15 天',

@@ -7,7 +7,7 @@ import { useDebounceFn } from 'ahooks';
 
 import InputGroupWithFormItem from '@/components/InputGroupWithFormItem';
 import GroupBy from '@/pages/dashboard/Editor/QueryEditor/Elasticsearch/GroupBy';
-import QueryName, { generateQueryName } from '@/components/QueryName';
+import QueryName from '@/components/QueryName';
 import DocumentDrawer from '@/components/DocumentDrawer';
 import { CommonStateContext } from '@/App';
 import { getFullFields } from '@/pages/explorer/Elasticsearch/services';
@@ -60,10 +60,10 @@ export default function Query(props: Props) {
   }, [indexValue]);
 
   return (
-    <div key={field.key} className='n9e-fill-color-3' style={{ padding: 10, marginBottom: 10, position: 'relative' }}>
+    <div key={field.key} className='n9e-fill-color-3 p2 mb2' style={{ position: 'relative' }}>
       <Row gutter={8}>
         <Col flex='32px'>
-          <Form.Item {...field} name={[field.name, 'ref']} initialValue={generateQueryName(_.map(queries, 'ref'))}>
+          <Form.Item {...field} name={[field.name, 'ref']} initialValue='A'>
             <QueryName existingNames={_.map(queries, 'ref')} />
           </Form.Item>
         </Col>

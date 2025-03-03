@@ -56,6 +56,7 @@ const ja_JP = {
     expand: '展開',
     collapse: '折りたたむ',
     copy: 'コピー',
+    copy2: 'コピー',
   },
   table: {
     name: '名前',
@@ -96,6 +97,7 @@ const ja_JP = {
       op_not_in: '含まない',
       preview: 'データソースプレビュー',
     },
+    managePageLink: 'データソース管理',
   },
   confirm: {
     delete: '削除しますか？',
@@ -123,6 +125,7 @@ const ja_JP = {
     second: '秒',
     minute: '分',
     hour: '時間',
+    day: '日',
     weekdays: ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
   },
   severity: {
@@ -137,6 +140,9 @@ const ja_JP = {
     },
   },
   invalidDatasource: '無効なデータソース',
+  copyToClipboard: 'クリップボードにコピー',
+  copyToClipboardFailed: 'クリップボードにコピーできませんでした',
+
   tpl: '自己修復スクリプト',
   'tpl.create': '作成',
   'tpl.tag.bind': 'タグをバインド',
@@ -171,6 +177,8 @@ const ja_JP = {
   'tpl.modify': 'スクリプトを編集',
   'tpl.create.task': 'タスクを作成',
   'tpl.callback': '警報自己修復コールバックアドレス',
+  'tpl.allOptionLabel': '全スクリプト',
+
   task: '自己修復タスク',
   'task.create': 'タスクを作成',
   'task.title': 'タイトル',
@@ -199,6 +207,8 @@ const ja_JP = {
   'task.save.execute': '保存してすぐに実行',
   'task.tip.title': 'ヒント情報',
   'task.tip.content': 'もしロールが管理者なら、どのマシンでもスクリプトを実行できます。それ以外は、管理権限のあるビジネスグループのマシンでのみスクリプトを実行できます',
+  'task.allOptionLabel': '全スクリプト',
+
   'last.7.days': '最近 7 日',
   'last.15.days': '最近 15 日',
   'last.30.days': '最近 30 日',

@@ -55,6 +55,7 @@ const zh_HK = {
     expand: '展開',
     collapse: '收起',
     copy: '複製',
+    copy2: '複製',
   },
   table: {
     name: '名稱',
@@ -95,6 +96,7 @@ const zh_HK = {
       op_not_in: '不包含',
       preview: '數據源預覽',
     },
+    managePageLink: '数据源管理',
   },
   confirm: {
     delete: '確認刪除嗎？',
@@ -122,6 +124,7 @@ const zh_HK = {
     second: '秒',
     minute: '分鐘',
     hour: '小時',
+    day: '天',
     weekdays: ['週日', '週一', '週二', '週三', '週四', '週五', '週六'],
   },
   severity: {
@@ -136,6 +139,8 @@ const zh_HK = {
     },
   },
   invalidDatasource: '無效的數據源',
+  copyToClipboard: '複製到剪貼板',
+  copyToClipboardFailed: '複製到剪貼板失敗',
 
   tpl: '自愈腳本',
   'tpl.create': '創建',
@@ -171,8 +176,9 @@ const zh_HK = {
   'tpl.modify': '編輯腳本',
   'tpl.create.task': '創建任務',
   'tpl.callback': '警告自癒回呼地址',
+  'tpl.allOptionLabel': '全部腳本',
 
-  task: '執行歷史',
+  task: '自癒任務',
   'task.create': '創建任務',
   'task.title': '標題',
   'task.done': '是否完成',
@@ -200,6 +206,8 @@ const zh_HK = {
   'task.save.execute': '儲存立刻執行',
   'task.tip.title': '提示資訊',
   'task.tip.content': '如果你的角色是管理員，則可以在任意機器執行腳本；否則，只能對有管理權限的業務組下的機器執行腳本',
+  'task.allOptionLabel': '全部任務',
+
   'last.7.days': '最近 7 天',
   'last.15.days': '最近 15 天',
   'last.30.days': '最近 30 天',

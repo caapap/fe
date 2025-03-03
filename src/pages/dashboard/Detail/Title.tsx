@@ -18,6 +18,7 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useHistory, useLocation, Link } from 'react-router-dom';
 import querystring from 'query-string';
 import _ from 'lodash';
+import moment from 'moment';
 import { useTranslation } from 'react-i18next';
 import { Button, Space, Dropdown, Menu, notification, Input, message, Tooltip } from 'antd';
 import { RollbackOutlined, SettingOutlined, SaveOutlined, FullscreenOutlined, DownOutlined } from '@ant-design/icons';
@@ -25,16 +26,15 @@ import { useKeyPress } from 'ahooks';
 import { TimeRangePickerWithRefresh, IRawTimeRange } from '@/components/TimeRangePicker';
 import { CommonStateContext } from '@/App';
 import { IS_ENT } from '@/utils/constant';
-import { updateDashboardConfigs, getBusiGroupsDashboards } from '@/services/dashboardV2';
+import { updateDashboard, updateDashboardConfigs, getBusiGroupsDashboards } from '@/services/dashboardV2';
 import DashboardLinks from '../DashboardLinks';
 import { AddPanelIcon } from '../config';
 import { visualizations } from '../Editor/config';
-import { dashboardTimeCacheKey } from './Detail';
 import FormModal from '../List/FormModal';
 import ImportGrafanaURLFormModal from '../List/ImportGrafanaURLFormModal';
 import { IDashboard, ILink } from '../types';
 import { useGlobalState } from '../globalState';
-import { goBack } from './utils';
+import { goBack, dashboardTimeCacheKey } from './utils';
 
 interface IProps {
   dashboard: IDashboard;
@@ -43,6 +43,8 @@ interface IProps {
   handleUpdateDashboardConfigs: (id: number, params: any) => void;
   range: IRawTimeRange;
   setRange: (range: IRawTimeRange) => void;
+  intervalSeconds?: number;
+  setIntervalSeconds: (intervalSeconds?: number) => void;
   onAddPanel: (type: string) => void;
   isPreview: boolean;
   isBuiltin: boolean;
@@ -50,6 +52,7 @@ interface IProps {
   gobackPath?: string;
   editable: boolean;
   updateAtRef: React.MutableRefObject<number | undefined>;
+  allowedLeave: boolean;
   setAllowedLeave: (allowed: boolean) => void;
 }
 
@@ -64,12 +67,15 @@ export default function Title(props: IProps) {
     handleUpdateDashboardConfigs,
     range,
     setRange,
+    intervalSeconds,
+    setIntervalSeconds,
     onAddPanel,
     isPreview,
     isBuiltin,
     isAuthorized,
     editable,
     updateAtRef,
+    allowedLeave,
     setAllowedLeave,
   } = props;
   const history = useHistory();
@@ -207,6 +213,31 @@ export default function Title(props: IProps) {
 
       <div className='dashboard-detail-header-right'>
         <Space>
+          {isAuthorized && dashboardSaveMode === 'manual' && !allowedLeave && (
+            <Button
+              type={allowedLeave ? 'default' : 'primary'}
+              onClick={() => {
+                if (editable) {
+                  updateDashboard(dashboard.id, {
+                    name: dashboard.name,
+                    ident: dashboard.ident,
+                    tags: dashboard.tags,
+                  });
+                  updateDashboardConfigs(dashboard.id, {
+                    configs: JSON.stringify(dashboard.configs),
+                  }).then((res) => {
+                    updateAtRef.current = res.update_at;
+                    message.success(t('detail.saved'));
+                    setAllowedLeave(true);
+                  });
+                } else {
+                  message.warning(t('detail.expired'));
+                }
+              }}
+            >
+              {t('settings.save')}
+            </Button>
+          )}
           {dashboard.configs?.mode !== 'iframe' ? (
             <>
               {isAuthorized && (
@@ -222,14 +253,17 @@ export default function Title(props: IProps) {
                               onAddPanel(item.type);
                             }}
                           >
-                            {t(`visualizations.${item.type}`)}
+                            <Space align='center' style={{ lineHeight: 1 }}>
+                              {item.type !== 'pastePanel' && <img height={16} alt={item.type} src={`/image/dashboard/${item.type}.svg`} />}
+                              {t(`visualizations.${item.type}`)}
+                            </Space>
                           </Menu.Item>
                         );
                       })}
                     </Menu>
                   }
                 >
-                  <Button type='primary' icon={<AddPanelIcon />}>
+                  <Button type='primary' ghost icon={<AddPanelIcon />}>
                     {t('add_panel')}
                   </Button>
                 </Dropdown>
@@ -239,44 +273,53 @@ export default function Title(props: IProps) {
                 dateFormat='YYYY-MM-DD HH:mm:ss'
                 value={range}
                 onChange={(val) => {
-                  // 以下 history replace 会触发 beforeunload，在手动保存模式下暂时关闭
-                  if (dashboardSaveMode !== 'manual') {
-                    history.replace({
-                      pathname: location.pathname,
-                      // 重新设置时间范围时，清空 __from 和 __to
-                      search: querystring.stringify(_.omit(querystring.parse(window.location.search), ['__from', '__to'])),
-                    });
-                  }
+                  // 更改时间范围后同步到 URL
+                  history.replace({
+                    pathname: location.pathname,
+                    search: querystring.stringify({
+                      ...querystring.parse(window.location.search),
+                      __from: moment.isMoment(val.start) ? val.start.valueOf() : val.start,
+                      __to: moment.isMoment(val.end) ? val.end.valueOf() : val.end,
+                    }),
+                  });
                   setRange(val);
                 }}
+                intervalSeconds={intervalSeconds}
+                onIntervalSecondsChange={(val) => {
+                  const value = val > 0 ? val : undefined;
+                  history.replace({
+                    pathname: location.pathname,
+                    search: querystring.stringify({
+                      ...querystring.parse(window.location.search),
+                      __refresh: value,
+                    }),
+                  });
+                  setIntervalSeconds(value);
+                }}
               />
-              {isAuthorized && dashboardSaveMode === 'manual' && (
-                <Button
-                  icon={<SaveOutlined />}
-                  onClick={() => {
-                    if (editable) {
-                      updateDashboardConfigs(dashboard.id, {
-                        configs: JSON.stringify(dashboard.configs),
-                      }).then((res) => {
-                        updateAtRef.current = res.update_at;
-                        message.success(t('detail.saved'));
-                        setAllowedLeave(true);
-                      });
-                    } else {
-                      message.warning(t('detail.expired'));
-                    }
-                  }}
-                />
-              )}
-              {isAuthorized && (
+
+              {(isAuthorized || dashboardSaveMode === 'manual') && (
                 <Button
                   icon={<SettingOutlined />}
                   onClick={() => {
                     FormModal({
                       action: 'edit',
                       initialValues: dashboard,
-                      onOk: () => {
-                        window.location.reload();
+                      dashboardSaveMode,
+                      onOk: (values) => {
+                        if (dashboardSaveMode === 'manual') {
+                          const dashboardConfigs: any = dashboard.configs;
+                          dashboardConfigs.graphTooltip = values.graphTooltip;
+                          dashboardConfigs.graphZoom = values.graphZoom;
+                          handleUpdateDashboardConfigs(dashboard.id, {
+                            name: values.name,
+                            ident: values.ident,
+                            tags: _.join(values.tags, ' '),
+                            configs: JSON.stringify(dashboardConfigs),
+                          });
+                        } else {
+                          window.location.reload();
+                        }
                       },
                     });
                   }}
@@ -289,6 +332,7 @@ export default function Title(props: IProps) {
                   const dashboardConfigs: any = dashboard.configs;
                   dashboardConfigs.links = v;
                   handleUpdateDashboardConfigs(dashboard.id, {
+                    ...dashboard,
                     configs: JSON.stringify(dashboardConfigs),
                   });
                   setDashboardLinks(v);
