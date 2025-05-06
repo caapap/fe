@@ -46,7 +46,7 @@ const zh_HK = {
     import: '匯入儀表盤 JSON',
     label: '儀表盤 JSON',
     import_grafana: '匯入 Grafana 儀表盤',
-    import_grafana_tip: '匯入完的圖表只支援夜鶯目前支援的圖表類型和功能, <a>問題反饋</a>',
+    import_grafana_tip: '只支援導入 Prometheus 類型資料來源的儀表板，以及夜鶯支援的圖表類型和功能 <a>問題反饋</a>',
     import_grafana_tip_version_error: '不支援匯入小於 v7 版本的儀表盤配置',
     import_grafana_tip_version_warning: '匯入的儀表盤配置版本小於 v8，部分圖表可能無法正常顯示，是否繼續匯入？',
     import_grafana_url: 'Grafana 儀表板地址（建議）',
@@ -82,13 +82,13 @@ const zh_HK = {
     label: '顯示名稱',
     type: '變數類型',
     type_map: {
-      query: '查詢',
-      custom: '自定義',
-      textbox: '文本框',
-      constant: '常量',
-      datasource: '數據源',
-      hostIdent: '主機標識',
-      businessGroupIdent: '業務組標識',
+      query: '查詢 (Query)',
+      custom: '自定義 (Custom)',
+      textbox: '文本框 (Text box)',
+      constant: '常量 (Constant)',
+      datasource: '數據源 (Datasource)',
+      datasourceIdentifier: '數據源標識 (Datasource identifier)',
+      hostIdent: '主機標識 (Host ident)',
     },
     hide: '隱藏變數',
     hide_map: {
@@ -120,9 +120,9 @@ const zh_HK = {
       regex: '數據源過濾',
       regex_tip: '可選，可通過正則來過濾可選項。這裡是填寫的<a>正規表示式字面量</a>，其由包含在斜線之間的模式組成',
     },
-    businessGroupIdent: {
-      ident: '業務組標識',
-      invalid: '沒有找到目前業務組的標識，請先去業務組管理設置',
+    hostIdent: {
+      invalid: '機器標識需要授權訪問，儀表板在匿名模式下會導致訪問失敗',
+      invalid2: '儀表板已配置機器識別變量，無法匿名訪問',
     },
     help_tip: `
       變數使用說明

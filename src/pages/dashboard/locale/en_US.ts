@@ -46,7 +46,7 @@ const en_US = {
     import: 'Import dashboard JSON',
     label: 'Dashboard JSON',
     import_grafana: 'Import Grafana dashboard',
-    import_grafana_tip: 'Imported panels only support the chart types and features that n9e currently supports, <a>feedback</a>',
+    import_grafana_tip: 'Only supports importing dashboards of Prometheus type data sources, as well as chart types and functions supported by Nightingale <a>feedback</a>',
     import_grafana_tip_version_error: 'Import of dashboard config less than v7 version is not supported',
     import_grafana_tip_version_warning: 'The imported dashboard config version is less than v8, some panels may not be displayed properly, do you want to continue importing?',
     import_grafana_url: 'Import Grafana dashboard URL',
@@ -87,8 +87,8 @@ const en_US = {
       textbox: 'Text box',
       constant: 'Constant',
       datasource: 'Datasource',
+      datasourceIdentifier: 'Datasource identifier',
       hostIdent: 'Host ident',
-      businessGroupIdent: 'Business group ident',
     },
     hide: 'Hide',
     hide_map: {
@@ -120,9 +120,9 @@ const en_US = {
       regex: 'Datasource name filter',
       regex_tip: 'Optional, can filter options, Using a <a>regular expression literal</a>, which consists of a pattern enclosed between slashes',
     },
-    businessGroupIdent: {
-      ident: 'Business group ident',
-      invalid: 'Invalid business group ident, Please go to the business group management settings first.',
+    hostIdent: {
+      invalid: 'Host identification requires authorized access, and the dashboard will cause access failure in anonymous access mode',
+      invalid2: 'The dashboard has been configured with a host_ident variable and cannot be accessed anonymously',
     },
     help_tip: `
       Variables usage

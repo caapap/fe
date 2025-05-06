@@ -3,14 +3,23 @@ import { message, Spin, Modal, Space } from 'antd';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useParams } from 'react-router-dom';
+
+import { createGlobalState } from 'react-hooks-global-state';
 import PageLayout, { HelpLink } from '@/components/pageLayout';
 import BreadCrumb from '@/components/BreadCrumb';
 import { CommonStateContext } from '@/App';
 import { allCates } from '@/components/AdvancedWrap/utils';
+
 import { getDataSourceDetailById, submitRequest } from './services';
 import Form from './Datasources/Form';
 import { helpLinkMap } from './config';
 import './index.less';
+
+export const { useGlobalState } = createGlobalState<{
+  saveMode: string;
+}>({
+  saveMode: 'saveAndTest',
+});
 
 export default function FormCpt() {
   const { t } = useTranslation('datasourceManage');
@@ -22,27 +31,28 @@ export default function FormCpt() {
   const [type, setType] = useState(action === 'add' ? params.type : '');
   const [data, setData] = useState<any>();
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [saveMode] = useGlobalState('saveMode');
   const onFinish = async (values: any) => {
     setSubmitLoading(true);
-    // 转换 http.headers 格式
-    if (type === 'influxdb') {
+    // 转换 headers 格式
+    if (_.get(values, ['http', 'headers'])) {
       _.set(
         values,
-        ['settings', 'influxdb.headers'],
+        'http.headers',
         _.transform(
-          values?.settings?.['influxdb.headers'],
+          values?.http?.headers,
           (result, item) => {
             result[item.key] = item.value;
           },
           {},
         ),
       );
-    } else {
+    } else if (_.get(values, ['settings', `${type}.headers`])) {
       _.set(
         values,
-        'http.headers',
+        ['settings', `${type}.headers`],
         _.transform(
-          values?.http?.headers,
+          values?.settings?.[`${type}.headers`],
           (result, item) => {
             result[item.key] = item.value;
           },
@@ -56,6 +66,7 @@ export default function FormCpt() {
       id: data?.id,
       is_enable: data ? undefined : true,
       is_test: true,
+      force_save: saveMode === 'save',
     })
       .then(() => {
         message.success(action === 'add' ? t('common:success.add') : t('common:success.modify'));
@@ -73,9 +84,14 @@ export default function FormCpt() {
   useEffect(() => {
     if (action === 'edit' && id !== undefined) {
       getDataSourceDetailById(id).then((res: any) => {
-        _.set(res, 'http.headers', _.map(res?.http?.headers, (value, key) => ({ key, value })) || []);
+        const plugin_type = res.plugin_type;
+        if (res?.http?.headers) {
+          _.set(res, 'http.headers', _.map(res?.http?.headers, (value, key) => ({ key, value })) || []);
+        } else if (_.get(res, ['settings', `${plugin_type}.headers`])) {
+          _.set(res, ['settings', `${plugin_type}.headers`], _.map(_.get(res, ['settings', `${plugin_type}.headers`]), (value, key) => ({ key, value })) || []);
+        }
         setData(res);
-        setType(res.plugin_type);
+        setType(plugin_type);
       });
     }
   }, []);

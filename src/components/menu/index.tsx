@@ -208,10 +208,12 @@ const getMenuList = (t) => {
         {
           key: '/help/notification-settings',
           label: t('通知设置'),
+          deprecated: true,
         },
         {
           key: '/help/notification-tpls',
           label: t('通知模板'),
+          deprecated: true,
         },
         {
           key: '/help/sso',
@@ -336,7 +338,7 @@ const SideMenu: FC = () => {
       }}
       className={classNames({
         'menu-container': true,
-        'menu-container-en': i18n.language === 'en_US' && collapsed === '0',
+        'menu-container-en': i18n.language === 'en_US' || i18n.language === 'ru_RU' && collapsed === '0',
       })}
     >
       {collapsed !== '2' && (
@@ -352,7 +354,7 @@ const SideMenu: FC = () => {
         </div>
       )}
       <FloatFcMenu
-        fullModeWidth={i18n.language === 'en_US' ? 180 : undefined}
+        fullModeWidth={i18n.language === 'en_US' || i18n.language === 'ru_RU' ? 180 : undefined}
         items={menus}
         selectedKeys={defaultSelectedKeys}
         onClick={handleClick}

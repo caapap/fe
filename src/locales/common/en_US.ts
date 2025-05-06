@@ -56,7 +56,9 @@ const en_US = {
     expand: 'Expand',
     collapse: 'Collapse',
     copy: 'Copy',
+    config: 'Config',
     copy2: 'Copy',
+    reload: 'Reload',
   },
   table: {
     name: 'Name',
@@ -138,10 +140,15 @@ const en_US = {
     export: {
       copy: 'Copy JSON to clipboard',
     },
+    not_select: 'Please select data first',
   },
   invalidDatasource: 'Invalid datasource',
   copyToClipboard: 'Copy to clipboard successfully',
   copyToClipboardFailed: 'Copy to clipboard failed',
+  manage: 'Manage',
+  reload: 'Reload',
+  public: 'Public',
+  private: 'Private',
 
   tpl: 'Self-healing',
   'tpl.create': 'Create',

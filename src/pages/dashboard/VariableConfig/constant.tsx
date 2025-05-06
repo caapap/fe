@@ -23,9 +23,6 @@ import { IRawTimeRange, parseRange } from '@/components/TimeRangePicker';
 import { IVariable } from './definition';
 import { normalizeESQueryRequestBody, ajustVarSingleValue, escapeJsonString, escapePromQLString } from './utils';
 
-// @ts-ignore
-import variableDatasource from 'plus:/parcels/Dashboard/variableDatasource';
-
 // https://grafana.com/docs/grafana/latest/datasources/prometheus/#query-variable 根据文档解析表达式
 // 每一个promtheus接口都接受start和end参数来限制返回值
 export const convertExpressionToQuery = (expression: string, range: IRawTimeRange, item: IVariable, dashboardId, groupedDatasourceList: { [index: string]: any[] }) => {
@@ -107,21 +104,6 @@ export const convertExpressionToQuery = (expression: string, range: IRawTimeRang
           return `${metricName || ''} {${labels}} ${values}`;
         }),
       );
-    }
-  } else {
-    try {
-      const start = moment(parsedRange.start).unix();
-      const end = moment(parsedRange.end).unix();
-      return variableDatasource({
-        datasourceCate: datasource.cate,
-        datasourceValue,
-        start,
-        end,
-        sql: expression,
-      });
-    } catch (e) {
-      console.error(e);
-      return Promise.resolve([]);
     }
   }
   return Promise.resolve(expression.length > 0 ? expression.split(',').map((i) => i.trim()) : '');
@@ -254,6 +236,7 @@ export const replaceExpressionVarsSpecifyRule = (
     formData: IVariable[];
     limit: number;
     id: string;
+    datasourceList?: any[];
   },
   rule: {
     regex: string;
@@ -261,7 +244,7 @@ export const replaceExpressionVarsSpecifyRule = (
   },
   isEscapeJsonString = false,
 ) => {
-  const { expression, formData, limit, id } = params;
+  const { expression, formData, limit, id, datasourceList } = params;
   const { regex, getPlaceholder } = rule;
   let newExpression = expression;
   const vars: any[] | null = newExpression && typeof newExpression.match === 'function' ? newExpression.match(new RegExp(regex, 'g')) : [];
@@ -283,7 +266,7 @@ export const replaceExpressionVarsSpecifyRule = (
                     _.filter(options, (i) => !reg || !stringToRegex(reg) || (stringToRegex(reg) as RegExp).test(i.value)),
                     (item) => {
                       if (datasource?.cate === 'elasticsearch') {
-                        return `"${item}"`;
+                        return `"${item.value}"`;
                       }
                       // 2024-07-24 如果是 prometheus 数据源的变量，需要对 {}[]().- 进行转义
                       return escapePromQLString(item.value);
@@ -331,6 +314,9 @@ export const replaceExpressionVarsSpecifyRule = (
             newExpression = replaceAllPolyfill(newExpression, placeholder, realSelected);
           } else if (typeof selected === 'string') {
             newExpression = replaceAllPolyfill(newExpression, placeholder, ajustVarSingleValue(newExpression, placeholder, selected, formData[i], isEscapeJsonString));
+            if (type === 'datasourceIdentifier') {
+              newExpression = _.find(datasourceList, { identifier: selected })?.id;
+            }
           } else if (selected === null || selected === undefined) {
             // 未选择或填写变量值时替换为传入的value
             newExpression = replaceAllPolyfill(newExpression, placeholder, value ? (_.isArray(value) ? _.trim(_.join(value, separator), separator) : value) : '');
@@ -352,10 +338,18 @@ export const replaceExpressionVarsSpecifyRule = (
   return newExpression;
 };
 
-export const replaceExpressionVars = (expression: string, formData: IVariable[], limit: number, id: string, isEscapeJsonString = false) => {
-  let newExpression = expression;
+export const replaceExpressionVars = (options: {
+  text: string;
+  variables: IVariable[];
+  limit: number;
+  dashboardId: string;
+  isEscapeJsonString?: boolean;
+  datasourceList?: any[];
+}) => {
+  const { text, variables, limit, dashboardId, isEscapeJsonString = false, datasourceList } = options;
+  let newExpression = text;
   newExpression = replaceExpressionVarsSpecifyRule(
-    { expression: newExpression, formData, limit, id },
+    { expression: newExpression, formData: variables, limit, id: dashboardId, datasourceList },
     {
       regex: '\\$[0-9a-zA-Z_]+',
       getPlaceholder: (expression: string) => `$${expression}`,
@@ -363,7 +357,7 @@ export const replaceExpressionVars = (expression: string, formData: IVariable[],
     isEscapeJsonString,
   );
   newExpression = replaceExpressionVarsSpecifyRule(
-    { expression: newExpression, formData, limit, id },
+    { expression: newExpression, formData: variables, limit, id: dashboardId, datasourceList },
     {
       regex: '\\${[0-9a-zA-Z_]+}',
       getPlaceholder: (expression: string) => '${' + expression + '}',
@@ -371,7 +365,7 @@ export const replaceExpressionVars = (expression: string, formData: IVariable[],
     isEscapeJsonString,
   );
   newExpression = replaceExpressionVarsSpecifyRule(
-    { expression: newExpression, formData, limit, id },
+    { expression: newExpression, formData: variables, limit, id: dashboardId, datasourceList },
     {
       regex: '\\[\\[[0-9a-zA-Z_]+\\]\\]',
       getPlaceholder: (expression: string) => '[[' + expression + ']]',
@@ -430,7 +424,12 @@ export function replaceFieldWithVariable(value: string, dashboardId?: string, va
   if (!dashboardId || !variableConfig) {
     return value;
   }
-  return replaceExpressionVars(value, variableConfig, variableConfig.length, dashboardId);
+  return replaceExpressionVars({
+    text: value,
+    variables: variableConfig,
+    limit: variableConfig.length,
+    dashboardId,
+  });
 }
 
 export const getOptionsList = (
@@ -469,7 +468,12 @@ export const getOptionsList = (
 };
 
 export function filterOptionsByReg(options: string[], reg, formData: IVariable[], limit: number, id: string) {
-  reg = replaceExpressionVars(reg, formData, limit, id);
+  reg = replaceExpressionVars({
+    text: reg,
+    variables: formData,
+    limit,
+    dashboardId: id,
+  });
   const regex = stringToRegex(reg);
 
   if (reg && regex) {

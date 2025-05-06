@@ -56,7 +56,9 @@ const ja_JP = {
     expand: '展開',
     collapse: '折りたたむ',
     copy: 'コピー',
+    config: '設定',
     copy2: 'コピー',
+    reload: 'リロード',
   },
   table: {
     name: '名前',
@@ -138,10 +140,15 @@ const ja_JP = {
     export: {
       copy: 'JSONをクリップボードにコピー',
     },
+    not_select: 'データを選択してください',
   },
   invalidDatasource: '無効なデータソース',
   copyToClipboard: 'クリップボードにコピー',
   copyToClipboardFailed: 'クリップボードにコピーできませんでした',
+  manage: '管理',
+  reload: 'リロード',
+  public: '公開',
+  private: '非公開',
 
   tpl: '自己修復スクリプト',
   'tpl.create': '作成',

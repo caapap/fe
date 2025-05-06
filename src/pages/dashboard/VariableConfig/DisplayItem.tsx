@@ -45,8 +45,8 @@ export default function DisplayItem(props: IProps) {
     setSelected(curValue);
   }, [JSON.stringify(value)]);
 
-  // 兼容旧数据，businessGroupIdent 和 constant 的 hide 默认为 true
-  if (hide || ((type === 'businessGroupIdent' || type === 'constant') && hide === undefined)) return null;
+  // 兼容旧数据，constant 的 hide 默认为 true
+  if (hide || (type === 'constant' && hide === undefined)) return null;
 
   return (
     <div className='tag-content-close-item'>
@@ -197,6 +197,29 @@ export default function DisplayItem(props: IProps) {
             ))}
           </Select>
         ) : null}
+        {type === 'datasourceIdentifier' ? (
+          <Select
+            style={{
+              width: '180px',
+            }}
+            maxTagCount='responsive'
+            defaultActiveFirstOption={false}
+            showSearch
+            dropdownMatchSelectWidth={false}
+            value={selected}
+            onChange={(value) => {
+              setSelected(value as any);
+              onChange(value);
+            }}
+            optionFilterProp='children'
+          >
+            {_.map(options as any, (item) => (
+              <Select.Option key={item.identifier} value={item.identifier}>
+                {item.identifier}
+              </Select.Option>
+            ))}
+          </Select>
+        ) : null}
         {type === 'hostIdent' ? (
           <Select
             allowClear
@@ -251,7 +274,6 @@ export default function DisplayItem(props: IProps) {
             ))}
           </Select>
         ) : null}
-        {type === 'businessGroupIdent' ? <Input disabled value={value} /> : null}
         {type === 'constant' ? <Input disabled value={value} /> : null}
       </Input.Group>
     </div>

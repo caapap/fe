@@ -307,7 +307,7 @@ export default function DetailV2(props: IProps) {
                       {
                         type: 'row',
                         id: uuidv4(),
-                        name: i18n.language === 'en_US' ? 'Row' : '分组',
+                        name: i18n.language === 'en_US' || i18n.language === 'ru_RU' ? 'Row' : '分组',
                         collapsed: true,
                       },
                       'row',
@@ -376,7 +376,13 @@ export default function DetailV2(props: IProps) {
                   setRange={setRange}
                   variableConfig={variableConfigWithOptions}
                   onShareClick={(panel) => {
-                    const curDatasourceValue = replaceExpressionVars(panel.datasourceValue, variableConfigWithOptions, variableConfigWithOptions.length, id);
+                    const curDatasourceValue = replaceExpressionVars({
+                      text: panel.datasourceValue,
+                      variables: variableConfigWithOptions,
+                      limit: variableConfigWithOptions.length,
+                      dashboardId: id,
+                      datasourceList,
+                    });
                     const serielData = {
                       dataProps: {
                         ...panel,
@@ -391,7 +397,14 @@ export default function DetailV2(props: IProps) {
                             },
                             range,
                           );
-                          const realExpr = variableConfigWithOptions ? replaceExpressionVars(target.expr, fullVars, fullVars.length, id) : target.expr;
+                          const realExpr = variableConfigWithOptions
+                            ? replaceExpressionVars({
+                                text: target.expr,
+                                variables: fullVars,
+                                limit: fullVars.length,
+                                dashboardId: id,
+                              })
+                            : target.expr;
                           return {
                             ...target,
                             expr: realExpr,

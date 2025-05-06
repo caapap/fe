@@ -55,7 +55,9 @@ const zh_CN = {
     expand: '展开',
     collapse: '收起',
     copy: '拷贝',
+    config: '配置',
     copy2: '复制',
+    reload: '刷新',
   },
   table: {
     name: '名称',
@@ -137,10 +139,15 @@ const zh_CN = {
     export: {
       copy: '复制 JSON 到剪贴板',
     },
+    not_select: '请先选择数据',
   },
   invalidDatasource: '无效的数据源',
   copyToClipboard: '复制到剪贴板',
   copyToClipboardFailed: '复制到剪贴板失败',
+  manage: '管理',
+  reload: '刷新',
+  public: '公开',
+  private: '私有',
 
   // 临时把 task 的翻译放在这里
   tpl: '自愈脚本',

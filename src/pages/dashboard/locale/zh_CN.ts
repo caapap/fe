@@ -47,9 +47,9 @@ const zh_CN = {
     import: '导入仪表盘 JSON',
     label: '仪表盘 JSON',
     import_grafana: '导入 Grafana 仪表盘',
-    import_grafana_tip: '导入完的图表只支持星相目前支持的图表类型和功能，<a>问题反馈</a>',
-    import_grafana_tip_version_error: '不支持导入小于 v7 版本的仪表盘配置',
-    import_grafana_tip_version_warning: '导入小于 v8 版本的仪表盘配置，可能会有部分图表不支持，以及图表无法正常渲染问题',
+    import_grafana_tip: '只支持导入 Prometheus 类型数据源的仪表盘，以及星相支持的图表类型和功能 <a>问题反馈</a>',
+    import_grafana_tip_version_error: '不支持导入小于 v1 版本的仪表盘配置',
+    import_grafana_tip_version_warning: '导入小于 v2 版本的仪表盘配置，可能会有部分图表不支持，以及图表无法正常渲染问题',
     import_grafana_url: 'Grafana 仪表盘链接（推荐）',
     import_grafana_url_label: 'Grafana 仪表盘链接',
     continueToImport: '继续导入',
@@ -88,8 +88,8 @@ const zh_CN = {
       textbox: '文本框 (Text box)',
       constant: '常量 (Constant)',
       datasource: '数据源 (Datasource)',
+      datasourceIdentifier: '数据源标识 (Datasource identifier)',
       hostIdent: '机器标识 (Host ident)',
-      businessGroupIdent: '业务组标识 (Business group ident)',
     },
     hide: '隐藏变量',
     hide_map: {
@@ -121,9 +121,9 @@ const zh_CN = {
       regex: '数据源过滤',
       regex_tip: '可选，可通过正则来过滤可选项。这里是填写的<a>正则表达式字面量</a>，其由包含在斜杠之间的模式组成。',
     },
-    businessGroupIdent: {
-      ident: '业务组标识',
-      invalid: '没有找到当前业务组的标识，请先先去业务组管理设置',
+    hostIdent: {
+      invalid: '机器标识需要授权访问，仪表盘在匿名模式下会导致访问失败',
+      invalid2: '仪表盘已配置机器标识变量，无法匿名访问',
     },
     help_tip: `
       变量使用说明
