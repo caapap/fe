@@ -2,9 +2,8 @@ name: Build With Vite
 
 on:
   push:
-    branches: [ *v* ]
-  pull_request:
-    branches: [ *v* ]
+    tags:
+      - 'v*'
   workflow_dispatch: # 允许手动触发
 
 jobs:
