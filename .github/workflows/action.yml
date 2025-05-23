@@ -2,9 +2,9 @@ name: Build With Vite
 
 on:
   push:
-    branches: [stellar]
+    branches: [ *v* ]
   pull_request:
-    branches: [stellar]
+    branches: [ *v* ]
   workflow_dispatch: # 允许手动触发
 
 jobs:
