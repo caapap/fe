@@ -22,6 +22,8 @@ import { PrettifyJson } from './component/operator/PrettifyJson';
 import { ShowTime } from './component/operator/ShowTime';
 import { WrapLines } from './component/operator/WrapLines';
 import Share from '../components/Share';
+import HistoricalRecords from './components/HistoricalRecords/index';
+import { setLokiQueryHistory } from './utils/history';
 
 interface IProps {
   datasourceValue: number;
@@ -134,6 +136,12 @@ export default function index(props: IProps) {
         limit: limit,
         ...timesRef.current,
       };
+      
+      // 保存历史记录
+      if (queryValue && datasourceValue) {
+        setLokiQueryHistory(datasourceValue, queryValue);
+      }
+      
       if (defaultFormValuesControl?.setDefaultFormValues) {
         defaultFormValuesControl.setDefaultFormValues({
           datasourceCate: 'loki',
@@ -220,6 +228,18 @@ export default function index(props: IProps) {
             <Form.Item name={['query', 'query']}>
               <LogQLInput completeEnabled={true} datasourceValue={datasourceValue} />
             </Form.Item>
+          </AntdCol>
+          <AntdCol flex='none'>
+            <HistoricalRecords
+              datasourceValue={datasourceValue}
+              onChange={(query) => {
+                form.setFieldsValue({
+                  query: {
+                    query,
+                  },
+                });
+              }}
+            />
           </AntdCol>
           <AntdCol flex='none'>
             <Button

@@ -222,7 +222,7 @@ TplForm.defaultProps = {
     tolerance: 0,
     timeout: 30,
     pause: '',
-    script: '#!/bin/bash\n# e.g.\nexport PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin\nss -tln',
+    script: '#!/bin/bash\n# e.g.\nexport PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/sbin:~/bin:/hostfs/usr/local/bin:/hostfs/usr/bin\nfree -hm',
     args: '',
     tags: undefined,
     account: 'root',
