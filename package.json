@@ -1,6 +1,6 @@
 {
   "name": "stellar-fe",
-  "version": "v2.0.1",
+  "version": "v2.0",
   "scripts": {
     "dev": "vite --port 8765 --host",
     "dev:advanced": "vite --port 8765 --host --mode advanced",
