@@ -21,6 +21,7 @@ const en_US = {
   历史告警: 'Historical',
   告警自愈: 'Self-healing',
   自愈脚本: 'Self-healing',
+  自动巡检: 'Auto-inspection',
   自愈配置: 'Ibex settings',
   执行历史: 'Execution history',
   人员组织: 'Personnel Orgs',
