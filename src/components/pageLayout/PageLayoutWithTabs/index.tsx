@@ -82,6 +82,26 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
     }
   }, [location.pathname]);
 
+  // Stellar: 右上角「Latest changes」来自第三方 Headway（产品更新动态）。二开默认不展示；若要恢复：
+  // 1) 取消下面整段块注释；2) 在 React import 中增加 useLayoutEffect；3) 在 @ant-design/icons import 中增加 HistoryOutlined；
+  // 4) 取消 JSX 里「Headway 入口按钮」块注释（与下方 useLayoutEffect 成对）。
+  /*
+  useLayoutEffect(() => {
+    if (!IS_ENT && !IS_PLUS) {
+      // 如果 Headway 不存在，则每隔 1 秒尝试初始化一次
+      const timer = setInterval(() => {
+        if ((window as any).Headway) {
+          clearInterval(timer);
+          (window as any).Headway?.init({
+            selector: '.product-changelog',
+            account: i18n.language !== 'zh_CN' ? 'yB4rM7' : '7XMr1J',
+          });
+        }
+      }, 1000);
+    }
+  }, [i18n.language]);
+  */
+
   const menu = (
     <Menu>
       <Menu.Item
@@ -186,6 +206,14 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
                   <AdvancedWrap var='VITE_IS_PRO,VITE_IS_ENT'>
                     <FeatureNotification />
                   </AdvancedWrap>
+
+                  {/* Stellar: Headway 挂载点（历史图标按钮），与上方注释块中的 Headway.init 对应；恢复时同步取消注释并补全 import。
+                  {!IS_ENT && !IS_PLUS && (
+                    <Button size='small' type='text' icon={<HistoryOutlined />} className='relative'>
+                      <div className='product-changelog absolute bottom-[2px] left-[7px]'></div>
+                    </Button>
+                  )}
+                  */}
 
                   <Dropdown
                     overlay={
