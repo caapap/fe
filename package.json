@@ -1,6 +1,6 @@
 {
-  "name": "n9e-fe",
-  "version": "v8.5.1",
+  "name": "stellar-fe",
+  "version": "v2.5.1",
   "scripts": {
     "dev": "vite --port 8765 --host",
     "dev:advanced": "vite --port 8765 --host --mode advanced",

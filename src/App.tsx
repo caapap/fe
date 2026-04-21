@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 Nightingale Team
+ * Copyright 2024 Stellar Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -200,7 +200,7 @@ function App() {
       newVersion: false,
     },
     isPlus,
-    sideMenuBgMode: localStorage.getItem('sideMenuBgMode') || 'theme',
+    sideMenuBgMode: localStorage.getItem('sideMenuBgMode') || 'dark',
     setSideMenuBgMode: (mode: string) => {
       window.localStorage.setItem('sideMenuBgMode', mode);
       setCommonState((state) => ({ ...state, sideMenuBgMode: mode }));
@@ -243,7 +243,7 @@ function App() {
             console.error(e);
           }
         }
-        document.title = siteInfo?.page_title || 'Nightingale';
+        document.title = siteInfo?.page_title || '星相运维平台';
         if (iconLink) {
           iconLink.href = siteInfo?.favicon_url || '/image/favicon.ico';
         }
@@ -349,7 +349,7 @@ function App() {
                 <HocRenderer></HocRenderer>
               </>
             </Switch>
-            <Feedback />
+            {/* <Feedback /> */}
           </Router>
         </ConfigProvider>
       </CommonStateContext.Provider>
