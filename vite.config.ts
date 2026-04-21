@@ -22,6 +22,9 @@ import getFontFamilyByEnv from './src/utils/getFontFamilyByEnv';
 import react from '@vitejs/plugin-react';
 import svgr from 'vite-plugin-svgr';
 import path from 'path';
+import fs from 'fs';
+
+const pkgJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, 'package.json'), 'utf-8')) as { version?: string };
 
 const chunk2 = [
   '@codemirror/autocomplete',
@@ -68,6 +71,8 @@ export default defineConfig(({ mode }) => {
       prefixPlugin(baseName),
     ],
     define: {
+      // 构建时注入前端包版本（package.json），供页头与后端 /api/n9e/versions 区分展示
+      'import.meta.env.VITE_FE_PKG_VERSION': JSON.stringify(pkgJson.version ?? ''),
       // 'process.env.NODE_ENV': JSON.stringify(mode), // 如确实需要兼容旧代码 NODE_ENV=production , 放开这个
     },
     resolve: {
