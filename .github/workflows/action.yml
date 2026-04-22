@@ -1,11 +1,14 @@
 name: Build With Vite
 
 on:
-  workflow_dispatch:
   push:
-    branches: [master, v5.1]
-  pull_request:
-    branches: [master, v5.1]
+    tags:
+      - 'v*'
+  workflow_dispatch: # 允许手动触发
+
+# 添加必要的权限
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -13,30 +16,40 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.15.0]
+        node-version: [16.x]
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
+
+      - name: Get version from git tag
+        id: get_version
+        run: |
+          # 从GITHUB_REF中提取tag名称
+          VERSION=${GITHUB_REF#refs/tags/}
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "当前版本: $VERSION"
 
       - name: Build
         run: |
           npm install
           npm run build
 
-      - name: Get version from package.json
-        id: pkg_version
-        run: echo "version=$(jq -r .version package.json)" >> $GITHUB_OUTPUT
+      - name: Create ZIP file
+        run: |
+          zip -r stellar-fe-${{ steps.get_version.outputs.VERSION }}.zip pub
 
-      - name: Package files to tar.gz
-        run: tar -czvf n9e-fe-${{ steps.pkg_version.outputs.version }}.tar.gz ./pub
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
         with:
-          name: package-output-tar-gz
-          path: n9e-fe-${{ steps.pkg_version.outputs.version }}.tar.gz
+          tag_name: ${{ steps.get_version.outputs.VERSION }}
+          name: Release ${{ steps.get_version.outputs.VERSION }}
+          draft: false
+          prerelease: false
+          files: stellar-fe-${{ steps.get_version.outputs.VERSION }}.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
