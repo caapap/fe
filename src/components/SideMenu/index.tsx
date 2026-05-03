@@ -21,6 +21,7 @@ import MenuList from './MenuList';
 import QuickStart from 'plus:/components/quickStart';
 import QuickMenu from './QuickMenu';
 import { MenuItem, DefaultLogos } from './types';
+import { M1_MENU_KEYS } from './constants';
 import './menu.less';
 import './locale';
 
@@ -149,6 +150,9 @@ const SideMenu = (props: SideMenuProps) => {
     };
   }, [hideSideMenu]);
 
+  const hideDeprecatedMenus = installTs > V8_BETA_14_TS;
+  const menuList = useMemo(() => getMenuList(embeddedProductMenu, hideDeprecatedMenus), [embeddedProductMenu, getMenuList, hideDeprecatedMenus]);
+
   useEffect(() => {
     const filteredMenus = menuList
       .map((menu) => {
@@ -163,13 +167,13 @@ const SideMenu = (props: SideMenuProps) => {
               }
             }
             if (child.type === 'tabs' && child.children) {
-              const filteredTabs = child.children.filter((tab) => perms?.includes(tab.key));
+              const filteredTabs = child.children.filter((tab) => perms?.includes(tab.key) || M1_MENU_KEYS.includes(tab.key));
               if (filteredTabs.length > 0) {
                 return { ...child, children: filteredTabs };
               }
               return null;
             }
-            return perms?.includes(calcUrlPath(child.key)) ? child : null;
+            return perms?.includes(calcUrlPath(child.key)) || M1_MENU_KEYS.includes(calcUrlPath(child.key)) ? child : null;
           })
           .filter(Boolean);
 
@@ -181,7 +185,7 @@ const SideMenu = (props: SideMenuProps) => {
       .filter(Boolean) as MenuItem[];
 
     setMenus(filteredMenus);
-  }, [i18n.language, embeddedProductMenu]);
+  }, [i18n.language, menuList, perms]);
 
   const menuPaths = useMemo(
     () =>
@@ -194,9 +198,9 @@ const SideMenu = (props: SideMenuProps) => {
                 return child;
               }
               if (child.type === 'tabs' && child.children && child.children.length > 0) {
-                return child.children.some((tabChild) => _.includes(perms, calcUrlPath(tabChild.key)));
+                return child.children.some((tabChild) => _.includes(perms, calcUrlPath(tabChild.key)) || M1_MENU_KEYS.includes(calcUrlPath(tabChild.key)));
               }
-              return child && _.includes(perms, child.key);
+              return child && (_.includes(perms, child.key) || M1_MENU_KEYS.includes(child.key));
             })
             .map((c) => {
               if (c.type === 'tabs' && c.children && c.children.length) {
@@ -227,9 +231,6 @@ const SideMenu = (props: SideMenuProps) => {
       setSelectedKeys(finalPath);
     }
   }, [menuPaths, location.pathname, selectedKeys]);
-
-  const hideDeprecatedMenus = installTs > V8_BETA_14_TS;
-  const menuList = getMenuList(embeddedProductMenu, hideDeprecatedMenus);
 
   useEffect(() => {
     try {

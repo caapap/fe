@@ -11,7 +11,7 @@ import Query from './Query';
 import GraphPreview from './GraphPreview';
 import './style.less';
 // @ts-ignore
-import EnrichQueryValuesMaxLen from '@/plus/parcels/AlertRule/NotifyExtra/EnrichQueryValuesMaxLen';
+import EnrichQueryValuesMaxLen from '@/plus/parcels/AlertRule/NotifyExtra/EnrichQueryValuesMaxLen.tsx';
 
 interface IProps {
   disabled?: boolean;

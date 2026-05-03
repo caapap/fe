@@ -78,6 +78,7 @@ import { Jobs as StrategyBrain } from 'plus:/datasource/anomaly';
 import plusLoader from 'plus:/utils/loader';
 // @ts-ignore
 import useIsPlus from 'plus:/components/useIsPlus';
+import { isM1MenuPath } from '@/components/SideMenu/constants';
 import { spaceIdRoutes } from './config';
 
 const Packages = dynamicPackages();
@@ -123,6 +124,7 @@ export default function Content() {
       !location.pathname.includes('/settings/datasource/edit/') &&
       !location.pathname.includes('/settings/infrastructure/add') &&
       !location.pathname.includes('/settings/source/') &&
+      !isM1MenuPath(location.pathname) &&
       !location.pathname.includes('/403')
     ) {
       if (profile?.roles.indexOf('Admin') === -1) {

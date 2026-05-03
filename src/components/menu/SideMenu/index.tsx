@@ -152,6 +152,10 @@ export const getMenuList = (t) => {
           key: '/targets',
           label: t('监控机器'),
         },
+        {
+          key: '/collect-configs',
+          label: t('采集配置'),
+        },
       ],
     },
     {

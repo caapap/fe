@@ -20,6 +20,30 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
           type: 'tabs',
           children: [{ key: '/targets', label: 'menu.targets' }],
         },
+        {
+          key: '/collect-configs',
+          label: 'menu.collects',
+        },
+        {
+          key: '/network-devices',
+          label: 'menu.network_devices',
+        },
+        {
+          key: '/collect-templates',
+          label: 'menu.collect_templates',
+        },
+        {
+          key: '/heartbeat-mgmt',
+          label: 'menu.heartbeat_management',
+        },
+        {
+          key: '/heartbeat-status',
+          label: 'menu.heartbeat_status',
+        },
+        {
+          key: '/pingmesh',
+          label: 'menu.pingmesh',
+        },
       ],
     },
     {

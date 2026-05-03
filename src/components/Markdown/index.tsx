@@ -50,14 +50,34 @@ const Markdown: React.FC<IMarkDownPros> = ({ content, style = {}, inTooltip }) =
           components={{
             code({ node, inline, className, children, ...props }) {
               const match = /language-(\w+)/.exec(className || '');
+              const isInlineCode = inline || !String(children).includes('\n');
               return !inline && match ? (
-                <SyntaxHighlighter {...props} children={String(children).replace(/\n$/, '')} language={match[1]} PreTag='div' style={inTooltip ? dark : undefined} />
+                <SyntaxHighlighter
+                  {...props}
+                  children={String(children).replace(/\n$/, '')}
+                  language={match[1]}
+                  PreTag='div'
+                  style={inTooltip ? dark : undefined}
+                  customStyle={{
+                    margin: '1em 0',
+                    borderRadius: '4px',
+                  }}
+                />
+              ) : isInlineCode ? (
+                <span
+                  className={classNames({
+                    [className || '']: !!className,
+                    'base-code': true,
+                    'base-code-inline': true,
+                  })}
+                >
+                  <code {...props}>{children}</code>
+                </span>
               ) : (
                 <div
                   className={classNames({
                     [className || '']: !!className,
                     'base-code': true,
-                    'base-code-inline': inline,
                   })}
                 >
                   <code {...props}>{children}</code>
