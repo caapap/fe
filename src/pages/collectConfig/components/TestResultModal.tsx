@@ -10,6 +10,7 @@ const { Panel } = Collapse;
 interface TestResultModalProps {
   visible: boolean;
   uuid: string;
+  expectedCount: number;
   onClose: () => void;
 }
 
@@ -28,7 +29,7 @@ interface ResultItem {
   log?: string;
 }
 
-export default function TestResultModal({ visible, uuid, onClose }: TestResultModalProps) {
+export default function TestResultModal({ visible, uuid, expectedCount, onClose }: TestResultModalProps) {
   const { t } = useTranslation(NS);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<ResultItem[]>([]);
@@ -42,8 +43,8 @@ export default function TestResultModal({ visible, uuid, onClose }: TestResultMo
       const data = await getTryrunResult(uuid);
       setResults(data);
 
-      // 检查是否所有机器都已返回结果
-      const allCompleted = data.every((item: ResultItem) => item.status !== 'pending');
+      // 只有结果数量达到预期机器数时，才认为测试已完成并停止轮询。
+      const allCompleted = expectedCount > 0 && data.length >= expectedCount && data.every((item: ResultItem) => item.status !== 'pending');
       if (allCompleted) {
         setPolling(false);
       }
@@ -59,14 +60,26 @@ export default function TestResultModal({ visible, uuid, onClose }: TestResultMo
       return;
     }
 
+    setResults([]);
+    setPolling(true);
+    setMetricSearchText('');
+    setTagSearchText('');
+  }, [visible, uuid]);
+
+  useEffect(() => {
+    if (!visible || !uuid) {
+      return;
+    }
+
     let timer: NodeJS.Timeout;
+    let timeoutTimer: NodeJS.Timeout | undefined;
 
     fetchResults();
 
     // 轮询查询结果（每 2 秒一次，最多 30 秒）
     if (polling) {
       timer = setInterval(fetchResults, 2000);
-      setTimeout(() => {
+      timeoutTimer = setTimeout(() => {
         setPolling(false);
       }, 30000);
     }
@@ -75,8 +88,11 @@ export default function TestResultModal({ visible, uuid, onClose }: TestResultMo
       if (timer) {
         clearInterval(timer);
       }
+      if (timeoutTimer) {
+        clearTimeout(timeoutTimer);
+      }
     };
-  }, [visible, uuid, polling]);
+  }, [visible, uuid, polling, expectedCount]);
 
   // 汇总所有机器的指标数据
   const allMetrics = results.flatMap((result) =>

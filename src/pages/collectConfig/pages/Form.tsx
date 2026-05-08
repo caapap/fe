@@ -77,6 +77,7 @@ export default function FormPage({ mode }: Props) {
   const [templateModalVisible, setTemplateModalVisible] = useState(false);
   const [testResultModalVisible, setTestResultModalVisible] = useState(false);
   const [testTaskUUID, setTestTaskUUID] = useState('');
+  const [expectedTestHostCount, setExpectedTestHostCount] = useState(0);
   const [testLoading, setTestLoading] = useState(false);
   const cate = Form.useWatch('cate', form);
 
@@ -236,6 +237,7 @@ export default function FormPage({ mode }: Props) {
       });
 
       message.success({ content: t('save_success'), key: 'test' });
+      setExpectedTestHostCount(idents.length);
       setTestTaskUUID(uuid);
       setTestResultModalVisible(true);
     } catch (error) {
@@ -337,7 +339,12 @@ export default function FormPage({ mode }: Props) {
               </Link>
             </div>
           </div>
-          <TestResultModal visible={testResultModalVisible} uuid={testTaskUUID} onClose={() => setTestResultModalVisible(false)} />
+          <TestResultModal
+            visible={testResultModalVisible}
+            uuid={testTaskUUID}
+            expectedCount={expectedTestHostCount}
+            onClose={() => setTestResultModalVisible(false)}
+          />
           <Modal title={t('template')} visible={templateModalVisible} footer={null} width={840} onCancel={() => setTemplateModalVisible(false)} destroyOnClose>
             <Table
               rowKey='id'
