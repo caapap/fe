@@ -160,6 +160,20 @@ request.interceptors.response.use(
               };
             }
           }
+        })
+        .catch(async (error) => {
+          if (!(error instanceof SyntaxError)) {
+            throw error;
+          }
+
+          const raw = await response.clone().text();
+          const preview = raw.slice(0, 120).replace(/\s+/g, ' ');
+          throw {
+            name: `Invalid JSON response from ${response.url}`,
+            message: `Invalid JSON response from ${response.url}: ${preview}`,
+            silence: options.silence,
+            response,
+          };
         });
     } else if (status === 401 && !_.includes(response.url, '/api/n9e-plus/proxy') && !_.includes(response.url, '/api/n9e/proxy')) {
       if (response.url.indexOf('/api/n9e/auth/refresh') > 0) {

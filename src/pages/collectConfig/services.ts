@@ -48,6 +48,9 @@ export const deleteCollectRules = (ids: number[]) => {
 export const getCollectTemplates = (): Promise<CollectTemplate[]> => {
   return request(`${apiPrefix}/collect-templates`, {
     method: RequestMethod.Get,
+    params: {
+      _ts: Date.now(),
+    },
   }).then((res) => res.dat || []);
 };
 
