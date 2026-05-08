@@ -101,5 +101,18 @@ const zh_CN = {
     modal_title: '填写机器标识或者 IP',
     modal_placeholder: '每行一个机器标识或者 IP',
   },
+  upgrade_agent: {
+    title: '升级 Agent',
+    selected: '已选择 {{count}} 台机器',
+    new_version: '目标版本（如 v0.5.7）',
+    download_url: '下载地址',
+    hint: '提交后约 10 秒内 Agent 通过心跳拉到升级指令并自动重启升级。',
+    validation: '请填写目标版本和下载地址',
+    no_selection: '请先选择至少一台机器',
+    success: '已下发 {{count}} 台机器的升级任务',
+    cancel_btn: '取消升级',
+    cancel_confirm: '确认要清除 {{count}} 台机器的升级任务吗？',
+    cancel_success: '已清除 {{count}} 台机器的升级任务',
+  },
 };
 export default zh_CN;

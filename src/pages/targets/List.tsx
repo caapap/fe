@@ -20,11 +20,10 @@ import TargetMetaDrawer from './TargetMetaDrawer';
 import Explorer from './components/Explorer';
 import EditBusinessGroups from './components/EditBusinessGroups';
 import HostsSelect from './components/HostsSelect';
+import UpgradeAgent from './components/UpgradeAgent';
 
 // @ts-ignore
 import CollectsDrawer from 'plus:/pages/collects/CollectsDrawer';
-// @ts-ignore
-import UpgradeAgent from 'plus:/parcels/Targets/UpgradeAgent';
 // @ts-ignore
 import VersionSelect from 'plus:/parcels/Targets/VersionSelect';
 // @ts-ignore
