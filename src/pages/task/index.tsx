@@ -25,6 +25,7 @@ import { useTranslation } from 'react-i18next';
 import { useAntdTable } from 'ahooks';
 
 import request from '@/utils/request';
+import api from '@/utils/api';
 import { RequestMethod } from '@/store/common';
 import PageLayout from '@/components/pageLayout';
 import BlankBusinessPlaceholder from '@/components/BlankBusinessPlaceholder';
@@ -33,6 +34,7 @@ import BusinessGroupSideBarWithAll, { getDefaultGids } from '@/components/Busine
 import RefreshIcon from '@/components/RefreshIcon';
 import usePagination from '@/components/usePagination';
 import SearchInput from '@/components/BaseSearchInput';
+import MetaDrawer from './MetaDrawer';
 
 interface DataItem {
   id: number;
@@ -81,6 +83,11 @@ const index = (_props: any) => {
   const { businessGroup, busiGroups } = useContext(CommonStateContext);
   const [gids, setGids] = useState<string | undefined>(getDefaultGids(N9E_GIDS_LOCALKEY, businessGroup));
   const [refreshFlag, setRefreshFlag] = useState(_.uniqueId('task-refresh-'));
+  const [metaDrawerVisible, setMetaDrawerVisible] = useState(false);
+  const [metaDrawerLoading, setMetaDrawerLoading] = useState(false);
+  const [metaDrawerData, setMetaDrawerData] = useState<any>({});
+  const [metaDrawerHosts, setMetaDrawerHosts] = useState<any[]>([]);
+  const [metaDrawerTaskId, setMetaDrawerTaskId] = useState<string>('');
   const pagination = usePagination({ PAGESIZE_KEY: 'job-tasks-pagesize' });
 
   useEffect(() => {
@@ -91,6 +98,26 @@ const index = (_props: any) => {
     refreshDeps: [gids, query, mine, days, refreshFlag],
     defaultPageSize: pagination.pageSize,
   });
+
+  const handleOpenMetaDrawer = (record: any) => {
+    setMetaDrawerTaskId(String(record.id));
+    setMetaDrawerData({});
+    setMetaDrawerHosts([]);
+    setMetaDrawerLoading(true);
+    setMetaDrawerVisible(true);
+    request(`${api.task(businessGroup.id!)}/${record.id}`)
+      .then((data) => {
+        setMetaDrawerData({
+          ...data.dat.meta,
+        });
+        setMetaDrawerHosts(data.dat.hosts);
+      })
+      .catch(() => {})
+      .finally(() => {
+        setMetaDrawerLoading(false);
+      });
+  };
+
   const columns: ColumnProps<DataItem>[] = _.concat(
     businessGroup.isLeaf && gids !== '-2'
       ? []
@@ -126,7 +153,7 @@ const index = (_props: any) => {
             <span>
               <Link to={{ pathname: '/job-tasks/add', search: `task=${record.id}` }}>{t('task.clone')}</Link>
               <Divider type='vertical' />
-              <Link to={{ pathname: `/job-tasks/${record.id}/detail` }}>{t('task.meta')}</Link>
+              <a onClick={() => handleOpenMetaDrawer(record)}>{t('task.meta')}</a>
             </span>
           );
         },
@@ -224,6 +251,14 @@ const index = (_props: any) => {
           <BlankBusinessPlaceholder text={t('task')}></BlankBusinessPlaceholder>
         )}
       </div>
+      <MetaDrawer
+        visible={metaDrawerVisible}
+        loading={metaDrawerLoading}
+        onClose={() => setMetaDrawerVisible(false)}
+        data={metaDrawerData}
+        hosts={metaDrawerHosts}
+        taskId={metaDrawerTaskId}
+      />
     </PageLayout>
   );
 };

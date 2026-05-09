@@ -15,7 +15,7 @@
  *
  */
 import React, { useState } from 'react';
-import { Drawer, Divider, Button, Segmented } from 'antd';
+import { Drawer, Divider, Button, Segmented, Spin } from 'antd';
 import { Link } from 'react-router-dom';
 import moment from 'moment';
 import _ from 'lodash';
@@ -25,6 +25,7 @@ import Editor from '../../taskTpl/editor';
 
 interface Props {
   visible: boolean;
+  loading?: boolean;
   onClose: () => void;
   data: any;
   hosts: { host: string }[];
@@ -42,7 +43,7 @@ type SizeType = 'small' | 'middle' | 'large';
 export default function MetaDrawer(props: Props) {
   const { t } = useTranslation('common');
   const { t: tn } = useTranslation('navigableDrawer');
-  const { visible, onClose, data, hosts, taskId } = props;
+  const { visible, loading, onClose, data, hosts, taskId } = props;
   const [size, setSize] = useState<SizeType>('middle');
 
   return (
@@ -69,64 +70,66 @@ export default function MetaDrawer(props: Props) {
         </Link>
       }
     >
-      <div className='job-task-table'>
-        <div className='ant-table ant-table-default ant-table-bordered'>
-          <div className='ant-table-content'>
-            <div className='ant-table-body'>
-              <table>
-                <colgroup>
-                  <col style={{ width: 100, minWidth: 100 }} />
-                  <col />
-                </colgroup>
-                <tbody className='ant-table-tbody'>
-                  <tr className='ant-table-row ant-table-row-level-0'>
-                    <td>{t('task.title')}</td>
-                    <td>{data?.title}</td>
-                  </tr>
-                  <tr className='ant-table-row ant-table-row-level-0'>
-                    <td>{t('task.creator')}</td>
-                    <td>
-                      {data?.creator} @ {data?.created ? moment(data.created).format('YYYY-MM-DD HH:mm:ss') : '-'}
-                    </td>
-                  </tr>
-                  <tr className='ant-table-row ant-table-row-level-0'>
-                    <td>{t('task.control.params')}</td>
-                    <td>
-                      {t('task.account')}：{data?.account}
-                      <Divider type='vertical' />
-                      {t('task.batch')}：{data?.batch}
-                      <Divider type='vertical' />
-                      {t('task.tolerance')}：{data?.tolerance}
-                      <Divider type='vertical' />
-                      {t('task.timeout')}：{data?.timeout}
-                    </td>
-                  </tr>
-                  <tr className='ant-table-row ant-table-row-level-0'>
-                    <td>{t('task.script')}</td>
-                    <td>{data?.script ? <Editor value={data.script} readOnly height='200px' /> : '-'}</td>
-                  </tr>
-                  <tr className='ant-table-row ant-table-row-level-0'>
-                    <td>{t('task.script.args')}</td>
-                    <td>{data?.args}</td>
-                  </tr>
-                  <tr className='ant-table-row ant-table-row-level-0'>
-                    <td>{t('task.pause')}</td>
-                    <td>{data?.pause}</td>
-                  </tr>
-                  <tr className='ant-table-row ant-table-row-level-0'>
-                    <td>{t('task.host.list')}</td>
-                    <td>
-                      {_.map(hosts, (hostItem) => {
-                        return <div key={hostItem.host}>{hostItem.host}</div>;
-                      })}
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+      <Spin spinning={loading}>
+        <div className='job-task-table'>
+          <div className='ant-table ant-table-default ant-table-bordered'>
+            <div className='ant-table-content'>
+              <div className='ant-table-body'>
+                <table>
+                  <colgroup>
+                    <col style={{ width: 100, minWidth: 100 }} />
+                    <col />
+                  </colgroup>
+                  <tbody className='ant-table-tbody'>
+                    <tr className='ant-table-row ant-table-row-level-0'>
+                      <td>{t('task.title')}</td>
+                      <td>{data?.title}</td>
+                    </tr>
+                    <tr className='ant-table-row ant-table-row-level-0'>
+                      <td>{t('task.creator')}</td>
+                      <td>
+                        {data?.creator} @ {data?.created ? moment(data.created).format('YYYY-MM-DD HH:mm:ss') : '-'}
+                      </td>
+                    </tr>
+                    <tr className='ant-table-row ant-table-row-level-0'>
+                      <td>{t('task.control.params')}</td>
+                      <td>
+                        {t('task.account')}：{data?.account}
+                        <Divider type='vertical' />
+                        {t('task.batch')}：{data?.batch}
+                        <Divider type='vertical' />
+                        {t('task.tolerance')}：{data?.tolerance}
+                        <Divider type='vertical' />
+                        {t('task.timeout')}：{data?.timeout}
+                      </td>
+                    </tr>
+                    <tr className='ant-table-row ant-table-row-level-0'>
+                      <td>{t('task.script')}</td>
+                      <td>{data?.script ? <Editor value={data.script} readOnly height='200px' /> : '-'}</td>
+                    </tr>
+                    <tr className='ant-table-row ant-table-row-level-0'>
+                      <td>{t('task.script.args')}</td>
+                      <td>{data?.args}</td>
+                    </tr>
+                    <tr className='ant-table-row ant-table-row-level-0'>
+                      <td>{t('task.pause')}</td>
+                      <td>{data?.pause}</td>
+                    </tr>
+                    <tr className='ant-table-row ant-table-row-level-0'>
+                      <td>{t('task.host.list')}</td>
+                      <td>
+                        {_.map(hosts, (hostItem) => {
+                          return <div key={hostItem.host}>{hostItem.host}</div>;
+                        })}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </Spin>
     </Drawer>
   );
 }
