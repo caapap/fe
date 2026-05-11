@@ -83,3 +83,10 @@ Less/CSS 侧要求：
 
 - 使用 Vitest + Testing Library。
 - 测试文件命名：`*.test.ts` / `*.test.tsx` 或 `*.spec.ts` / `*.spec.tsx`，与待测文件同目录或约定目录即可。
+- 测试中的数据字面量优先使用 `as const` 收窄类型，防止字符串/数值被扩宽，在 IDE 中捕获拼写错误：
+  ```typescript
+  const input = { name: 'test', count: 1 } as const;
+  ```
+- 避免在测试数据中使用 `as any`。如测试数据与函数签名不匹配，优先用 `satisfies` 验证结构。
+- 测试数据中如含 mock 函数（`jest.fn()`），不适合加 `as const`，保持原样。
+- 不要在测试文件中定义与源码重复的本地类型/接口。
