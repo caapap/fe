@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Table, Tag, Tooltip, Space, Input, Dropdown, Menu, Button, Modal, message, Select } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { SearchOutlined, DownOutlined, ReloadOutlined, CopyOutlined, ApartmentOutlined, InfoCircleOutlined, EyeOutlined } from '@ant-design/icons';
@@ -22,12 +22,9 @@ import EditBusinessGroups from './components/EditBusinessGroups';
 import HostsSelect from './components/HostsSelect';
 import UpgradeAgent from './components/UpgradeAgent';
 
-// @ts-ignore
-import CollectsDrawer from 'plus:/pages/collects/CollectsDrawer';
-// @ts-ignore
-import VersionSelect from 'plus:/parcels/Targets/VersionSelect';
-// @ts-ignore
-import { extraColumns } from 'plus:/parcels/Targets';
+import CollectsDrawer from './components/CollectsDrawer';
+import VersionSelect from './components/VersionSelect';
+import { postTargetRestart, deleteTargetAgent } from './services';
 
 export const pageSizeOptions = ['10', '20', '50', '100'];
 
@@ -473,7 +470,21 @@ export default function List(props: IProps) {
         },
       });
     }
-    extraColumns(item.name, columns);
+    if (item.name === 'agent_version') {
+      columns.push({
+        title: t('agent_version'),
+        dataIndex: 'agent_version',
+        render: (val, record) => {
+          const isUpgrading = record.new_version && record.new_version !== '' && record.new_version !== record.agent_version;
+          return (
+            <Space>
+              <span>{val || '未知'}</span>
+              {isUpgrading && <Tag color='orange'>升级中 → {record.new_version}</Tag>}
+            </Space>
+          );
+        },
+      });
+    }
     if (item.name === 'note') {
       columns.push({
         title: t('common:table.note'),
@@ -491,6 +502,74 @@ export default function List(props: IProps) {
       });
     }
   });
+
+  const handleRestart = (ident: string) => {
+    postTargetRestart(ident).catch((err) => {
+      if (err?.status === 501) {
+        message.info(err?.message || '功能开发中');
+      }
+    });
+  };
+
+  const handleUninstall = (ident: string) => {
+    Modal.confirm({
+      title: t('operations.uninstall'),
+      content: `确认卸载 ${ident} 的 Agent？`,
+      onOk: () => {
+        deleteTargetAgent(ident).catch((err) => {
+          if (err?.status === 501) {
+            message.info(err?.message || '功能开发中');
+          }
+        });
+      },
+    });
+  };
+
+  if (editable) {
+    columns.push({
+      title: t('operations.title'),
+      key: 'operations',
+      fixed: 'right' as const,
+      width: 100,
+      render: (_, record) => (
+        <Dropdown
+          trigger={['click']}
+          overlay={
+            <Menu>
+              <Menu.Item key='upgrade'>
+                <UpgradeAgent
+                  selectedIdents={[record.ident]}
+                  onOk={() => {
+                    setRefreshFlag(_.uniqueId('refreshFlag_'));
+                  }}
+                />
+              </Menu.Item>
+              <Menu.Item key='restart' onClick={() => handleRestart(record.ident)}>
+                {t('operations.restart')}
+              </Menu.Item>
+              <Menu.Item key='uninstall' onClick={() => handleUninstall(record.ident)}>
+                {t('operations.uninstall')}
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                key='view_collects'
+                onClick={() => {
+                  setCollectsDrawerIdent(record.ident);
+                  setCollectsDrawerVisible(true);
+                }}
+              >
+                {t('operations.view_collects')}
+              </Menu.Item>
+            </Menu>
+          }
+        >
+          <Button size='small'>
+            {t('operations.title')} <DownOutlined />
+          </Button>
+        </Dropdown>
+      ),
+    });
+  }
 
   const featchData = ({ current, pageSize, sorter }: { current: number; pageSize: number; sorter?: any }): Promise<any> => {
     const query = {
@@ -516,6 +595,10 @@ export default function List(props: IProps) {
     manual: true,
     defaultPageSize: localStorage.getItem('targetsListPageSize') ? _.toNumber(localStorage.getItem('targetsListPageSize')) : 30,
   });
+
+  const availableVersions = useMemo(() => {
+    return _.uniq(_.map(tableProps.dataSource, 'agent_version').filter(Boolean));
+  }, [tableProps.dataSource]);
 
   useEffect(() => {
     run({
@@ -602,6 +685,7 @@ export default function List(props: IProps) {
             onChange={(val) => {
               setAgentVersions(val);
             }}
+            options={availableVersions}
           />
         </Space>
         <Space>

@@ -114,5 +114,22 @@ const zh_CN = {
     cancel_confirm: '确认要清除 {{count}} 台机器的升级任务吗？',
     cancel_success: '已清除 {{count}} 台机器的升级任务',
   },
+  version_select: {
+    placeholder: '筛选版本',
+    unknown: '未知版本',
+  },
+  operations: {
+    title: '操作',
+    upgrade: '升级 Agent',
+    restart: '重启 Agent',
+    uninstall: '卸载 Agent',
+    view_collects: '查看采集配置',
+  },
+  collects_drawer: {
+    title: '机器 {{ident}} 的采集配置',
+    empty: '该机器未匹配任何采集规则',
+    enabled: '已启用',
+    disabled: '已禁用',
+  },
 };
 export default zh_CN;
