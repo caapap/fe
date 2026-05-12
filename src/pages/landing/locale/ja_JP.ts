@@ -8,9 +8,9 @@ const ja_JP = {
     secondaryAction: 'AI に質問',
   },
   matrix: {
-    headerKicker: 'プロダクトマトリクス',
-    headerSubtitle: 'データ取込から障害復旧まで、可観測性のライフサイクル全体をカバー',
-    scenarioTag: 'シナリオ · 統一保証',
+    headerKicker: '機能マトリクス',
+    headerSubtitle: 'データ収集・統合から統一可観測・アラート通知まで、一体型可観測プラットフォームを構築',
+    scenarioTag: 'シナリオ · 統一アラート',
     observabilityTag: 'プラットフォーム · 統一可観測',
     notificationTag: '到達 · 通知チャネル',
     collectionTag: 'データ · 統一収集',
@@ -56,10 +56,10 @@ const ja_JP = {
       users: { title: 'ユーザーとチーム', description: '受信者管理' },
     },
     footnotes: {
-      scenario: ['多次元データ融合', 'アラートガバナンスのベストプラクティス', 'LLM 駆動のインテリジェント分析'],
+      scenario: ['マルチテナント業務グループ', 'ルール · 抑制 · 購読', 'LLM 支援の分析'],
       observability: '統合可観測プラットフォーム',
-      integration: '主要 OSS / パブリッククラウド データソース',
-      notification: ['通知センター', '購読とエスカレーション'],
+      integration: '主要 OSS データソース',
+      notification: ['通知センター', '通知と購読'],
     },
   },
   quickStart: {

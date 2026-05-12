@@ -8,9 +8,9 @@ const zh_CN = {
     secondaryAction: '我要问 AI',
   },
   matrix: {
-    headerKicker: '产品矩阵',
-    headerSubtitle: '从数据接入到故障恢复，覆盖可观测性全生命周期',
-    scenarioTag: '场景 · 统一保障',
+    headerKicker: '功能矩阵',
+    headerSubtitle: '从数据采集、集成到统一观测与告警通知，构建一体化可观测平台',
+    scenarioTag: '场景 · 统一告警',
     observabilityTag: '平台 · 统一观测',
     notificationTag: '触达 · 通知媒介',
     collectionTag: '数据 · 统一采集',
@@ -68,10 +68,10 @@ const zh_CN = {
       users: { title: '用户与团队', description: '接收人组织管理' },
     },
     footnotes: {
-      scenario: ['多维度观测数据融合', '告警治理最佳实践', '大模型驱动的智能分析'],
+      scenario: ['多租户业务组隔离', '告警规则 · 屏蔽 · 订阅', 'AI 大模型辅助分析'],
       observability: '一体化可观测平台能力',
-      integration: '主流开源 & 公有云数据源',
-      notification: ['通知中心', '订阅与升级'],
+      integration: '主流开源数据源',
+      notification: ['通知中心', '通知与订阅'],
     },
   },
   quickStart: {

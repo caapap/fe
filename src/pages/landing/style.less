@@ -247,32 +247,37 @@
   }
 
   &-primary {
-    background: #ffffff;
-    color: #6b51af;
+    background: #ffffff !important;
+    color: #4a2d8a !important;
+    font-weight: 600;
 
     &:hover {
+      background: #ffffff !important;
+      color: #4a2d8a !important;
       opacity: 0.92;
       transform: translateY(-1px);
     }
   }
 
   &-secondary {
-    background: rgba(255, 255, 255, 0.2);
-    color: #ffffff;
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
     backdrop-filter: blur(6px);
 
     &:hover {
-      background: rgba(255, 255, 255, 0.28);
+      background: rgba(255, 255, 255, 0.28) !important;
+      color: #ffffff !important;
       transform: translateY(-1px);
     }
   }
 
   &-ghost {
-    background: transparent;
-    color: rgba(255, 255, 255, 0.8);
+    background: transparent !important;
+    color: #ffffff !important;
 
     &:hover {
-      color: #ffffff;
+      color: #ffffff !important;
+      opacity: 0.85;
     }
   }
 }
@@ -420,7 +425,7 @@
   position: relative;
   border: 2px dashed transparent;
   border-radius: 12px;
-  padding: 22px 16px 14px;
+  padding: 16px 14px 12px;
   background: var(--landing-panel-bg);
   backdrop-filter: blur(10px);
 }
@@ -492,9 +497,10 @@
 
 .landing-panel-scenario { min-height: 186px; }
 .landing-panel-observability {
-  min-height: 116px;
+  min-height: 88px;
   display: flex;
   flex-direction: column;
+  gap: 10px;
 }
 .landing-panel-duty { min-height: 286px; flex: 1; display: flex; flex-direction: column; }
 .landing-panel-collection { min-height: 112px; }
@@ -572,22 +578,23 @@
   line-height: 16px;
 }
 
-/* ============================================================ Observability pills */
+/* ============================================================ Observability pills — single row, equal flex */
 .landing-pill-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   align-items: center;
   justify-content: center;
-  padding-bottom: 6px;
 }
 
 .landing-pill {
-  display: inline-flex;
+  display: flex;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
+  min-width: 0;
   height: 26px;
-  padding: 4px 14px;
+  padding: 4px 8px;
   font-size: 12px;
   color: var(--landing-card-muted);
   text-decoration: none;
@@ -694,7 +701,7 @@
 
 .landing-caption {
   margin-top: auto;
-  padding-top: 8px;
+  padding-top: 4px;
   font-size: 12px;
   line-height: 16px;
   color: rgba(101, 115, 134, 0.6);

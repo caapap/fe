@@ -33,11 +33,12 @@ export interface LandingGuideCard {
 }
 
 const DOCS_BASE = 'https://flashcat.cloud/product/nightingale/';
+const DOCS_V8_BASE = 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v8/';
 
 export const DOC_LINKS = {
   base: DOCS_BASE,
   github: 'https://github.com/ccfos/nightingale',
-  categraf: 'https://github.com/flashcatcloud/categraf',
+  categraf: 'https://flashcat.cloud/product/categraf/',
 };
 
 export const landingHero = {
@@ -60,7 +61,7 @@ export const landingHero = {
   windowDotsUrl: '/image/landing/hero/window-dots.svg',
 };
 
-/** 场景 · 统一保障 — 4 张卡片 */
+/** 场景 · 统一告警 — 4 张卡片 */
 export const landingScenarioProducts: LandingCard[] = [
   { titleKey: 'matrix.scenario.businessGroups.title', descriptionKey: 'matrix.scenario.businessGroups.description', url: '/busi-groups' },
   { titleKey: 'matrix.scenario.alertGovernance.title', descriptionKey: 'matrix.scenario.alertGovernance.description', url: '/alert-rules' },
@@ -76,7 +77,8 @@ export const landingObservabilityProducts: LandingPill[] = [
   { titleKey: 'matrix.observability.alertRules', url: '/alert-rules' },
   { titleKey: 'matrix.observability.alertMutes', url: '/alert-mutes' },
   { titleKey: 'matrix.observability.alertSubscribes', url: '/alert-subscribes' },
-  { titleKey: 'matrix.observability.objectExplorer', url: '/object/explorer' },
+  { titleKey: 'matrix.observability.objectExplorer', url: '/targets' },
+  { titleKey: 'matrix.observability.recordingRules', url: '/recording-rules' },
 ];
 
 /** 右侧汇聚 — 通知矩阵 4 张卡片（替代 srm-fe 的"统一值班"，与场景卡片视觉一致：violet 圆形小图标 + 标题 + 副标题） */
@@ -99,11 +101,11 @@ export const landingCollectionProduct = {
 /** 数据 · 统一集成 — 数据源 chips */
 export const landingIntegrationProducts: LandingChip[] = [
   { label: 'Prometheus', iconUrl: '/image/logos/prometheus.png', url: '/datasources' },
-  { label: 'VictoriaMetrics', iconUrl: '/image/logos/prometheus.png', url: '/datasources' },
+  { label: 'VictoriaMetrics', iconUrl: '/image/logos/victorialogs.png', url: '/datasources' },
   { label: 'Elasticsearch', iconUrl: '/image/logos/elasticsearch.png', url: '/datasources' },
   { label: 'ClickHouse', iconUrl: '/image/logos/ck.png', url: '/datasources' },
   { label: 'Loki', iconUrl: '/image/logos/loki.png', url: '/datasources' },
-  { label: 'Jaeger', iconUrl: '/image/logos/jaeger.png', url: '/datasources' },
+  { label: 'OpenSearch', iconUrl: '/image/logos/opensearch.png', url: '/datasources' },
   { label: 'TDengine', iconUrl: '/image/logos/tdengine.png', url: '/datasources' },
   { label: 'MySQL', iconUrl: '/image/logos/mysql.png', url: '/datasources' },
   { label: 'PostgreSQL', iconUrl: '/image/logos/pgsql.png', url: '/datasources' },
@@ -135,32 +137,32 @@ export const landingQuickStartCards: LandingGuideCard[] = [
     titleKey: 'quickStart.ingest.title',
     descriptionKey: 'quickStart.ingest.description',
     links: [
-      { labelKey: 'quickStart.ingest.links.0', url: `${DOCS_BASE}quickstart/install-docker-compose/` },
-      { labelKey: 'quickStart.ingest.links.1', url: `${DOCS_BASE}integrations/categraf-install/` },
+      { labelKey: 'quickStart.ingest.links.0', url: `${DOCS_V8_BASE}install/compose/` },
+      { labelKey: 'quickStart.ingest.links.1', url: `${DOCS_V8_BASE}agent/categraf/` },
     ],
   },
   {
     titleKey: 'quickStart.observe.title',
     descriptionKey: 'quickStart.observe.description',
     links: [
-      { labelKey: 'quickStart.observe.links.0', url: `${DOCS_BASE}usage/dashboard/dashboard-overview/` },
-      { labelKey: 'quickStart.observe.links.1', url: `${DOCS_BASE}usage/explore/metric/` },
+      { labelKey: 'quickStart.observe.links.0', url: `${DOCS_V8_BASE}quickstart/dashboard/` },
+      { labelKey: 'quickStart.observe.links.1', url: `${DOCS_V8_BASE}quickstart/ad-hoc/` },
     ],
   },
   {
     titleKey: 'quickStart.alert.title',
     descriptionKey: 'quickStart.alert.description',
     links: [
-      { labelKey: 'quickStart.alert.links.0', url: `${DOCS_BASE}usage/alarm-management/alert-rule/` },
-      { labelKey: 'quickStart.alert.links.1', url: `${DOCS_BASE}usage/alarm-management/alert-notify/` },
+      { labelKey: 'quickStart.alert.links.0', url: `${DOCS_V8_BASE}quickstart/metric-alerting/` },
+      { labelKey: 'quickStart.alert.links.1', url: `${DOCS_V8_BASE}usecase/media/` },
     ],
   },
   {
     titleKey: 'quickStart.ai.title',
     descriptionKey: 'quickStart.ai.description',
     links: [
-      { labelKey: 'quickStart.ai.links.0', url: `${DOCS_BASE}usage/ai/llm-config/` },
-      { labelKey: 'quickStart.ai.links.1', url: `${DOCS_BASE}usage/ai/agent/` },
+      { labelKey: 'quickStart.ai.links.0', url: `${DOCS_V8_BASE}usecase/processor/` },
+      { labelKey: 'quickStart.ai.links.1', url: `${DOCS_V8_BASE}usecase/processor/` },
     ],
   },
 ];

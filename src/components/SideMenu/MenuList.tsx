@@ -534,29 +534,6 @@ export default function MenuList(
   return (
     <>
       <div className={cn('h-full pl-2 pr-4', isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? 'text-[#e6e6e8]' : 'text-main')}>
-        {IS_ENT && (
-          <Link
-            to='/landing'
-            className={cn(
-              'group relative flex min-w-0 cursor-pointer items-center transition-colors transition-spacing duration-75',
-              'h-8 rounded-md',
-              'px-3',
-              isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? 'text-[#e6e6e8]' : 'text-main',
-              isLight ? 'hover:bg-[var(--fc-sidemenu-item-hover-bg)]' : props.isCustomBg ? 'hover:bg-[rgba(204,204,220,0.12)]' : 'hover:bg-fc-200',
-            )}
-          >
-            <div
-              className={cn(
-                'mr-2 inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center children-icon2:h-[16px] children-icon2:w-[16px]',
-                isLight ? 'text-[var(--fc-sidemenu-item-icon)]' : '',
-              )}
-            >
-              <IconFont type='icon-ic_home_light' />
-            </div>
-
-            <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('landing')} </div>
-          </Link>
-        )}
         <Tooltip title={props.collapsed ? null : isMac ? t('⌘ + K') : t('Ctrl + K')} placement='right' trigger={props.collapsed ? [] : ['hover']}>
           <div
             onClick={(e) => {
@@ -580,6 +557,28 @@ export default function MenuList(
             {!props.collapsed && <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('quickJump')} </div>}
           </div>
         </Tooltip>
+        <Link
+          to='/landing'
+          className={cn(
+            'group relative flex min-w-0 cursor-pointer items-center transition-colors transition-spacing duration-75',
+            'h-8 rounded-md',
+            'px-3',
+            isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? 'text-[#e6e6e8]' : 'text-main',
+            isLight ? 'hover:bg-[var(--fc-sidemenu-item-hover-bg)]' : props.isCustomBg ? 'hover:bg-[rgba(204,204,220,0.12)]' : 'hover:bg-fc-200',
+          )}
+        >
+          <div
+            className={cn(
+              'inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center',
+              !props.collapsed && 'mr-2',
+              isLight ? 'text-[var(--fc-sidemenu-item-icon)]' : '',
+            )}
+          >
+            <HomeOutlined style={{ fontSize: 16 }} />
+          </div>
+
+          {!props.collapsed && <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('landing')} </div>}
+        </Link>
         {topExtra ? React.cloneElement(topExtra, { ...props, isLight }) : null}
         <div className='space-y-[2px]'>
           {chunks.map((chunk, chunkIndex) => (

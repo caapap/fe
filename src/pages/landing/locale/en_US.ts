@@ -8,9 +8,9 @@ const en_US = {
     secondaryAction: 'Ask AI',
   },
   matrix: {
-    headerKicker: 'Product Matrix',
-    headerSubtitle: 'From data ingestion to incident recovery — the full observability lifecycle',
-    scenarioTag: 'Scenarios · Unified Reliability',
+    headerKicker: 'Feature Matrix',
+    headerSubtitle: 'From ingestion and integration to unified observability and alert notification — an end-to-end observability platform',
+    scenarioTag: 'Scenarios · Unified Alerting',
     observabilityTag: 'Platform · Unified Observability',
     notificationTag: 'Reach · Notification Channels',
     collectionTag: 'Data · Unified Collection',
@@ -68,10 +68,10 @@ const en_US = {
       users: { title: 'Users & Teams', description: 'Recipient management' },
     },
     footnotes: {
-      scenario: ['Multi-dimensional data fusion', 'Best practices for alert governance', 'LLM-powered intelligent analysis'],
+      scenario: ['Multi-tenant business groups', 'Rules · Mutes · Subscriptions', 'LLM-assisted analysis'],
       observability: 'Integrated observability platform',
-      integration: 'Mainstream open-source & public cloud data sources',
-      notification: ['Notification Center', 'Subscribe & Escalate'],
+      integration: 'Mainstream open-source data sources',
+      notification: ['Notification Center', 'Notify & Subscribe'],
     },
   },
   quickStart: {
