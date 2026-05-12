@@ -1,0 +1,93 @@
+const ja_JP = {
+  pageTitle: 'Nightingale へようこそ',
+  hero: {
+    badge: 'オープンソース · オールインワン監視/アラート',
+    highlight: '監視をよりシンプルに、よりスマートに',
+    description: 'メトリクス・ログ・トレースを統合収集/分析。アラート、ダッシュボード、AI アシスタントを標準搭載。クラウドネイティブ対応。',
+    primaryAction: 'ドキュメント',
+    secondaryAction: 'AI に質問',
+  },
+  matrix: {
+    headerKicker: 'プロダクトマトリクス',
+    headerSubtitle: 'データ取込から障害復旧まで、可観測性のライフサイクル全体をカバー',
+    scenarioTag: 'シナリオ · 統一保証',
+    observabilityTag: 'プラットフォーム · 統一可観測',
+    notificationTag: '到達 · 通知チャネル',
+    collectionTag: 'データ · 統一収集',
+    integrationTag: 'データ · 統一連携',
+    infrastructureTag: 'エンタープライズ基盤',
+    dataIngestArrow: 'データ · 統一取込',
+    alertEventArrow: 'アラート イベント',
+    scenario: {
+      businessGroups: { title: 'ビジネスグループ', description: 'マルチテナント / リソース分離' },
+      alertGovernance: { title: 'アラートガバナンス', description: 'ルール · 抑制 · 購読' },
+      eventHistory: { title: 'イベント履歴', description: '全イベントの追跡分析' },
+      aiAssistant: { title: 'AI インテリジェンス', description: 'LLM + MCP ツール呼び出し' },
+    },
+    observability: {
+      dashboard: 'ダッシュボード',
+      metricExplorer: 'メトリクス分析',
+      logExplorer: 'ログ分析',
+      traceExplorer: 'トレース分析',
+      alertRules: 'アラートルール',
+      alertMutes: 'アラート抑制',
+      alertSubscribes: 'アラート購読',
+      objectExplorer: '監視対象',
+      recordingRules: '記録ルール',
+    },
+    collection: {
+      description: 'オールインワン OSS コレクター',
+      footer: 'metrics / logs / traces を統一収集',
+    },
+    infrastructure: {
+      components: 'コンポーネント',
+      microservice: 'マイクロサービス',
+      apiFunctions: 'API / 関数',
+      endpoints: 'エンドポイント',
+      publicCloud: 'パブリッククラウド',
+      privateCloud: 'プライベートクラウド',
+      containers: 'コンテナ / VM',
+      devices: 'デバイス',
+      network: 'ネットワーク',
+    },
+    footnotes: {
+      scenario: ['多次元データ融合', 'アラートガバナンスのベストプラクティス', 'LLM 駆動のインテリジェント分析'],
+      observability: '統合可観測プラットフォーム',
+      integration: '主要 OSS / パブリッククラウド データソース',
+      notification: 'メール、IM、音声、SMS、Webhook 対応',
+    },
+  },
+  quickStart: {
+    title: 'クイックスタート',
+    viewAll: 'ドキュメント一覧',
+    askAi: 'AI に質問',
+    ingest: {
+      title: '統一取込',
+      description: '迅速にデプロイしデータを取り込む',
+      links: ['Docker Compose で Nightingale をデプロイする方法は？', 'Categraf でホスト/ミドルウェアを収集する方法は？'],
+    },
+    observe: {
+      title: '統一可観測',
+      description: 'メトリクス・ログ・トレースを一元化',
+      links: ['ダッシュボードで業務指標を可視化する方法は？', 'メトリクス分析で PromQL クエリを書く方法は？'],
+    },
+    alert: {
+      title: 'アラートガバナンス',
+      description: 'アラートルールと通知到達',
+      links: ['最初のアラートルールを設定するには？', '社内 IM へアラートを送るには？'],
+    },
+    ai: {
+      title: 'AI インテリジェンス',
+      description: 'LLM、MCP、エージェント',
+      links: ['LLM モデルを設定するには？', 'エージェントでアラートを分析するには？'],
+    },
+  },
+  aiAssistant: {
+    title: 'Nightingale AI アシスタント',
+    description: 'LLM と MCP ツールで、自然言語による操作・データ照会・根本原因分析を実現します。',
+    capabilities: ['自然言語クエリ', '根本原因分析', 'PromQL / LogQL 生成', 'ドキュメント Q&A'],
+    action: 'AI アシスタントを試す',
+  },
+};
+
+export default ja_JP;

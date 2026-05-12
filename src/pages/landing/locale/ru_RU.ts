@@ -1,0 +1,93 @@
+const ru_RU = {
+  pageTitle: 'Добро пожаловать в Nightingale',
+  hero: {
+    badge: 'Open Source · Платформа мониторинга и алертинга',
+    highlight: 'Мониторинг — проще и умнее',
+    description: 'Единая ингестия и анализ метрик, логов и трейсов. Алертинг, дашборды и AI-ассистент из коробки. Cloud-native.',
+    primaryAction: 'Документация',
+    secondaryAction: 'Спросить AI',
+  },
+  matrix: {
+    headerKicker: 'Матрица продуктов',
+    headerSubtitle: 'От ингестии данных до восстановления инцидентов — полный жизненный цикл',
+    scenarioTag: 'Сценарии · Единая надёжность',
+    observabilityTag: 'Платформа · Единая наблюдаемость',
+    notificationTag: 'Доставка · Каналы уведомлений',
+    collectionTag: 'Данные · Единый сбор',
+    integrationTag: 'Данные · Единая интеграция',
+    infrastructureTag: 'Корпоративная инфраструктура',
+    dataIngestArrow: 'Данные · Единая ингестия',
+    alertEventArrow: 'События алертов',
+    scenario: {
+      businessGroups: { title: 'Бизнес-группы', description: 'Мультитенантность и изоляция' },
+      alertGovernance: { title: 'Управление алертами', description: 'Правила · Молчание · Подписки' },
+      eventHistory: { title: 'История событий', description: 'Полный ретроспективный анализ' },
+      aiAssistant: { title: 'AI-интеллект', description: 'LLM + вызов инструментов MCP' },
+    },
+    observability: {
+      dashboard: 'Дашборды',
+      metricExplorer: 'Анализ метрик',
+      logExplorer: 'Анализ логов',
+      traceExplorer: 'Анализ трейсов',
+      alertRules: 'Правила алертов',
+      alertMutes: 'Молчание алертов',
+      alertSubscribes: 'Подписки',
+      objectExplorer: 'Объекты мониторинга',
+      recordingRules: 'Recording rules',
+    },
+    collection: {
+      description: 'Универсальный OSS-коллектор',
+      footer: 'Единый сбор metrics / logs / traces',
+    },
+    infrastructure: {
+      components: 'Компоненты',
+      microservice: 'Микросервисы',
+      apiFunctions: 'API / функции',
+      endpoints: 'Эндпоинты',
+      publicCloud: 'Публичные облака',
+      privateCloud: 'Частные облака',
+      containers: 'Контейнеры / ВМ',
+      devices: 'Устройства',
+      network: 'Сеть',
+    },
+    footnotes: {
+      scenario: ['Слияние многомерных данных', 'Лучшие практики управления алертами', 'LLM-аналитика'],
+      observability: 'Единая платформа наблюдаемости',
+      integration: 'Популярные OSS и облачные источники',
+      notification: 'Email, IM, звонок, SMS, Webhook',
+    },
+  },
+  quickStart: {
+    title: 'Быстрый старт',
+    viewAll: 'Вся документация',
+    askAi: 'Спросить AI',
+    ingest: {
+      title: 'Единая ингестия',
+      description: 'Быстрое развёртывание и подключение данных',
+      links: ['Как развернуть Nightingale через Docker Compose?', 'Как собирать данные хостов через Categraf?'],
+    },
+    observe: {
+      title: 'Единая наблюдаемость',
+      description: 'Метрики, логи и трейсы вместе',
+      links: ['Как визуализировать метрики на дашборде?', 'Как писать PromQL-запросы?'],
+    },
+    alert: {
+      title: 'Управление алертами',
+      description: 'Правила и доставка уведомлений',
+      links: ['Как настроить первое правило алерта?', 'Как отправлять алерты в корпоративный мессенджер?'],
+    },
+    ai: {
+      title: 'AI-интеллект',
+      description: 'LLM, MCP и агенты',
+      links: ['Как настроить LLM-модель?', 'Как использовать агентов для анализа алертов?'],
+    },
+  },
+  aiAssistant: {
+    title: 'AI-ассистент Nightingale',
+    description: 'LLM и MCP — управляйте платформой и анализируйте инциденты на естественном языке.',
+    capabilities: ['Запросы на естественном языке', 'Анализ корневых причин', 'Генерация PromQL / LogQL', 'Q&A по документации'],
+    action: 'Открыть AI-ассистента',
+  },
+};
+
+export default ru_RU;
