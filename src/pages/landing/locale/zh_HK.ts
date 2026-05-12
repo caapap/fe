@@ -3,7 +3,7 @@ const zh_HK = {
   hero: {
     badge: '開源 · 一站式監控告警平台',
     highlight: '讓監控更簡單、更智慧',
-    description: '指標 · 日誌 · 鏈路一體化採集與分析，告警治理、可視化大盤、智慧助手開箱即用，雲原生友好。',
+    description: '指標 · 日誌一體化採集與分析，告警治理、可視化大盤、智慧助手開箱即用，雲原生友好。',
     primaryAction: '查看文檔',
     secondaryAction: '我要問 AI',
   },
@@ -28,7 +28,6 @@ const zh_HK = {
       dashboard: '儀表盤',
       metricExplorer: '指標分析',
       logExplorer: '日誌分析',
-      traceExplorer: '鏈路分析',
       alertRules: '告警規則',
       alertMutes: '告警遮蔽',
       alertSubscribes: '告警訂閱',
@@ -37,7 +36,7 @@ const zh_HK = {
     },
     collection: {
       description: 'all-in-one 開源採集器',
-      footer: '統一採集 metrics / logs / traces',
+      footer: '統一採集 metrics / logs',
     },
     infrastructure: {
       components: '基礎組件',
@@ -50,11 +49,17 @@ const zh_HK = {
       devices: '設備',
       network: '網路',
     },
+    notification: {
+      rules: { title: '通知規則', description: '精細化分派路由' },
+      templates: { title: '通知模板', description: '統一訊息樣式' },
+      channels: { title: '通知媒介', description: '多渠道觸達' },
+      users: { title: '用戶與團隊', description: '接收人組織管理' },
+    },
     footnotes: {
       scenario: ['多維度觀測數據融合', '告警治理最佳實踐', '大模型驅動的智慧分析'],
       observability: '一體化可觀測平台能力',
       integration: '主流開源 & 公有雲數據源',
-      notification: '郵件、IM、電話、短信、Webhook 全覆蓋',
+      notification: ['通知中心', '訂閱與升級'],
     },
   },
   quickStart: {

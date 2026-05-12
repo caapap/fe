@@ -1,7 +1,7 @@
 import {
   landingScenarioProducts,
   landingObservabilityProducts,
-  landingNotificationProducts,
+  landingNotificationCards,
   landingIntegrationProducts,
   landingInfrastructureCategories,
   landingQuickStartCards,
@@ -29,23 +29,23 @@ describe('landing.data', () => {
   });
 
   it('平台·统一观测全部为站内路由', () => {
-    expect(landingObservabilityProducts.length).toBeGreaterThanOrEqual(8);
+    expect(landingObservabilityProducts.length).toBeGreaterThanOrEqual(7);
     landingObservabilityProducts.forEach((item) => {
       expect(item.url?.startsWith('/')).toBe(true);
     });
   });
 
-  it('通知媒介 chip 全部带 logo 与 /notification-channels 链接', () => {
-    expect(landingNotificationProducts.length).toBeGreaterThanOrEqual(6);
-    landingNotificationProducts.forEach((item) => {
-      expect(item.label).toBeTruthy();
-      expect(item.iconUrl).toMatch(/^\/image\//);
-      expect(item.url).toBe('/notification-channels');
+  it('通知矩阵 4 张卡片均有 i18n key 与站内路由', () => {
+    expect(landingNotificationCards).toHaveLength(4);
+    landingNotificationCards.forEach((item) => {
+      expect(item.titleKey).toMatch(/^matrix\.notification\./);
+      expect(item.descriptionKey).toMatch(/^matrix\.notification\./);
+      expect(item.url?.startsWith('/')).toBe(true);
     });
   });
 
   it('数据源集成 chip 不为空且都有 logo', () => {
-    expect(landingIntegrationProducts.length).toBeGreaterThanOrEqual(8);
+    expect(landingIntegrationProducts).toHaveLength(10);
     landingIntegrationProducts.forEach((item) => {
       expect(item.label).toBeTruthy();
       expect(item.iconUrl).toMatch(/^\/image\/logos\//);

@@ -5,7 +5,6 @@ import { ArrowRightOutlined } from '@ant-design/icons';
 import classNames from 'classnames';
 import {
   Activity,
-  AlertTriangle,
   BarChart3,
   Bell,
   BookOpenText,
@@ -15,15 +14,21 @@ import {
   Container,
   Cpu,
   Database,
+  FileText,
+  Flame,
   HardDrive,
+  History,
   Layers,
+  MessageSquare,
   Network,
+  PawPrint,
   PlugZap,
   Server,
   Smartphone,
   Sparkles,
   Star,
   Users as UsersIcon,
+  UsersRound,
   Waypoints,
   LayoutPanelLeft,
   Monitor,
@@ -41,15 +46,15 @@ import {
   landingHero,
   landingInfrastructureCategories,
   landingIntegrationProducts,
-  landingNotificationProducts,
+  landingNotificationCards,
   landingObservabilityProducts,
   landingQuickStartCards,
   landingScenarioProducts,
 } from './landing.data';
-import { LandingAlertHub, LandingMatrixArrow } from './matrixConnectors';
 import './style.less';
 
-const scenarioIcons: LucideIcon[] = [UsersIcon, AlertTriangle, BarChart3, Bot];
+const scenarioIcons: LucideIcon[] = [UsersIcon, Flame, History, Sparkles];
+const notificationIcons: LucideIcon[] = [Bell, FileText, MessageSquare, UsersRound];
 const infrastructureIcons: LucideIcon[] = [Layers, Server, PlugZap, Smartphone, Cloud, HardDrive, Container, Cpu, Network];
 const quickStartIcons: LucideIcon[] = [PlugZap, BarChart3, Bell, Sparkles];
 const quickStartIconClasses = [
@@ -134,7 +139,12 @@ export default function Landing() {
         <div className='landing-surface'>
           {/* Section 1 · Hero */}
           <section className='landing-hero'>
-            <div className='landing-hero-bg' aria-hidden />
+            <div className='landing-hero-bg' aria-hidden>
+              <div className='landing-hero-bg-base' />
+              <img className='landing-hero-bg-gradient landing-hero-bg-gradient-light' src={landingHero.lightGradientUrl} alt='' />
+              <img className='landing-hero-bg-gradient landing-hero-bg-gradient-dark' src={landingHero.darkGradientUrl} alt='' />
+              <div className='landing-hero-bg-tint' />
+            </div>
             <div className='landing-hero-copy'>
               <div className='landing-badge'>
                 <span className='landing-badge-dot' />
@@ -179,8 +189,9 @@ export default function Landing() {
             <div className='landing-subtitle'>{t('matrix.headerSubtitle')}</div>
           </div>
 
-          {/* Section 2 · 产品矩阵 */}
+          {/* Section 2 · 产品矩阵 — nested tinted shell containers wrap white sub-panels */}
           <div className='landing-matrix'>
+            {/* Left tinted shell — violet wash holds scenario + observability panels */}
             <div className='landing-matrix-main-shell'>
               <section className='landing-panel landing-panel-violet landing-panel-scenario'>
                 <div className='landing-panel-tag'>
@@ -232,32 +243,58 @@ export default function Landing() {
               </section>
             </div>
 
+            {/* Right tinted shell — pink wash, holds 4 notification cards stacked */}
             <div className='landing-matrix-duty-shell'>
-              <section className='landing-panel landing-panel-pink landing-panel-notification'>
+              <section className='landing-panel landing-panel-pink landing-panel-duty'>
                 <div className='landing-panel-tag'>
                   <Bell className='landing-panel-tag-icon' strokeWidth={1.9} />
                   <span>{t('matrix.notificationTag')}</span>
                 </div>
-                <div className='landing-notification-grid'>
-                  {landingNotificationProducts.map((item) => {
+                <div className='landing-stack landing-stack-duty'>
+                  {landingNotificationCards.map((item, index) => {
+                    const Icon = notificationIcons[index] || Bell;
                     const linkProps = makeLinkProps(item.url, history);
                     return (
-                      <a {...linkProps} className='landing-notification-chip' key={item.label}>
-                        <span className='landing-notification-chip-logo-wrap'>
-                          {item.iconUrl ? <img src={item.iconUrl} alt='' /> : null}
+                      <a {...linkProps} className='landing-duty-card' key={item.titleKey}>
+                        <span className='landing-duty-icon-slot'>
+                          <Icon className='landing-duty-icon' strokeWidth={1.9} />
                         </span>
-                        <span className='landing-notification-chip-label'>{item.label}</span>
+                        <div className='landing-duty-text'>
+                          <div className='landing-duty-title'>{t(item.titleKey)}</div>
+                          <div className='landing-duty-description'>{t(item.descriptionKey)}</div>
+                        </div>
                       </a>
                     );
                   })}
                 </div>
-                <div className='landing-caption'>{t(landingFootnotes.notification)}</div>
+                <div className='landing-inline-notes compact'>
+                  {landingFootnotes.notification.map((key, index) => (
+                    <React.Fragment key={key}>
+                      {index > 0 && <span className='landing-note-divider'>|</span>}
+                      <span>{t(key)}</span>
+                    </React.Fragment>
+                  ))}
+                </div>
               </section>
             </div>
 
-            <LandingAlertHub label={t('matrix.alertEventArrow')} />
-            <LandingMatrixArrow variant='ingest' label={t('matrix.dataIngestArrow')} />
+            {/* Vertical arrow indicators between shells */}
+            <div className='landing-matrix-arrow landing-matrix-arrow-ingest'>
+              <span className='landing-matrix-arrow-bg' aria-hidden />
+              <div className='landing-matrix-arrow-label'>
+                <span className='landing-matrix-arrow-up' aria-hidden />
+                <span>{t('matrix.dataIngestArrow')}</span>
+              </div>
+            </div>
+            <div className='landing-matrix-arrow landing-matrix-arrow-alert'>
+              <span className='landing-matrix-arrow-bg' aria-hidden />
+              <div className='landing-matrix-arrow-label'>
+                <span className='landing-matrix-arrow-up' aria-hidden />
+                <span>{t('matrix.alertEventArrow')}</span>
+              </div>
+            </div>
 
+            {/* Bottom tinted shell — blue wash, holds collection + integration + infrastructure */}
             <div className='landing-matrix-data-shell'>
               <div className='landing-data-grid'>
                 <section className='landing-panel landing-panel-blue landing-panel-collection'>
@@ -267,9 +304,9 @@ export default function Landing() {
                   </div>
                   <a href={landingCollectionProduct.url} target='_blank' rel='noopener noreferrer' className='landing-collector-card'>
                     <div className='landing-collector-badge'>
-                      <Database strokeWidth={1.8} />
+                      <PawPrint strokeWidth={1.8} />
                     </div>
-                    <div>
+                    <div className='landing-collector-text'>
                       <div className='landing-collector-title'>{landingCollectionProduct.title}</div>
                       <div className='landing-collector-description'>{t(landingCollectionProduct.descriptionKey)}</div>
                     </div>

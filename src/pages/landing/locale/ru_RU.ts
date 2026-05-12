@@ -28,7 +28,6 @@ const ru_RU = {
       dashboard: 'Дашборды',
       metricExplorer: 'Анализ метрик',
       logExplorer: 'Анализ логов',
-      traceExplorer: 'Анализ трейсов',
       alertRules: 'Правила алертов',
       alertMutes: 'Молчание алертов',
       alertSubscribes: 'Подписки',
@@ -37,7 +36,7 @@ const ru_RU = {
     },
     collection: {
       description: 'Универсальный OSS-коллектор',
-      footer: 'Единый сбор metrics / logs / traces',
+      footer: 'Единый сбор metrics / logs',
     },
     infrastructure: {
       components: 'Компоненты',
@@ -50,11 +49,17 @@ const ru_RU = {
       devices: 'Устройства',
       network: 'Сеть',
     },
+    notification: {
+      rules: { title: 'Правила уведомлений', description: 'Точная маршрутизация' },
+      templates: { title: 'Шаблоны', description: 'Единый стиль сообщений' },
+      channels: { title: 'Каналы', description: 'Мульти-канальная доставка' },
+      users: { title: 'Пользователи и команды', description: 'Управление получателями' },
+    },
     footnotes: {
       scenario: ['Слияние многомерных данных', 'Лучшие практики управления алертами', 'LLM-аналитика'],
       observability: 'Единая платформа наблюдаемости',
       integration: 'Популярные OSS и облачные источники',
-      notification: 'Email, IM, звонок, SMS, Webhook',
+      notification: ['Центр уведомлений', 'Подписка и эскалация'],
     },
   },
   quickStart: {

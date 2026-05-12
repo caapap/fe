@@ -28,7 +28,6 @@ const ja_JP = {
       dashboard: 'ダッシュボード',
       metricExplorer: 'メトリクス分析',
       logExplorer: 'ログ分析',
-      traceExplorer: 'トレース分析',
       alertRules: 'アラートルール',
       alertMutes: 'アラート抑制',
       alertSubscribes: 'アラート購読',
@@ -37,7 +36,7 @@ const ja_JP = {
     },
     collection: {
       description: 'オールインワン OSS コレクター',
-      footer: 'metrics / logs / traces を統一収集',
+      footer: 'metrics / logs を統一収集',
     },
     infrastructure: {
       components: 'コンポーネント',
@@ -50,11 +49,17 @@ const ja_JP = {
       devices: 'デバイス',
       network: 'ネットワーク',
     },
+    notification: {
+      rules: { title: '通知ルール', description: '精細なルーティング' },
+      templates: { title: '通知テンプレート', description: '統一メッセージスタイル' },
+      channels: { title: '通知チャネル', description: 'マルチチャネル到達' },
+      users: { title: 'ユーザーとチーム', description: '受信者管理' },
+    },
     footnotes: {
       scenario: ['多次元データ融合', 'アラートガバナンスのベストプラクティス', 'LLM 駆動のインテリジェント分析'],
       observability: '統合可観測プラットフォーム',
       integration: '主要 OSS / パブリッククラウド データソース',
-      notification: 'メール、IM、音声、SMS、Webhook 対応',
+      notification: ['通知センター', '購読とエスカレーション'],
     },
   },
   quickStart: {

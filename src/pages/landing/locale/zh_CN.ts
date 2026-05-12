@@ -3,7 +3,7 @@ const zh_CN = {
   hero: {
     badge: '开源 · 一站式监控告警平台',
     highlight: '让监控更简单、更智能',
-    description: '指标 · 日志 · 链路一体化采集与分析，告警治理、可视化大盘、智能助手开箱即用，云原生友好。',
+    description: '指标 · 日志一体化采集与分析，告警治理、可视化大盘、智能助手开箱即用，云原生友好。',
     primaryAction: '查看文档',
     secondaryAction: '我要问 AI',
   },
@@ -40,7 +40,6 @@ const zh_CN = {
       dashboard: '仪表盘',
       metricExplorer: '指标分析',
       logExplorer: '日志分析',
-      traceExplorer: '链路分析',
       alertRules: '告警规则',
       alertMutes: '告警屏蔽',
       alertSubscribes: '告警订阅',
@@ -49,7 +48,7 @@ const zh_CN = {
     },
     collection: {
       description: 'all-in-one 开源采集器',
-      footer: '统一采集 metrics / logs / traces',
+      footer: '统一采集 metrics / logs',
     },
     infrastructure: {
       components: '基础组件',
@@ -62,11 +61,17 @@ const zh_CN = {
       devices: '设备',
       network: '网络',
     },
+    notification: {
+      rules: { title: '通知规则', description: '精细化分派路由' },
+      templates: { title: '通知模板', description: '统一消息样式' },
+      channels: { title: '通知媒介', description: '多渠道触达' },
+      users: { title: '用户与团队', description: '接收人组织管理' },
+    },
     footnotes: {
       scenario: ['多维度观测数据融合', '告警治理最佳实践', '大模型驱动的智能分析'],
       observability: '一体化可观测平台能力',
       integration: '主流开源 & 公有云数据源',
-      notification: '邮件、IM、电话、短信、Webhook 全覆盖',
+      notification: ['通知中心', '订阅与升级'],
     },
   },
   quickStart: {
@@ -80,7 +85,7 @@ const zh_CN = {
     },
     observe: {
       title: '统一观测',
-      description: '一体化指标、日志、链路分析',
+      description: '一体化指标、日志分析',
       links: ['如何使用仪表盘可视化业务指标？', '如何在指标分析中编写 PromQL 查询？'],
     },
     alert: {

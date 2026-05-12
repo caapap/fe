@@ -3,7 +3,7 @@ const en_US = {
   hero: {
     badge: 'Open Source · All-in-one Monitoring & Alerting',
     highlight: 'Monitoring made simple and intelligent',
-    description: 'Unified ingestion and analysis of metrics, logs and traces. Alerting, dashboards and an AI assistant out of the box. Cloud-native ready.',
+    description: 'Unified ingestion and analysis of metrics and logs. Alerting, dashboards and an AI assistant out of the box. Cloud-native ready.',
     primaryAction: 'View Docs',
     secondaryAction: 'Ask AI',
   },
@@ -40,7 +40,6 @@ const en_US = {
       dashboard: 'Dashboards',
       metricExplorer: 'Metric Explorer',
       logExplorer: 'Log Explorer',
-      traceExplorer: 'Trace Explorer',
       alertRules: 'Alert Rules',
       alertMutes: 'Alert Mutes',
       alertSubscribes: 'Alert Subscribes',
@@ -49,7 +48,7 @@ const en_US = {
     },
     collection: {
       description: 'All-in-one open-source collector',
-      footer: 'Unified collection of metrics / logs / traces',
+      footer: 'Unified collection of metrics / logs',
     },
     infrastructure: {
       components: 'Components',
@@ -62,11 +61,17 @@ const en_US = {
       devices: 'Devices',
       network: 'Network',
     },
+    notification: {
+      rules: { title: 'Notification Rules', description: 'Fine-grained routing' },
+      templates: { title: 'Templates', description: 'Unified message styling' },
+      channels: { title: 'Channels', description: 'Multi-channel delivery' },
+      users: { title: 'Users & Teams', description: 'Recipient management' },
+    },
     footnotes: {
       scenario: ['Multi-dimensional data fusion', 'Best practices for alert governance', 'LLM-powered intelligent analysis'],
       observability: 'Integrated observability platform',
       integration: 'Mainstream open-source & public cloud data sources',
-      notification: 'Email, IM, voice, SMS and webhooks',
+      notification: ['Notification Center', 'Subscribe & Escalate'],
     },
   },
   quickStart: {
@@ -80,7 +85,7 @@ const en_US = {
     },
     observe: {
       title: 'Unified Observability',
-      description: 'Metrics, logs and traces in one place',
+      description: 'Metrics and logs in one place',
       links: ['How to visualize business metrics on dashboards?', 'How to write PromQL queries in the metric explorer?'],
     },
     alert: {

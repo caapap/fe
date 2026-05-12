@@ -55,6 +55,9 @@ export const landingHero = {
   },
   heroScreenshot: '/image/landing/hero-dashboard.png',
   heroScreenshotDark: '/image/landing/hero-dashboard-dark.png',
+  lightGradientUrl: '/image/landing/hero/light-gradient.svg',
+  darkGradientUrl: '/image/landing/hero/dark-gradient.svg',
+  windowDotsUrl: '/image/landing/hero/window-dots.svg',
 };
 
 /** 场景 · 统一保障 — 4 张卡片 */
@@ -70,26 +73,18 @@ export const landingObservabilityProducts: LandingPill[] = [
   { titleKey: 'matrix.observability.dashboard', url: '/dashboards' },
   { titleKey: 'matrix.observability.metricExplorer', url: '/metric/explorer' },
   { titleKey: 'matrix.observability.logExplorer', url: '/log/explorer' },
-  { titleKey: 'matrix.observability.traceExplorer', url: '/trace/explorer' },
   { titleKey: 'matrix.observability.alertRules', url: '/alert-rules' },
   { titleKey: 'matrix.observability.alertMutes', url: '/alert-mutes' },
   { titleKey: 'matrix.observability.alertSubscribes', url: '/alert-subscribes' },
   { titleKey: 'matrix.observability.objectExplorer', url: '/object/explorer' },
-  { titleKey: 'matrix.observability.recordingRules', url: '/recording-rules' },
 ];
 
-/** 右侧汇聚 — 通知媒介 chips（替代 srm-fe 的"统一值班"） */
-export const landingNotificationProducts: LandingChip[] = [
-  { label: 'Email', iconUrl: '/image/notification/smtp.png', url: '/notification-channels' },
-  { label: 'DingTalk', iconUrl: '/image/logos/dingtalk.png', url: '/notification-channels' },
-  { label: 'WeCom', iconUrl: '/image/logos/wecom.png', url: '/notification-channels' },
-  { label: 'Feishu', iconUrl: '/image/logos/feishu.png', url: '/notification-channels' },
-  { label: 'Telegram', iconUrl: '/image/logos/telegram.png', url: '/notification-channels' },
-  { label: 'AliCloud', iconUrl: '/image/logos/alibabacloud.png', url: '/notification-channels' },
-  { label: 'TencentCloud', iconUrl: '/image/logos/tencentcloud.png', url: '/notification-channels' },
-  { label: 'PagerDuty', iconUrl: '/image/logos/pagerduty.png', url: '/notification-channels' },
-  { label: 'FlashDuty', iconUrl: '/image/logos/flashduty.png', url: '/notification-channels' },
-  { label: 'Webhook', iconUrl: '/image/notification/http.png', url: '/notification-channels' },
+/** 右侧汇聚 — 通知矩阵 4 张卡片（替代 srm-fe 的"统一值班"，与场景卡片视觉一致：violet 圆形小图标 + 标题 + 副标题） */
+export const landingNotificationCards: LandingCard[] = [
+  { titleKey: 'matrix.notification.rules.title', descriptionKey: 'matrix.notification.rules.description', url: '/notification-rules' },
+  { titleKey: 'matrix.notification.templates.title', descriptionKey: 'matrix.notification.templates.description', url: '/notification-templates' },
+  { titleKey: 'matrix.notification.channels.title', descriptionKey: 'matrix.notification.channels.description', url: '/notification-channels' },
+  { titleKey: 'matrix.notification.users.title', descriptionKey: 'matrix.notification.users.description', url: '/users' },
 ];
 
 /** 数据 · 统一采集 — Categraf 卡片 */
@@ -113,7 +108,6 @@ export const landingIntegrationProducts: LandingChip[] = [
   { label: 'MySQL', iconUrl: '/image/logos/mysql.png', url: '/datasources' },
   { label: 'PostgreSQL', iconUrl: '/image/logos/pgsql.png', url: '/datasources' },
   { label: 'Doris', iconUrl: '/image/logos/doris.png', url: '/datasources' },
-  { label: 'OpenSearch', iconUrl: '/image/logos/opensearch.png', url: '/datasources' },
 ];
 
 /** 基础设施分类 — 9 项 */
@@ -133,7 +127,7 @@ export const landingFootnotes = {
   scenario: ['matrix.footnotes.scenario.0', 'matrix.footnotes.scenario.1', 'matrix.footnotes.scenario.2'],
   observability: 'matrix.footnotes.observability',
   integration: 'matrix.footnotes.integration',
-  notification: 'matrix.footnotes.notification',
+  notification: ['matrix.footnotes.notification.0', 'matrix.footnotes.notification.1'],
 };
 
 export const landingQuickStartCards: LandingGuideCard[] = [
