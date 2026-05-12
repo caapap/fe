@@ -156,16 +156,14 @@ export default function List(props: IProps) {
             }}
           >
             <TargetMetaDrawer ident={text} />
-            {import.meta.env['VITE_IS_PRO'] && (
-              <Tooltip title='查看关联采集配置'>
-                <ApartmentOutlined
-                  onClick={() => {
-                    setCollectsDrawerVisible(true);
-                    setCollectsDrawerIdent(text);
-                  }}
-                />
-              </Tooltip>
-            )}
+            <Tooltip title='查看关联采集配置'>
+              <ApartmentOutlined
+                onClick={() => {
+                  setCollectsDrawerVisible(true);
+                  setCollectsDrawerIdent(text);
+                }}
+              />
+            </Tooltip>
           </div>
         );
       },
@@ -504,23 +502,29 @@ export default function List(props: IProps) {
   });
 
   const handleRestart = (ident: string) => {
-    postTargetRestart(ident).catch((err) => {
-      if (err?.status === 501) {
-        message.info(err?.message || '功能开发中');
-      }
-    });
+    postTargetRestart(ident)
+      .then(() => {
+        message.success(t('operations.restart_success', { ident }));
+      })
+      .catch((err) => {
+        message.error(err?.message || t('operations.restart_failed'));
+      });
   };
 
   const handleUninstall = (ident: string) => {
     Modal.confirm({
       title: t('operations.uninstall'),
-      content: `确认卸载 ${ident} 的 Agent？`,
+      content: t('operations.uninstall_confirm', { ident }),
+      okType: 'danger',
       onOk: () => {
-        deleteTargetAgent(ident).catch((err) => {
-          if (err?.status === 501) {
-            message.info(err?.message || '功能开发中');
-          }
-        });
+        return deleteTargetAgent(ident)
+          .then(() => {
+            message.success(t('operations.uninstall_success', { ident }));
+            setRefreshFlag(_.uniqueId('refreshFlag_'));
+          })
+          .catch((err) => {
+            message.error(err?.message || t('operations.uninstall_failed'));
+          });
       },
     });
   };

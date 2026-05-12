@@ -122,7 +122,12 @@ const zh_CN = {
     title: '操作',
     upgrade: '升级 Agent',
     restart: '重启 Agent',
+    restart_success: '已下发重启指令给 {{ident}}，约 15 秒内生效',
+    restart_failed: '重启指令下发失败',
     uninstall: '卸载 Agent',
+    uninstall_confirm: '确认卸载 {{ident}} 的 Agent？此操作将停止并卸载 service 注册项。',
+    uninstall_success: '已下发卸载指令给 {{ident}}，约 15 秒内生效',
+    uninstall_failed: '卸载指令下发失败',
     view_collects: '查看采集配置',
   },
   collects_drawer: {
