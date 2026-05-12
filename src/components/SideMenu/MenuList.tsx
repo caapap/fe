@@ -534,29 +534,6 @@ export default function MenuList(
   return (
     <>
       <div className={cn('h-full pl-2 pr-4', isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? 'text-[#e6e6e8]' : 'text-main')}>
-        <Tooltip title={props.collapsed ? null : isMac ? t('⌘ + K') : t('Ctrl + K')} placement='right' trigger={props.collapsed ? [] : ['hover']}>
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              props.quickMenuRef.current.open();
-            }}
-            className={cn(
-              'group relative flex h-8 cursor-pointer items-center rounded-md px-3 transition-colors transition-spacing duration-75',
-              isLight ? 'hover:bg-[var(--fc-sidemenu-item-hover-bg)]' : props.isCustomBg ? 'hover:bg-gray-200/20' : 'hover:bg-fc-200',
-            )}
-          >
-            <div
-              className={cn(
-                'inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center children-icon2:h-[16px] children-icon2:w-[16px]',
-                !props.collapsed && 'mr-2',
-                isBlueTheme ? 'text-[#427AF4]' : isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? '' : 'text-[#6E6587]',
-              )}
-            >
-              {<IconFont type='icon-ic_search_light' />}
-            </div>
-            {!props.collapsed && <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('quickJump')} </div>}
-          </div>
-        </Tooltip>
         {IS_ENT ? (
           <Link
             to='/landing'
@@ -570,14 +547,14 @@ export default function MenuList(
           >
             <div
               className={cn(
-                'inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center children-icon2:h-[16px] children-icon2:w-[16px]',
-                !props.collapsed && 'mr-2',
+                'mr-2 inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center children-icon2:h-[16px] children-icon2:w-[16px]',
                 isLight ? 'text-[var(--fc-sidemenu-item-icon)]' : '',
               )}
             >
               <IconFont type='icon-ic_home_light' />
             </div>
-            {!props.collapsed && <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('landing')} </div>}
+
+            <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('landing')} </div>
           </Link>
         ) : (
           <Link
@@ -602,6 +579,29 @@ export default function MenuList(
             {!props.collapsed && <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('landing')} </div>}
           </Link>
         )}
+        <Tooltip title={props.collapsed ? null : isMac ? t('⌘ + K') : t('Ctrl + K')} placement='right' trigger={props.collapsed ? [] : ['hover']}>
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              props.quickMenuRef.current.open();
+            }}
+            className={cn(
+              'group relative flex h-8 cursor-pointer items-center rounded-md px-3 transition-colors transition-spacing duration-75',
+              isLight ? 'hover:bg-[var(--fc-sidemenu-item-hover-bg)]' : props.isCustomBg ? 'hover:bg-gray-200/20' : 'hover:bg-fc-200',
+            )}
+          >
+            <div
+              className={cn(
+                'inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center children-icon2:h-[16px] children-icon2:w-[16px]',
+                !props.collapsed && 'mr-2',
+                isBlueTheme ? 'text-[#427AF4]' : isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? '' : 'text-[#6E6587]',
+              )}
+            >
+              {<IconFont type='icon-ic_search_light' />}
+            </div>
+            {!props.collapsed && <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('quickJump')} </div>}
+          </div>
+        </Tooltip>
         {topExtra ? React.cloneElement(topExtra, { ...props, isLight }) : null}
         <div className='space-y-[2px]'>
           {chunks.map((chunk, chunkIndex) => (
