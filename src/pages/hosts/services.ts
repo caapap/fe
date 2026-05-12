@@ -1,4 +1,3 @@
-import { IS_PLUS } from '@/utils/constant';
 import request from '@/utils/request';
 import { RequestMethod } from '@/store/common';
 
@@ -15,8 +14,7 @@ export function getList(params: {
   downtime?: number;
   agent_versions?: string;
 }): Promise<{ list: Item[]; total: number }> {
-  const url = IS_PLUS ? '/api/n9e-plus/targets' : '/api/n9e/targets';
-  return request(url, {
+  return request('/api/n9e/targets', {
     method: RequestMethod.Get,
     params,
   }).then((res) => res.dat);

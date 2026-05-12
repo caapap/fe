@@ -15,6 +15,9 @@ export interface Item {
   remote_addr: string;
   agent_version: string;
   new_version: string;
+  pending_action: string;
+  pending_issued_at: number;
+  agent_status: string;
   apps: string;
   arch: string;
   os: string;

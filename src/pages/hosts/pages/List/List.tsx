@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useRef } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { Button, Input, Space, Select, Dropdown, Menu, Table, Divider, Tooltip, Modal, message, Tag } from 'antd';
 import { ReloadOutlined, SearchOutlined, DownOutlined, QuestionCircleOutlined, CopyOutlined, ApartmentOutlined } from '@ant-design/icons';
@@ -34,6 +34,8 @@ import Tags from './Tags';
 import { formatBeatTimeDisplay } from './formatBeatTimeDisplay';
 
 const downtimeOptions = [1, 2, 3, 5, 10, 30];
+const PENDING_ACTION_TTL_SECONDS = 300;
+const ACTION_REFRESH_DELAYS = [0, 3_000, 6_000, 10_000, 15_000, 25_000];
 
 /** Fixed IP cell width sample: "IP " + longest dotted IPv4 */
 const IDENT_IP_V4_MAX_SAMPLE = 'IP 255.255.255.255';
@@ -71,6 +73,14 @@ function getTrailColor(val: number) {
   return 'var(--fc-red-3)';
 }
 
+function isPendingActionActive(record: Pick<Item, 'pending_action' | 'pending_issued_at'>) {
+  if (!record.pending_action || !record.pending_issued_at) {
+    return false;
+  }
+
+  return moment().unix() - record.pending_issued_at <= PENDING_ACTION_TTL_SECONDS;
+}
+
 interface Props {
   allCollapseNode?: React.ReactNode;
   editable?: boolean;
@@ -90,9 +100,19 @@ export default function List(props: Props) {
 
   const { allCollapseNode, editable = true, explorable = true, gids, selectedRows, setSelectedRows, refreshFlag, setRefreshFlag, setOperateType } = props;
   const selectedIdents = _.map(selectedRows, 'ident');
+  const actionRefreshTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   const [collectsDrawerVisible, setCollectsDrawerVisible] = useState(false);
   const [collectsDrawerIdent, setCollectsDrawerIdent] = useState('');
+
+  const scheduleActionRefresh = () => {
+    _.forEach(actionRefreshTimers.current, clearTimeout);
+    actionRefreshTimers.current = _.map(ACTION_REFRESH_DELAYS, (delay) => {
+      return setTimeout(() => {
+        setRefreshFlag(_.uniqueId('refreshFlag_'));
+      }, delay);
+    });
+  };
 
   const handleRestart = (ident: string) => {
     Modal.confirm({
@@ -102,7 +122,7 @@ export default function List(props: Props) {
         return postTargetRestart(ident)
           .then(() => {
             message.success(t('operations.restart_success', { ident }), 5);
-            setRefreshFlag(_.uniqueId('refreshFlag_'));
+            scheduleActionRefresh();
           })
           .catch((err) => {
             message.error(err?.message || t('operations.restart_failed'));
@@ -120,7 +140,7 @@ export default function List(props: Props) {
         return deleteTargetAgent(ident)
           .then(() => {
             message.success(t('operations.uninstall_success', { ident }), 5);
-            setRefreshFlag(_.uniqueId('refreshFlag_'));
+            scheduleActionRefresh();
           })
           .catch((err) => {
             message.error(err?.message || t('operations.uninstall_failed'));
@@ -180,6 +200,12 @@ export default function List(props: Props) {
       });
     }
   }, [refreshFlag]);
+
+  useEffect(() => {
+    return () => {
+      _.forEach(actionRefreshTimers.current, clearTimeout);
+    };
+  }, []);
 
   return (
     <>
@@ -488,8 +514,8 @@ export default function List(props: Props) {
                         <span className='leading-none'>{record.agent_version || 'Null'}</span>
                       </div>
                       {record.new_version && record.new_version !== record.agent_version ? <Tag color='orange'>{t('operations.upgrading', { version: record.new_version })}</Tag> : null}
-                      {record.pending_action === 'restart' ? <Tag color='blue'>{t('operations.status_restarting')}</Tag> : null}
-                      {record.pending_action === 'uninstall' ? <Tag color='red'>{t('operations.status_uninstalling')}</Tag> : null}
+                      {isPendingActionActive(record) && record.pending_action === 'restart' ? <Tag color='blue'>{t('operations.status_restarting')}</Tag> : null}
+                      {isPendingActionActive(record) && record.pending_action === 'uninstall' ? <Tag color='red'>{t('operations.status_uninstalling')}</Tag> : null}
                       {record.agent_status === 'uninstalled' ? <Tag>{t('operations.status_uninstalled')}</Tag> : null}
                     </Space>
                   </div>
