@@ -33,7 +33,7 @@ const zh_CN = {
       },
       aiAssistant: {
         title: 'AI 智能化',
-        description: '大模型 + MCP 工具调用',
+        description: '大模型驱动的智能化能力',
       },
     },
     observability: {
@@ -95,13 +95,13 @@ const zh_CN = {
     },
     ai: {
       title: 'AI 智能化',
-      description: '大模型、MCP 与智能体',
+      description: '大模型与智能体',
       links: ['如何配置 LLM 模型？', '如何使用 Agent 自动分析告警？'],
     },
   },
   aiAssistant: {
     title: 'Nightingale AI 智能助手',
-    description: '基于大语言模型与 MCP 工具，自然语言完成平台操作、查询数据、分析告警根因。',
+    description: '基于大语言模型，自然语言完成平台操作、查询数据、分析告警根因。',
     capabilities: ['自然语言查询', '告警根因分析', 'PromQL / LogQL 生成', '文档智能问答'],
     action: '立即体验 AI 助手',
   },

@@ -22,7 +22,7 @@ const ja_JP = {
       businessGroups: { title: 'ビジネスグループ', description: 'マルチテナント / リソース分離' },
       alertGovernance: { title: 'アラートガバナンス', description: 'ルール · 抑制 · 購読' },
       eventHistory: { title: 'イベント履歴', description: '全イベントの追跡分析' },
-      aiAssistant: { title: 'AI インテリジェンス', description: 'LLM + MCP ツール呼び出し' },
+      aiAssistant: { title: 'AI インテリジェンス', description: 'LLM によるインテリジェント機能' },
     },
     observability: {
       dashboard: 'ダッシュボード',
@@ -83,13 +83,13 @@ const ja_JP = {
     },
     ai: {
       title: 'AI インテリジェンス',
-      description: 'LLM、MCP、エージェント',
+      description: 'LLM とエージェント',
       links: ['LLM モデルを設定するには？', 'エージェントでアラートを分析するには？'],
     },
   },
   aiAssistant: {
     title: 'Nightingale AI アシスタント',
-    description: 'LLM と MCP ツールで、自然言語による操作・データ照会・根本原因分析を実現します。',
+    description: 'LLM により、自然言語による操作・データ照会・根本原因分析を実現します。',
     capabilities: ['自然言語クエリ', '根本原因分析', 'PromQL / LogQL 生成', 'ドキュメント Q&A'],
     action: 'AI アシスタントを試す',
   },

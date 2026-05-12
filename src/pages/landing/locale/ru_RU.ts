@@ -22,7 +22,7 @@ const ru_RU = {
       businessGroups: { title: 'Бизнес-группы', description: 'Мультитенантность и изоляция' },
       alertGovernance: { title: 'Управление алертами', description: 'Правила · Молчание · Подписки' },
       eventHistory: { title: 'История событий', description: 'Полный ретроспективный анализ' },
-      aiAssistant: { title: 'AI-интеллект', description: 'LLM + вызов инструментов MCP' },
+      aiAssistant: { title: 'AI-интеллект', description: 'Интеллект на базе LLM' },
     },
     observability: {
       dashboard: 'Дашборды',
@@ -83,13 +83,13 @@ const ru_RU = {
     },
     ai: {
       title: 'AI-интеллект',
-      description: 'LLM, MCP и агенты',
+      description: 'LLM и агенты',
       links: ['Как настроить LLM-модель?', 'Как использовать агентов для анализа алертов?'],
     },
   },
   aiAssistant: {
     title: 'AI-ассистент Nightingale',
-    description: 'LLM и MCP — управляйте платформой и анализируйте инциденты на естественном языке.',
+    description: 'На базе LLM — управляйте платформой и анализируйте инциденты на естественном языке.',
     capabilities: ['Запросы на естественном языке', 'Анализ корневых причин', 'Генерация PromQL / LogQL', 'Q&A по документации'],
     action: 'Открыть AI-ассистента',
   },

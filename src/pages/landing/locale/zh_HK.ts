@@ -22,7 +22,7 @@ const zh_HK = {
       businessGroups: { title: '業務組', description: '多租戶與資源隔離' },
       alertGovernance: { title: '告警治理', description: '規則 · 遮蔽 · 訂閱' },
       eventHistory: { title: '歷史事件', description: '全量事件回溯分析' },
-      aiAssistant: { title: 'AI 智慧化', description: '大模型 + MCP 工具調用' },
+      aiAssistant: { title: 'AI 智慧化', description: '大模型驅動的智慧化能力' },
     },
     observability: {
       dashboard: '儀表盤',
@@ -83,13 +83,13 @@ const zh_HK = {
     },
     ai: {
       title: 'AI 智慧化',
-      description: '大模型、MCP 與智慧體',
+      description: '大模型與智慧體',
       links: ['如何配置 LLM 模型？', '如何使用 Agent 自動分析告警？'],
     },
   },
   aiAssistant: {
     title: 'Nightingale AI 智慧助手',
-    description: '基於大語言模型與 MCP 工具，自然語言完成平台操作、查詢數據、分析告警根因。',
+    description: '基於大語言模型，自然語言完成平台操作、查詢數據、分析告警根因。',
     capabilities: ['自然語言查詢', '告警根因分析', 'PromQL / LogQL 生成', '文檔智慧問答'],
     action: '立即體驗 AI 助手',
   },

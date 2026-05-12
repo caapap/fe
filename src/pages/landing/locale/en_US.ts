@@ -33,7 +33,7 @@ const en_US = {
       },
       aiAssistant: {
         title: 'AI Intelligence',
-        description: 'LLM + MCP tool calling',
+        description: 'LLM-powered intelligence',
       },
     },
     observability: {
@@ -95,13 +95,13 @@ const en_US = {
     },
     ai: {
       title: 'AI Intelligence',
-      description: 'LLM, MCP and agents',
+      description: 'LLM and agents',
       links: ['How to configure an LLM model?', 'How to use Agents to analyze alerts?'],
     },
   },
   aiAssistant: {
     title: 'Nightingale AI Assistant',
-    description: 'Powered by LLMs and MCP tools — operate the platform, query data and analyze root causes with natural language.',
+    description: 'Powered by LLMs — operate the platform, query data and analyze root causes with natural language.',
     capabilities: ['Natural language queries', 'Root-cause analysis', 'PromQL / LogQL generation', 'Documentation Q&A'],
     action: 'Try the AI Assistant',
   },
