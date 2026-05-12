@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
-import { Button, Input, Space, Select, Dropdown, Menu, Table, Divider, Tooltip, Modal, message } from 'antd';
+import { Button, Input, Space, Select, Dropdown, Menu, Table, Divider, Tooltip, Modal, message, Tag } from 'antd';
 import { ReloadOutlined, SearchOutlined, DownOutlined, QuestionCircleOutlined, CopyOutlined, ApartmentOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { useAntdTable } from 'ahooks';
@@ -21,11 +21,10 @@ import TargetMetaDrawer from '@/pages/targets/TargetMetaDrawer';
 import { timeFormatter } from '@/pages/dashboard/Renderer/utils/valueFormatter';
 
 // @ts-ignore
-import CollectsDrawer from 'plus:/pages/collects/CollectsDrawer';
-// @ts-ignore
-import UpgradeAgent from 'plus:/parcels/Targets/UpgradeAgent';
-// @ts-ignore
-import VersionSelect from 'plus:/parcels/Targets/VersionSelect';
+import CollectsDrawer from './CollectsDrawer';
+import UpgradeAgent from '@/pages/targets/components/UpgradeAgent';
+import VersionSelect from './VersionSelect';
+import { postTargetRestart, deleteTargetAgent } from '@/pages/targets/services';
 
 import { NS } from '../../constants';
 import { Item, OperateType } from '../../types';
@@ -94,6 +93,41 @@ export default function List(props: Props) {
 
   const [collectsDrawerVisible, setCollectsDrawerVisible] = useState(false);
   const [collectsDrawerIdent, setCollectsDrawerIdent] = useState('');
+
+  const handleRestart = (ident: string) => {
+    Modal.confirm({
+      title: t('operations.restart'),
+      content: t('operations.restart_confirm', { ident }),
+      onOk: () => {
+        return postTargetRestart(ident)
+          .then(() => {
+            message.success(t('operations.restart_success', { ident }), 5);
+            setRefreshFlag(_.uniqueId('refreshFlag_'));
+          })
+          .catch((err) => {
+            message.error(err?.message || t('operations.restart_failed'));
+          });
+      },
+    });
+  };
+
+  const handleUninstall = (ident: string) => {
+    Modal.confirm({
+      title: t('operations.uninstall'),
+      content: t('operations.uninstall_confirm', { ident }),
+      okType: 'danger',
+      onOk: () => {
+        return deleteTargetAgent(ident)
+          .then(() => {
+            message.success(t('operations.uninstall_success', { ident }), 5);
+            setRefreshFlag(_.uniqueId('refreshFlag_'));
+          })
+          .catch((err) => {
+            message.error(err?.message || t('operations.uninstall_failed'));
+          });
+      },
+    });
+  };
 
   const [searchValue, setSearchValue] = useState('');
   const [params, setParams] = useState<{
@@ -453,6 +487,10 @@ export default function List(props: Props) {
                         <VersionIcon className='text-l2 leading-none flex' />
                         <span className='leading-none'>{record.agent_version || 'Null'}</span>
                       </div>
+                      {record.new_version && record.new_version !== record.agent_version ? <Tag color='orange'>{t('operations.upgrading', { version: record.new_version })}</Tag> : null}
+                      {record.pending_action === 'restart' ? <Tag color='blue'>{t('operations.status_restarting')}</Tag> : null}
+                      {record.pending_action === 'uninstall' ? <Tag color='red'>{t('operations.status_uninstalling')}</Tag> : null}
+                      {record.agent_status === 'uninstalled' ? <Tag>{t('operations.status_uninstalled')}</Tag> : null}
                     </Space>
                   </div>
                 );
@@ -718,6 +756,50 @@ export default function List(props: Props) {
                       {displayVal}
                     </div>
                   </Tooltip>
+                );
+              },
+            },
+            {
+              key: 'operations',
+              title: t('operations.title'),
+              fixed: 'right',
+              render: (_, record) => {
+                return (
+                  <Dropdown
+                    trigger={['click']}
+                    overlay={
+                      <Menu>
+                        <Menu.Item key='upgrade'>
+                          <UpgradeAgent
+                            selectedIdents={[record.ident]}
+                            onOk={() => {
+                              setRefreshFlag(_.uniqueId('refreshFlag_'));
+                            }}
+                          />
+                        </Menu.Item>
+                        <Menu.Item key='restart' onClick={() => handleRestart(record.ident)}>
+                          {t('operations.restart')}
+                        </Menu.Item>
+                        <Menu.Item key='uninstall' onClick={() => handleUninstall(record.ident)}>
+                          {t('operations.uninstall')}
+                        </Menu.Item>
+                        <Menu.Divider />
+                        <Menu.Item
+                          key='view_collects'
+                          onClick={() => {
+                            setCollectsDrawerIdent(record.ident);
+                            setCollectsDrawerVisible(true);
+                          }}
+                        >
+                          {t('operations.view_collects')}
+                        </Menu.Item>
+                      </Menu>
+                    }
+                  >
+                    <Button size='small'>
+                      {t('operations.title')} <DownOutlined />
+                    </Button>
+                  </Dropdown>
                 );
               },
             },
