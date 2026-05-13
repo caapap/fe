@@ -23,7 +23,7 @@ import { timeFormatter } from '@/pages/dashboard/Renderer/utils/valueFormatter';
 // @ts-ignore
 import CollectsDrawer from './CollectsDrawer';
 import UpgradeAgent from '@/pages/targets/components/UpgradeAgent';
-import DeployAgent from '@/pages/targets/components/DeployAgent';
+import DeployAgent from '@/pages/targets/components/DeployAgent/index';
 import VersionSelect from './VersionSelect';
 import { postTargetRestart, deleteTargetAgent } from '@/pages/targets/services';
 

@@ -124,7 +124,8 @@ export function deleteSSHCredentials(ids: number[]): Promise<void> {
 export interface DeployAgentRequest {
   hosts: string[];
   credential_id: number;
-  package_id: number;
+  package_id?: number;
+  download_url?: string;
   install_dir?: string;
   n9e_server_url: string;
 }

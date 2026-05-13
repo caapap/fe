@@ -138,7 +138,7 @@ const zh_CN = {
     section: {
       targets: '目标机器',
       source: '安装来源',
-      server: '星相中心地址',
+      server: '上报中心地址',
     },
     load_selected: '从已选中的 {{count}} 台载入',
     add_row: '新增一行',
@@ -163,7 +163,7 @@ const zh_CN = {
     validation_targets: '请至少填写一台目标机器（IP 必填）',
     validation_credential: '请为每台目标机器选择凭证',
     validation_package: '请选择已上传的 Categraf 包或上传新包',
-    validation_server: '请填写星相中心地址',
+    validation_server: '请填写上报中心地址',
     submit: '开始下发',
     cancel: '取消',
     success: '已创建下发任务（共 {{count}} 台机器）',

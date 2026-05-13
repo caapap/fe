@@ -133,7 +133,7 @@ const zh_HK = {
     section: {
       targets: '目標機器',
       source: '安裝來源',
-      server: '星相中心地址',
+      server: '上報中心地址',
     },
     load_selected: '從已選中的 {{count}} 台載入',
     add_row: '新增一行',
@@ -158,7 +158,7 @@ const zh_HK = {
     validation_targets: '請至少填寫一台目標機器（IP 必填）',
     validation_credential: '請為每台目標機器選擇憑證',
     validation_package: '請選擇已上傳的 Categraf 包或上傳新包',
-    validation_server: '請填寫星相中心地址',
+    validation_server: '請填寫上報中心地址',
     submit: '開始下發',
     cancel: '取消',
     success: '已建立下發任務（共 {{count}} 台機器）',

@@ -35,6 +35,7 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
   const [packages, setPackages] = useState<AgentPackage[]>([]);
   const [rows, setRows] = useState<TargetRow[]>([makeBlankRow()]);
   const [packageId, setPackageId] = useState<number | undefined>();
+  const [remoteUrl, setRemoteUrl] = useState('');
   const [installDir, setInstallDir] = useState('');
   const [serverURL, setServerURL] = useState('');
 
@@ -79,6 +80,7 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
       setRows([makeBlankRow()]);
     }
     setPackageId(undefined);
+    setRemoteUrl('');
     setInstallDir('');
     setServerURL('');
     setRunId(undefined);
@@ -101,7 +103,8 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
       message.warning(t('deploy_agent.validation_credential'));
       return null;
     }
-    if (!packageId) {
+    // 验证安装包来源：本地包或远程 URL 至少选择一个
+    if (!packageId && !remoteUrl.trim()) {
       message.warning(t('deploy_agent.validation_package'));
       return null;
     }
@@ -117,6 +120,7 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
       hosts: filled.map((r) => r.host),
       credential_id: credentialId,
       package_id: packageId,
+      download_url: remoteUrl.trim() || undefined,
       install_dir: installDir.trim() || undefined,
       n9e_server_url: serverURL.trim(),
     };
@@ -143,16 +147,18 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
     }
     return (
       <div className='flex flex-col gap-4'>
-        <div>
-          <SectionLabel>{t('deploy_agent.section.targets')}</SectionLabel>
-          <TargetsEditor
-            rows={rows}
-            onRowsChange={setRows}
-            credentials={credentials}
-            onRequestNewCredential={() => setCredModalOpen(true)}
-            preselectedIdents={preselectedIdents}
-          />
-        </div>
+        {preselectedIdents.length === 0 && (
+          <div>
+            <SectionLabel>{t('deploy_agent.section.targets')}</SectionLabel>
+            <TargetsEditor
+              rows={rows}
+              onRowsChange={setRows}
+              credentials={credentials}
+              onRequestNewCredential={() => setCredModalOpen(true)}
+              preselectedIdents={preselectedIdents}
+            />
+          </div>
+        )}
 
         <div>
           <SectionLabel>{t('deploy_agent.section.source')}</SectionLabel>
@@ -161,6 +167,7 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
             selectedPackageId={packageId}
             onSelect={setPackageId}
             onRequestUpload={() => setUploadModalOpen(true)}
+            onRemoteUrlChange={setRemoteUrl}
           />
         </div>
 
@@ -192,14 +199,9 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
     <>
       <span
         onClick={() => {
-          if (preselectedIdents.length === 0) {
-            // When invoked from a per-row menu we pass one ident explicitly,
-            // so "0 selected" only happens from the batch menu with no rows.
-            message.warning(t('upgrade_agent.no_selection'));
-            return;
-          }
           setVisible(true);
         }}
+        style={{ cursor: 'pointer' }}
       >
         {modalTitle}
       </span>

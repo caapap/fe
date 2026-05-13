@@ -33,6 +33,31 @@ export function makeBlankRow(partial?: Partial<TargetRow>): TargetRow {
   };
 }
 
+// 解析 IP 段，支持格式如：10.0.1.[1-120]
+function parseIpRange(input: string): string[] {
+  const rangePattern = /^(.+)\[(\d+)-(\d+)\](.*)$/;
+  const match = input.match(rangePattern);
+
+  if (!match) {
+    return [input];
+  }
+
+  const [, prefix, startStr, endStr, suffix] = match;
+  const start = parseInt(startStr, 10);
+  const end = parseInt(endStr, 10);
+
+  if (start > end || start < 0 || end > 255) {
+    return [input];
+  }
+
+  const result: string[] = [];
+  for (let i = start; i <= end; i++) {
+    result.push(`${prefix}${i}${suffix}`);
+  }
+
+  return result;
+}
+
 export default function TargetsEditor({
   rows,
   onRowsChange,
@@ -65,6 +90,26 @@ export default function TargetsEditor({
     onRowsChange(selectedRows.length > 0 ? selectedRows : [makeBlankRow()]);
   };
 
+  const expandIpRanges = () => {
+    const expandedRows: TargetRow[] = [];
+    rows.forEach((row) => {
+      if (row.host.trim()) {
+        const hosts = parseIpRange(row.host.trim());
+        hosts.forEach((host) => {
+          expandedRows.push(makeBlankRow({
+            host,
+            ssh_user: row.ssh_user,
+            ssh_port: row.ssh_port,
+            credential_id: row.credential_id,
+          }));
+        });
+      } else {
+        expandedRows.push(row);
+      }
+    });
+    onRowsChange(expandedRows);
+  };
+
   const credentialOptions = useMemo(
     () =>
       credentials.map((c) => ({
@@ -76,13 +121,13 @@ export default function TargetsEditor({
 
   return (
     <div className='flex flex-col gap-2'>
-      <div className='flex gap-2'>
+      <div className='flex gap-2 items-center'>
         {preselectedIdents.length > 0 ? (
-          <Button onClick={loadSelected} size='small'>
+          <Button onClick={loadSelected} type='link' size='small'>
             {t('deploy_agent.load_selected', { count: preselectedIdents.length })}
           </Button>
         ) : null}
-        <Button onClick={addRow} size='small' icon={<PlusOutlined />}>
+        <Button onClick={addRow} type='link' size='small' icon={<PlusOutlined />}>
           {t('deploy_agent.add_row')}
         </Button>
       </div>
@@ -101,7 +146,7 @@ export default function TargetsEditor({
             render: (_, row) => (
               <Input
                 value={row.host}
-                placeholder={t('deploy_agent.table.host_placeholder')}
+                placeholder='10.0.1.11 或 10.0.1.[1-120]'
                 onChange={(e) => update(row.key, { host: e.target.value.trim() })}
                 size='small'
               />
