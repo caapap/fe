@@ -37,7 +37,6 @@ import Feedback from '@/components/Feedback';
 import { IRawTimeRange } from '@/components/TimeRangePicker';
 import { getN9eConfig } from '@/pages/siteSettings/services';
 import { getDarkMode, updateDarkMode } from '@/utils/darkMode';
-import { AccessTokenKey } from '@/utils/constant';
 import SharedDetail from '@/pages/event/DetailNG/SharedDetail';
 import { AiChatProvider, AiChatContainer } from '@/components/AiChatNG';
 import HocRenderer from './components/HocRenderer';
@@ -253,7 +252,7 @@ function App() {
             console.error(e);
           }
         }
-        document.title = siteInfo?.page_title || '星相运维平台';
+        document.title = siteInfo?.page_title || 'Nightingale';
         if (iconLink) {
           iconLink.href = siteInfo?.favicon_url || '/image/favicon.ico';
         }
@@ -263,14 +262,7 @@ function App() {
         // 非匿名访问，需要初始化一些公共数据
         if (!anonymous) {
           const installTs = await getInstallDate();
-          const profileResp = await GetProfile();
-          if (!profileResp?.dat) {
-            localStorage.removeItem(AccessTokenKey);
-            const redirect = `${location.pathname}${location.search}`;
-            location.href = `${basePrefix}/login?redirect=${encodeURIComponent(redirect)}`;
-            return;
-          }
-          const profile = profileResp.dat;
+          const { dat: profile } = await GetProfile();
           const { dat: busiGroups } = await getBusiGroups();
           const { dat: perms } = await getMenuPerm();
           const datasourceList = await getDatasourceBriefList();
