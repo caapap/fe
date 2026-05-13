@@ -23,6 +23,7 @@ import { timeFormatter } from '@/pages/dashboard/Renderer/utils/valueFormatter';
 // @ts-ignore
 import CollectsDrawer from './CollectsDrawer';
 import UpgradeAgent from '@/pages/targets/components/UpgradeAgent';
+import DeployAgent from '@/pages/targets/components/DeployAgent';
 import VersionSelect from './VersionSelect';
 import { postTargetRestart, deleteTargetAgent } from '@/pages/targets/services';
 
@@ -322,11 +323,19 @@ export default function List(props: Props) {
                       onOk={() => {
                         setRefreshFlag(_.uniqueId('refreshFlag_'));
                       }}
-                    />
-                  </Menu.Item>
-                </Menu>
-              }
-            >
+                        />
+                      </Menu.Item>
+                      <Menu.Item key='DeployAgent'>
+                        <DeployAgent
+                          selectedIdents={selectedIdents}
+                          onOk={() => {
+                            setRefreshFlag(_.uniqueId('refreshFlag_'));
+                          }}
+                        />
+                      </Menu.Item>
+                    </Menu>
+                  }
+                >
               <Button>
                 {t('common:btn.batch_operations')} <DownOutlined />
               </Button>
@@ -857,11 +866,23 @@ export default function List(props: Props) {
               title: t('operations.title'),
               fixed: 'right',
               render: (_, record) => {
+                const isUninstalled = record.agent_status === 'uninstalled';
                 return (
                   <Dropdown
                     trigger={['click']}
                     overlay={
                       <Menu>
+                        {isUninstalled ? (
+                          <Menu.Item key='install'>
+                            <DeployAgent
+                              selectedIdents={[record.ident]}
+                              title={t('operations.install')}
+                              onOk={() => {
+                                setRefreshFlag(_.uniqueId('refreshFlag_'));
+                              }}
+                            />
+                          </Menu.Item>
+                        ) : null}
                         <Menu.Item key='upgrade'>
                           <UpgradeAgent
                             selectedIdents={[record.ident]}
@@ -870,12 +891,16 @@ export default function List(props: Props) {
                             }}
                           />
                         </Menu.Item>
-                        <Menu.Item key='restart' onClick={() => handleRestart(record.ident)}>
-                          {t('operations.restart')}
-                        </Menu.Item>
-                        <Menu.Item key='uninstall' onClick={() => handleUninstall(record.ident)}>
-                          {t('operations.uninstall')}
-                        </Menu.Item>
+                        {!isUninstalled ? (
+                          <Menu.Item key='restart' onClick={() => handleRestart(record.ident)}>
+                            {t('operations.restart')}
+                          </Menu.Item>
+                        ) : null}
+                        {!isUninstalled ? (
+                          <Menu.Item key='uninstall' onClick={() => handleUninstall(record.ident)}>
+                            {t('operations.uninstall')}
+                          </Menu.Item>
+                        ) : null}
                         <Menu.Divider />
                         <Menu.Item
                           key='view_collects'
