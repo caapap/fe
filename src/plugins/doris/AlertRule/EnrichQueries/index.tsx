@@ -11,6 +11,7 @@ import DocumentDrawer from '@/components/DocumentDrawer';
 import InputGroupWithFormItem from '@/components/InputGroupWithFormItem';
 import EnhancedModal from '@/pages/alertRules/Form/components/EnhancedModal';
 import { normalizeTime } from '@/pages/alertRules/Form/utils';
+import { NS as EVENT_PIPELINE_NS } from '@/pages/eventPipeline/constants';
 
 import { NAME_SPACE } from '../../constants';
 import GraphPreview from '../GraphPreview';
@@ -37,6 +38,9 @@ export default function index({ prefixField = {}, fullPrefixName = [], prefixNam
             <div className='mb-2'>
               <Space>
                 {t('enrich_queries.title')}
+                <Tooltip title={t('alertRules:enrich_queries.tip')}>
+                  <InfoCircleOutlined />
+                </Tooltip>
                 <PlusCircleOutlined
                   onClick={() => {
                     EnhancedModal({
@@ -80,7 +84,7 @@ export default function index({ prefixField = {}, fullPrefixName = [], prefixNam
                           rules={[
                             {
                               required: true,
-                              message: t('annotation_qd.query_required'),
+                              message: t(`${EVENT_PIPELINE_NS}:annotation_qd.query_required`),
                             },
                             () => ({
                               validator(_, value) {
@@ -88,7 +92,7 @@ export default function index({ prefixField = {}, fullPrefixName = [], prefixNam
                                 if (typeof value === 'string' && /limit\s+\d+/i.test(value)) {
                                   return Promise.resolve();
                                 }
-                                return Promise.reject(new Error(t('annotation_qd.sql_limit_valid')));
+                                return Promise.reject(new Error(t(`${EVENT_PIPELINE_NS}:annotation_qd.sql_limit_valid`)));
                               },
                             }),
                           ]}

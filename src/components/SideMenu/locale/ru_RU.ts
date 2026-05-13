@@ -10,6 +10,7 @@ const ru_RU = {
   menu: {
     infrastructure: 'Инфраструктура',
     business_group: 'Бизнес-группа',
+    devices: 'Список устройств',
     targets: 'хостов',
     collects: 'Конфигурации сбора',
     network_devices: 'Сетевые устройства',
@@ -29,6 +30,7 @@ const ru_RU = {
     recording_rules: 'Правила записи',
     logs_explorer: 'Логи',
     monitors: 'Оповещения',
+    alerts_notifications: 'Оповещения и уведомления',
     rules: 'Управление правилами',
     alert_rules: 'Правила оповещения',
     alert_mutes: 'Режим тишины',

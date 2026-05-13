@@ -1,5 +1,7 @@
+/**
+ * 这是开源版的菜单配置，专业版和企业版的配置在其他对应的仓库文件里
+ */
 import React from 'react';
-import { NotificationFilled } from '@ant-design/icons';
 
 import IconFont from '@/components/IconFont';
 
@@ -11,12 +13,11 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
     {
       key: 'infrastructure',
       label: 'menu.infrastructure',
-      section: 'infrastructure',
       icon: <IconFont type='icon-Menu_Infrastructure' />,
       children: [
         {
-          key: 'business_group',
-          label: 'menu.business_group',
+          key: 'devices',
+          label: 'menu.devices',
           type: 'tabs',
           children: [{ key: '/targets', label: 'menu.targets' }],
         },
@@ -47,30 +48,8 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
       ],
     },
     {
-      key: 'integrations',
-      label: 'menu.integrations',
-      section: 'infrastructure',
-      icon: <IconFont type='icon-shujujicheng' />,
-      children: [
-        {
-          key: '/datasources',
-          label: 'menu.data_source',
-        },
-        {
-          key: '/components',
-          label: 'menu.built_in_components',
-        },
-        {
-          key: '/embedded-products',
-          label: 'menu.embedded_products',
-        },
-        ...embeddedProductMenu,
-      ],
-    },
-    {
       key: 'explorer',
       label: 'menu.explorer',
-      section: 'observability',
       icon: <IconFont type='icon-IndexManagement1' />,
       children: [
         {
@@ -97,9 +76,8 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
       ],
     },
     {
-      key: 'monitors',
-      label: 'menu.monitors',
-      section: 'analysis',
+      key: 'alerts_notifications',
+      label: 'menu.alerts_notifications',
       icon: <IconFont type='icon-Menu_AlarmManagement' />,
       children: [
         {
@@ -131,23 +109,6 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
           ],
         },
         {
-          key: 'event-pipelines',
-          label: 'menu.event_pipeline',
-          type: 'tabs',
-          children: [
-            { key: '/event-pipelines', label: 'menu.event_pipeline' },
-            { key: '/event-pipelines-executions', label: 'menu.event_pipeline_executions' },
-          ],
-        },
-      ],
-    },
-    {
-      key: 'notification',
-      label: 'menu.notification',
-      section: 'analysis',
-      icon: <NotificationFilled />,
-      children: [
-        {
           key: '/notification-rules',
           label: 'menu.notification_rules',
         },
@@ -158,6 +119,15 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
         {
           key: '/notification-templates',
           label: 'menu.notification_templates',
+        },
+        {
+          key: 'event-pipelines',
+          label: 'menu.event_pipeline',
+          type: 'tabs',
+          children: [
+            { key: '/event-pipelines', label: 'menu.event_pipeline' },
+            { key: '/event-pipelines-executions', label: 'menu.event_pipeline_executions' },
+          ],
         },
         ...(hideDeprecatedMenus
           ? []
@@ -176,9 +146,28 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
       ],
     },
     {
+      key: 'integrations',
+      label: 'menu.integrations',
+      icon: <IconFont type='icon-shujujicheng' />,
+      children: [
+        {
+          key: '/datasources',
+          label: 'menu.data_source',
+        },
+        {
+          key: '/components',
+          label: 'menu.built_in_components',
+        },
+        {
+          key: '/embedded-products',
+          label: 'menu.embedded_products',
+        },
+        ...embeddedProductMenu,
+      ],
+    },
+    {
       key: 'organization',
       label: 'menu.organization',
-      section: 'platform',
       icon: <IconFont type='icon-Menu_PersonnelOrganization' />,
       children: [
         {
@@ -198,7 +187,6 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
     {
       key: 'setting',
       label: 'menu.setting',
-      section: 'platform',
       icon: <IconFont type='icon-Menu_SystemInformation' />,
       children: [
         {
