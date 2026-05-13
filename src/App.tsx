@@ -37,6 +37,7 @@ import Feedback from '@/components/Feedback';
 import { IRawTimeRange } from '@/components/TimeRangePicker';
 import { getN9eConfig } from '@/pages/siteSettings/services';
 import { getDarkMode, updateDarkMode } from '@/utils/darkMode';
+import { AccessTokenKey } from '@/utils/constant';
 import SharedDetail from '@/pages/event/DetailNG/SharedDetail';
 import { AiChatProvider, AiChatContainer } from '@/components/AiChatNG';
 import HocRenderer from './components/HocRenderer';
@@ -262,7 +263,14 @@ function App() {
         // 非匿名访问，需要初始化一些公共数据
         if (!anonymous) {
           const installTs = await getInstallDate();
-          const { dat: profile } = await GetProfile();
+          const profileResp = await GetProfile();
+          if (!profileResp?.dat) {
+            localStorage.removeItem(AccessTokenKey);
+            const redirect = `${location.pathname}${location.search}`;
+            location.href = `${basePrefix}/login?redirect=${encodeURIComponent(redirect)}`;
+            return;
+          }
+          const profile = profileResp.dat;
           const { dat: busiGroups } = await getBusiGroups();
           const { dat: perms } = await getMenuPerm();
           const datasourceList = await getDatasourceBriefList();
