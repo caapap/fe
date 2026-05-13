@@ -35,6 +35,10 @@ const en_US = {
   enable_in_bg: 'Enable in buisness group',
   enable_in_bg_tip:
     'If the alert event contains the ident tag and the corresponding machine does not belong to this business group, the alert event will be discarded; if the alert event does not contain the ident tag, this filter condition will not take effect and will continue to follow-up processing.',
+  time_zone: 'Time zone',
+  time_zone_tip: 'Time zone only affects the start time and end time in the rule, and does not affect the relevant time fields of viewing alert events',
+  local_time: 'Local time',
+
   notify_configs: 'Notification Configuration',
   notify_rule_ids: 'Notification rule',
   switch_to_old: 'Switch to old version',
@@ -119,6 +123,7 @@ const en_US = {
       name: 'Alert rule',
       result: 'Result',
       errmsg: 'Error message',
+      force_overwrite: 'Force overwrite same name',
     },
     import_builtin: 'Import built-in alert rules',
     import_prometheus: 'Import Prometheus alert rules',
@@ -162,6 +167,7 @@ const en_US = {
         annotations: 'Annotations',
         triggers: 'Triggers',
         cron_pattern: 'Execution frequency',
+        time_zone: 'Time zone',
       },
     },
     cloneToHosts: {
@@ -226,7 +232,7 @@ const en_US = {
     disabled: 'Enable',
     severity: 'Severity',
     status: 'Status',
-    status_tip: 'Whether the alarm rule currently triggers the alarm event. The default statistics are the data of the last 30 days',
+    status_tip: 'Whether the alarm rule currently triggers the alarm event. Only data from the last 30 days will be counted and displayed',
   },
   expired: 'The alert rule has been modified by others. To avoid mutual coverage, please refresh the page to view the latest configuration',
   relabel: {
@@ -342,9 +348,33 @@ const en_US = {
     select_tip: 'Clone query conditions (leave blank to create directly without cloning)',
   },
   pipeline_configuration: {
+    title: 'Event workflow',
+    name_placeholder: 'Please select event workflow',
+    add_btn: 'Add event workflow',
+  },
+  pipeline_configuration_ng: {
     title: 'Event processing',
-    name_placeholder: 'Please select event processing workflow',
-    add_btn: 'Add event processing workflow',
+    select_workflow: 'Select existing workflow',
+    select_workflow_tooltip:
+      'Reuse existing event processing workflows in the current business group, allowing multiple alert rules to share the same set of processors. You can also select "Create workflow" to maintain processors independently for this rule.',
+    add_workflow: 'Create workflow',
+    add_pipeline: 'Add processor',
+    enabled: 'Enabled',
+    save_workflow: 'Save workflow',
+    save_workflow_modal_title_new: 'Save as new workflow',
+    save_workflow_modal_title_edit: 'Edit workflow',
+    workflow_name: 'Workflow name',
+    workflow_name_placeholder: 'Please enter workflow name',
+    workflow_name_required: 'Workflow name is required',
+    workflow_unsaved: 'Workflow configuration is not saved',
+    legacy_multi_workflow_tip: 'Legacy configuration, it is recommended to keep only one workflow',
+    save_workflow_failed: 'Save workflow failed',
+    reference_workflow_tip: 'Referenced workflow "{{workflowName}}". Changes below will affect all rules that reference this workflow.',
+    no_changes: 'Processor configuration has no changes',
+    save_workflow_tip: 'Only after clicking save will the event workflow be created or updated',
+  },
+  enrich_queries: {
+    tip: "When an alert is triggered, the enrich query will be executed and the results will be written to the event's extra_info (formatted string) and extra_info_map (raw key-value pairs) fields. You can reference them in notification templates using {{ .ExtraInfo }} or {{ .ExtraInfoMap }}",
   },
 };
 export default en_US;

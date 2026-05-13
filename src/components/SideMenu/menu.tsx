@@ -1,5 +1,7 @@
+/**
+ * 这是开源版的菜单配置，专业版和企业版的配置在其他对应的仓库文件里
+ */
 import React from 'react';
-import { NotificationFilled } from '@ant-design/icons';
 
 import IconFont from '@/components/IconFont';
 
@@ -14,10 +16,34 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
       icon: <IconFont type='icon-Menu_Infrastructure' />,
       children: [
         {
-          key: 'business_group',
-          label: 'menu.business_group',
+          key: 'devices',
+          label: 'menu.devices',
           type: 'tabs',
           children: [{ key: '/targets', label: 'menu.targets' }],
+        },
+        {
+          key: '/collect-configs',
+          label: 'menu.collects',
+        },
+        {
+          key: '/network-devices',
+          label: 'menu.network_devices',
+        },
+        {
+          key: '/collect-templates',
+          label: 'menu.collect_templates',
+        },
+        {
+          key: '/heartbeat-mgmt',
+          label: 'menu.heartbeat_management',
+        },
+        {
+          key: '/heartbeat-status',
+          label: 'menu.heartbeat_status',
+        },
+        {
+          key: '/pingmesh',
+          label: 'menu.pingmesh',
         },
       ],
     },
@@ -50,8 +76,8 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
       ],
     },
     {
-      key: 'monitors',
-      label: 'menu.monitors',
+      key: 'alerts_notifications',
+      label: 'menu.alerts_notifications',
       icon: <IconFont type='icon-Menu_AlarmManagement' />,
       children: [
         {
@@ -83,17 +109,6 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
           ],
         },
         {
-          key: '/event-pipelines',
-          label: 'menu.event_pipeline',
-        },
-      ],
-    },
-    {
-      key: 'notification',
-      label: 'menu.notification',
-      icon: <NotificationFilled />,
-      children: [
-        {
           key: '/notification-rules',
           label: 'menu.notification_rules',
         },
@@ -104,6 +119,15 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
         {
           key: '/notification-templates',
           label: 'menu.notification_templates',
+        },
+        {
+          key: 'event-pipelines',
+          label: 'menu.event_pipeline',
+          type: 'tabs',
+          children: [
+            { key: '/event-pipelines', label: 'menu.event_pipeline' },
+            { key: '/event-pipelines-executions', label: 'menu.event_pipeline_executions' },
+          ],
         },
         ...(hideDeprecatedMenus
           ? []
@@ -165,6 +189,17 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
       label: 'menu.setting',
       icon: <IconFont type='icon-Menu_SystemInformation' />,
       children: [
+        {
+          key: 'ai-config',
+          label: 'menu.ai_config',
+          type: 'tabs',
+          children: [
+            { key: '/ai-config/agents', label: 'menu.ai_config_agents' },
+            { key: '/ai-config/llm-configs', label: 'menu.ai_config_llm_configs' },
+            { key: '/ai-config/skills', label: 'menu.ai_config_skills' },
+            { key: '/ai-config/mcp-servers', label: 'menu.ai_config_mcp_servers' },
+          ],
+        },
         {
           key: '/system/site-settings',
           label: 'menu.site_setting',

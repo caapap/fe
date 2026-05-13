@@ -20,9 +20,11 @@ import { WarningOutlined, PlusCircleOutlined, MinusCircleOutlined, InfoCircleOut
 import { Trans, useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import { Link } from 'react-router-dom';
+
 import { getDatasourceBriefList } from '@/services/common';
 import { IS_ENT } from '@/utils/constant';
 import DatasourceSelectExtra from '@/pages/alertRules/Form/components/DatasourceSelectExtra';
+
 import { getDatasourcesByQueries } from './services';
 import './style.less';
 
@@ -47,7 +49,7 @@ const getInvalidDatasourceIds = (ids: number[], fullDatasourceList: any[]) => {
   return invalid;
 };
 
-function Query({ idx, names, field, remove, invalidDatasourceIds, datasourceList, disabled }) {
+function Query({ idx, names, field, remove, invalidDatasourceIds, datasourceList, disabled, fields }) {
   const { t } = useTranslation('alertRules');
   const form = Form.useFormInstance();
   const match_type = Form.useWatch([...names, field.name, 'match_type']);
@@ -159,14 +161,16 @@ function Query({ idx, names, field, remove, invalidDatasourceIds, datasourceList
           </Col>
         </>
       )}
-      <Col flex='none'>
-        <MinusCircleOutlined
-          className='mt-2'
-          onClick={() => {
-            remove(field.name);
-          }}
-        />
-      </Col>
+      {fields.length > 1 && (
+        <Col flex='none'>
+          <MinusCircleOutlined
+            className='mt-2'
+            onClick={() => {
+              remove(field.name);
+            }}
+          />
+        </Col>
+      )}
     </Row>
   );
 }
@@ -245,25 +249,8 @@ export default function index(props: IProps) {
                     reloadGroupedDatasourceList();
                   }}
                 />
-              </Space>
-            </div>
-            {fields.map((field, index) => {
-              return (
-                <Query
-                  key={field.name}
-                  idx={index}
-                  names={names}
-                  field={field}
-                  remove={remove}
-                  invalidDatasourceIds={invalidDatasourceIds}
-                  datasourceList={datasourceList}
-                  disabled={disabled}
-                />
-              );
-            })}
-            <div className='mb-4'>
-              <Space>
                 <Button
+                  size='small'
                   type='primary'
                   ghost
                   onClick={() => {
@@ -326,6 +313,21 @@ export default function index(props: IProps) {
                 )}
               </Space>
             </div>
+            {fields.map((field, index) => {
+              return (
+                <Query
+                  key={field.name}
+                  idx={index}
+                  names={names}
+                  field={field}
+                  remove={remove}
+                  invalidDatasourceIds={invalidDatasourceIds}
+                  datasourceList={datasourceList}
+                  disabled={disabled}
+                  fields={fields}
+                />
+              );
+            })}
           </div>
         )}
       </Form.List>

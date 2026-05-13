@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useContext } from 'react';
+import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { Table, Tag, Tooltip, Space, Input, Dropdown, Menu, Button, Modal, message, Select } from 'antd';
 import { ColumnsType } from 'antd/es/table';
 import { SearchOutlined, DownOutlined, ReloadOutlined, CopyOutlined, ApartmentOutlined, InfoCircleOutlined, EyeOutlined } from '@ant-design/icons';
@@ -20,15 +20,11 @@ import TargetMetaDrawer from './TargetMetaDrawer';
 import Explorer from './components/Explorer';
 import EditBusinessGroups from './components/EditBusinessGroups';
 import HostsSelect from './components/HostsSelect';
+import UpgradeAgent from './components/UpgradeAgent';
 
-// @ts-ignore
-import CollectsDrawer from 'plus:/pages/collects/CollectsDrawer';
-// @ts-ignore
-import UpgradeAgent from 'plus:/parcels/Targets/UpgradeAgent';
-// @ts-ignore
-import VersionSelect from 'plus:/parcels/Targets/VersionSelect';
-// @ts-ignore
-import { extraColumns } from 'plus:/parcels/Targets';
+import CollectsDrawer from './components/CollectsDrawer';
+import VersionSelect from './components/VersionSelect';
+import { postTargetRestart, deleteTargetAgent } from './services';
 
 export const pageSizeOptions = ['10', '20', '50', '100'];
 
@@ -50,7 +46,7 @@ export interface ITargetProps {
   ident: string;
   note: string;
   tags: string[];
-  update_at: number;
+  beat_time: number;
 }
 
 interface IProps {
@@ -88,7 +84,7 @@ export default function List(props: IProps) {
   const [collectsDrawerVisible, setCollectsDrawerVisible] = useState(false);
   const [collectsDrawerIdent, setCollectsDrawerIdent] = useState('');
   const [downtime, setDowntime] = useState();
-  const [agentVersions, setAgentVersions] = useState<string>();
+  const [agentVersions, setAgentVersions] = useState<string[]>();
   const [hosts, setHosts] = useState<string>();
   const sorterRef = useRef<any>();
   const LOST_COLOR = darkMode ? LOST_COLOR_DARK : LOST_COLOR_LIGHT;
@@ -126,7 +122,7 @@ export default function List(props: IProps) {
                     message.success(t('ident_copy_success', { num: tobeCopy.length }));
                   } else {
                     Modal.warning({
-                      title: t('host.copy.error'),
+                      title: t('common:copyToClipboardFailed'),
                       content: <Input.TextArea defaultValue={tobeCopyStr} />,
                     });
                   }
@@ -160,16 +156,14 @@ export default function List(props: IProps) {
             }}
           >
             <TargetMetaDrawer ident={text} />
-            {import.meta.env['VITE_IS_PRO'] && (
-              <Tooltip title='查看关联采集配置'>
-                <ApartmentOutlined
-                  onClick={() => {
-                    setCollectsDrawerVisible(true);
-                    setCollectsDrawerIdent(text);
-                  }}
-                />
-              </Tooltip>
-            )}
+            <Tooltip title='查看关联采集配置'>
+              <ApartmentOutlined
+                onClick={() => {
+                  setCollectsDrawerVisible(true);
+                  setCollectsDrawerIdent(text);
+                }}
+              />
+            </Tooltip>
           </div>
         );
       },
@@ -435,8 +429,7 @@ export default function List(props: IProps) {
             </Tooltip>
           </Space>
         ),
-        sorter: true,
-        dataIndex: 'update_at',
+        dataIndex: 'beat_time',
         render: (val, reocrd) => {
           let result = moment.unix(val).format('YYYY-MM-DD HH:mm:ss');
           let backgroundColor = GREEN_COLOR;
@@ -475,7 +468,21 @@ export default function List(props: IProps) {
         },
       });
     }
-    extraColumns(item.name, columns);
+    if (item.name === 'agent_version') {
+      columns.push({
+        title: t('agent_version'),
+        dataIndex: 'agent_version',
+        render: (val, record) => {
+          const isUpgrading = record.new_version && record.new_version !== '' && record.new_version !== record.agent_version;
+          return (
+            <Space>
+              <span>{val || '未知'}</span>
+              {isUpgrading && <Tag color='orange'>升级中 → {record.new_version}</Tag>}
+            </Space>
+          );
+        },
+      });
+    }
     if (item.name === 'note') {
       columns.push({
         title: t('common:table.note'),
@@ -493,6 +500,80 @@ export default function List(props: IProps) {
       });
     }
   });
+
+  const handleRestart = (ident: string) => {
+    postTargetRestart(ident)
+      .then(() => {
+        message.success(t('operations.restart_success', { ident }));
+      })
+      .catch((err) => {
+        message.error(err?.message || t('operations.restart_failed'));
+      });
+  };
+
+  const handleUninstall = (ident: string) => {
+    Modal.confirm({
+      title: t('operations.uninstall'),
+      content: t('operations.uninstall_confirm', { ident }),
+      okType: 'danger',
+      onOk: () => {
+        return deleteTargetAgent(ident)
+          .then(() => {
+            message.success(t('operations.uninstall_success', { ident }));
+            setRefreshFlag(_.uniqueId('refreshFlag_'));
+          })
+          .catch((err) => {
+            message.error(err?.message || t('operations.uninstall_failed'));
+          });
+      },
+    });
+  };
+
+  if (editable) {
+    columns.push({
+      title: t('operations.title'),
+      key: 'operations',
+      fixed: 'right' as const,
+      width: 100,
+      render: (_, record) => (
+        <Dropdown
+          trigger={['click']}
+          overlay={
+            <Menu>
+              <Menu.Item key='upgrade'>
+                <UpgradeAgent
+                  selectedIdents={[record.ident]}
+                  onOk={() => {
+                    setRefreshFlag(_.uniqueId('refreshFlag_'));
+                  }}
+                />
+              </Menu.Item>
+              <Menu.Item key='restart' onClick={() => handleRestart(record.ident)}>
+                {t('operations.restart')}
+              </Menu.Item>
+              <Menu.Item key='uninstall' onClick={() => handleUninstall(record.ident)}>
+                {t('operations.uninstall')}
+              </Menu.Item>
+              <Menu.Divider />
+              <Menu.Item
+                key='view_collects'
+                onClick={() => {
+                  setCollectsDrawerIdent(record.ident);
+                  setCollectsDrawerVisible(true);
+                }}
+              >
+                {t('operations.view_collects')}
+              </Menu.Item>
+            </Menu>
+          }
+        >
+          <Button size='small'>
+            {t('operations.title')} <DownOutlined />
+          </Button>
+        </Dropdown>
+      ),
+    });
+  }
 
   const featchData = ({ current, pageSize, sorter }: { current: number; pageSize: number; sorter?: any }): Promise<any> => {
     const query = {
@@ -518,6 +599,10 @@ export default function List(props: IProps) {
     manual: true,
     defaultPageSize: localStorage.getItem('targetsListPageSize') ? _.toNumber(localStorage.getItem('targetsListPageSize')) : 30,
   });
+
+  const availableVersions = useMemo(() => {
+    return _.uniq(_.map(tableProps.dataSource, 'agent_version').filter(Boolean));
+  }, [tableProps.dataSource]);
 
   useEffect(() => {
     run({
@@ -604,6 +689,7 @@ export default function List(props: IProps) {
             onChange={(val) => {
               setAgentVersions(val);
             }}
+            options={availableVersions}
           />
         </Space>
         <Space>

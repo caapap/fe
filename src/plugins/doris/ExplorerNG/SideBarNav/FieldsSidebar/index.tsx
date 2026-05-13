@@ -9,6 +9,7 @@ import { parseRange } from '@/components/TimeRangePicker';
 import FieldsList, { Field } from '@/pages/logExplorer/components/FieldsList';
 import { format } from '@/pages/dashboard/Renderer/utils/byteConverter';
 
+import { HandleValueFilterParams } from '../../types';
 import { getDorisLogsQuery, getDorisSQLsPreview } from '../../../services';
 import { NAME_SPACE, TYPE_MAP } from '../../../constants';
 import { PinIcon, UnPinIcon } from './PinIcon';
@@ -19,7 +20,7 @@ interface IProps {
   setOrganizeFields: (newOrganizeFields: string[]) => void;
   data: Field[];
   loading: boolean;
-  onValueFilter: (parmas: { key: string; value: any; operator: 'AND' | 'NOT' }) => void;
+  onValueFilter: HandleValueFilterParams;
   executeQuery: () => void;
 
   stackByField?: string;
@@ -40,6 +41,7 @@ export default function index(props: IProps) {
       <FieldsList
         loading={loading}
         organizeFieldNames={organizeFields}
+        disableEmptyValueClick={false}
         onOperClick={(field, type) => {
           if (type === 'show') {
             setOrganizeFields(
@@ -55,6 +57,7 @@ export default function index(props: IProps) {
         onValueFilter={(params) => {
           onValueFilter({
             ...params,
+            assignmentOperator: '=',
             operator: params.operator === 'and' ? 'AND' : 'NOT',
           });
         }}
@@ -74,6 +77,7 @@ export default function index(props: IProps) {
                   table: queryValues.table,
                   time_field: queryValues.time_field,
                   query: queryValues.query,
+                  query_builder_filter: queryValues.query_builder_filter,
                   from: moment(range.start).unix(),
                   to: moment(range.end).unix(),
                   field: record.field,
@@ -222,7 +226,6 @@ export default function index(props: IProps) {
         }}
         onStatisticClick={(type, options) => {
           const range = parseRange(queryValues.range);
-          const queryStr = queryValues.query || '';
 
           getDorisSQLsPreview({
             cate: DatasourceCateEnum.doris,
@@ -235,10 +238,11 @@ export default function index(props: IProps) {
                 default_field: defaultSearchField,
                 from: moment(range.start).unix(),
                 to: moment(range.end).unix(),
-
-                query: options.appendQuery ? `${queryStr ? `${queryStr} AND ` : ''}${options.appendQuery}` : queryStr,
+                query: queryValues.query,
+                query_builder_filter: queryValues.query_builder_filter,
                 field: options.field,
                 func: options.func,
+                field_filter: options.field_filter,
                 ref: options.ref,
                 group_by: options.group_by,
               },

@@ -19,12 +19,16 @@ import { Button } from 'antd';
 import { LineChartOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import _ from 'lodash';
 import { useTranslation } from 'react-i18next';
+
 import PageLayout from '@/components/pageLayout';
+import { useAiChatContext } from '@/components/AiChatNG';
+
 import Explorer from './Explorer';
 import './index.less';
 
-const MetricExplorerPage = () => {
+function MetricExplorerPageContent() {
   const { t } = useTranslation('explorer');
+  const { queryPageFrom, closeAiChat } = useAiChatContext();
   const [panels, setPanels] = useState([
     {
       uuid: _.uniqueId('panel_'),
@@ -33,12 +37,12 @@ const MetricExplorerPage = () => {
 
   return (
     <PageLayout title={t('title')} icon={<LineChartOutlined />} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v8/quickstart/ad-hoc/'>
-      <div>
-        <div style={{ boxShadow: 'unset', background: 'unset' }}>
-          <div>
+      <div className='n9e'>
+        <div className='w-full h-full flex'>
+          <div className='flex-1 min-w-0 h-full best-looking-scroll'>
             {_.map(panels, (panel, idx) => {
               return (
-                <div key={panel.uuid} className='bg-fc-100 fc-border' style={{ padding: 16, maxHeight: 650, marginBottom: 16, position: 'relative', display: 'flex' }}>
+                <div key={panel.uuid} className='bg-fc-100 fc-border rounded-lg p-4 max-h-[650px] mb-4 relative flex'>
                   <Explorer tabKey={panel.uuid} type='metric' defaultCate='prometheus' panelIdx={idx} />
                   {panels.length > 1 && (
                     <CloseCircleOutlined
@@ -49,6 +53,10 @@ const MetricExplorerPage = () => {
                         fontSize: 14,
                       }}
                       onClick={() => {
+                        const currentPanelKey = (queryPageFrom?.param as any)?.panelKey;
+                        if (currentPanelKey === panel.uuid) {
+                          closeAiChat();
+                        }
                         setPanels(_.filter(panels, (item) => item.uuid !== panel.uuid));
                       }}
                     />
@@ -57,7 +65,7 @@ const MetricExplorerPage = () => {
               );
             })}
             <Button
-              style={{ width: '100%' }}
+              className='w-full mb-4'
               onClick={() => {
                 setPanels([...panels, { uuid: _.uniqueId('panel_') }]);
               }}
@@ -69,6 +77,10 @@ const MetricExplorerPage = () => {
       </div>
     </PageLayout>
   );
+}
+
+const MetricExplorerPage = () => {
+  return <MetricExplorerPageContent />;
 };
 
 export default MetricExplorerPage;

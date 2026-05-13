@@ -38,7 +38,6 @@ export default function FullscreenButton() {
   return (
     <Button
       size='small'
-      ghost
       type='text'
       onClick={() => {
         setViewModalVisible(!viewModalVisible);
@@ -53,7 +52,7 @@ function Provider(props: { children: React.ReactNode }) {
 
   return (
     <FullscreenContext.Provider value={{ viewModalVisible, setViewModalVisible }}>
-      <div className={'flex flex-col min-h-0' + (viewModalVisible ? ' n9e-logs-view-modal' : ' relative')}>{props.children}</div>
+      <div className={'flex flex-col h-full min-h-0' + (viewModalVisible ? ' n9e-logs-view-modal' : ' relative')}>{props.children}</div>
     </FullscreenContext.Provider>
   );
 }

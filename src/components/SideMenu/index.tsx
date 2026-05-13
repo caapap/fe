@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState, useContext } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import _ from 'lodash';
@@ -21,6 +21,7 @@ import MenuList from './MenuList';
 import QuickStart from 'plus:/components/quickStart';
 import QuickMenu from './QuickMenu';
 import { MenuItem, DefaultLogos } from './types';
+import { M1_MENU_KEYS } from './constants';
 import './menu.less';
 import './locale';
 
@@ -28,6 +29,30 @@ const calcUrlPath = (url: string) => {
   const urlPath = url.split('?')[0];
   return urlPath;
 };
+
+/** 侧栏展开宽度（px），持久化 localStorage */
+const SIDE_MENU_WIDTH_STORAGE_KEY = 'sideMenuWidthPx';
+const SIDE_MENU_MIN_WIDTH = 170;
+const SIDE_MENU_MAX_WIDTH = 400;
+
+function clampSideMenuWidth(px: number): number {
+  return Math.min(SIDE_MENU_MAX_WIDTH, Math.max(SIDE_MENU_MIN_WIDTH, Math.round(px)));
+}
+
+function readInitialSideMenuWidth(): number {
+  try {
+    const raw = localStorage.getItem(SIDE_MENU_WIDTH_STORAGE_KEY);
+    if (raw != null) {
+      const n = Number(raw);
+      if (Number.isFinite(n)) return clampSideMenuWidth(n);
+    }
+    const lang = localStorage.getItem('i18nextLng') || 'zh_CN';
+    const def = lang === 'en_US' || lang === 'ru_RU' ? 250 : 172;
+    return clampSideMenuWidth(def);
+  } catch {
+    return 172;
+  }
+}
 
 interface SideMenuProps {
   topExtra?: React.ReactElement;
@@ -38,7 +63,7 @@ interface SideMenuProps {
 }
 
 const SideMenu = (props: SideMenuProps) => {
-  const { i18n } = useTranslation('sideMenu');
+  const { i18n, t } = useTranslation('sideMenu');
   const { darkMode, perms, installTs } = useContext(CommonStateContext);
   let { sideMenuBgMode } = useContext(CommonStateContext);
   if (darkMode) {
@@ -61,8 +86,10 @@ const SideMenu = (props: SideMenuProps) => {
   const query = querystring.parse(location.search);
   const [selectedKeys, setSelectedKeys] = useState<string[]>();
   const [collapsed, setCollapsed] = useState<boolean>(Number(localStorage.getItem('menuCollapsed')) === 1);
-  const [collapsedHover, setCollapsedHover] = useState<boolean>(false);
+  const [menuWidthPx, setMenuWidthPx] = useState<number>(readInitialSideMenuWidth);
+  const [isResizingMenu, setIsResizingMenu] = useState(false);
   const quickMenuRef = useRef<{ open: () => void }>({ open: () => {} });
+  const resizeActiveRef = useRef(false);
   const isCustomBg = sideMenuBgMode !== 'light';
   const [embeddedProductMenu, setEmbeddedProductMenu] = useState<MenuItem[]>([]);
   const [menus, setMenus] = useState<MenuItem[]>([]);
@@ -103,7 +130,9 @@ const SideMenu = (props: SideMenuProps) => {
     if (hideSideMenu) return;
     getEmbeddedProducts().then((res) => {
       if (res) {
-        const items = res.map((product) => ({
+        const items = res
+          .filter((product) => !(product.hide ?? true))
+          .map((product) => ({
           key: `${embeddedProductDetailPath}/${product.id}`,
           label: product.name,
           children: [],
@@ -121,6 +150,9 @@ const SideMenu = (props: SideMenuProps) => {
     };
   }, [hideSideMenu]);
 
+  const hideDeprecatedMenus = installTs > V8_BETA_14_TS;
+  const menuList = useMemo(() => getMenuList(embeddedProductMenu, hideDeprecatedMenus), [embeddedProductMenu, getMenuList, hideDeprecatedMenus]);
+
   useEffect(() => {
     const filteredMenus = menuList
       .map((menu) => {
@@ -135,13 +167,13 @@ const SideMenu = (props: SideMenuProps) => {
               }
             }
             if (child.type === 'tabs' && child.children) {
-              const filteredTabs = child.children.filter((tab) => perms?.includes(tab.key));
+              const filteredTabs = child.children.filter((tab) => perms?.includes(tab.key) || M1_MENU_KEYS.includes(tab.key));
               if (filteredTabs.length > 0) {
                 return { ...child, children: filteredTabs };
               }
               return null;
             }
-            return perms?.includes(calcUrlPath(child.key)) ? child : null;
+            return perms?.includes(calcUrlPath(child.key)) || M1_MENU_KEYS.includes(calcUrlPath(child.key)) ? child : null;
           })
           .filter(Boolean);
 
@@ -153,7 +185,7 @@ const SideMenu = (props: SideMenuProps) => {
       .filter(Boolean) as MenuItem[];
 
     setMenus(filteredMenus);
-  }, [i18n.language, embeddedProductMenu]);
+  }, [i18n.language, menuList, perms]);
 
   const menuPaths = useMemo(
     () =>
@@ -166,9 +198,9 @@ const SideMenu = (props: SideMenuProps) => {
                 return child;
               }
               if (child.type === 'tabs' && child.children && child.children.length > 0) {
-                return child.children.some((tabChild) => _.includes(perms, calcUrlPath(tabChild.key)));
+                return child.children.some((tabChild) => _.includes(perms, calcUrlPath(tabChild.key)) || M1_MENU_KEYS.includes(calcUrlPath(tabChild.key)));
               }
-              return child && _.includes(perms, child.key);
+              return child && (_.includes(perms, child.key) || M1_MENU_KEYS.includes(child.key));
             })
             .map((c) => {
               if (c.type === 'tabs' && c.children && c.children.length) {
@@ -200,9 +232,45 @@ const SideMenu = (props: SideMenuProps) => {
     }
   }, [menuPaths, location.pathname, selectedKeys]);
 
-  const hideDeprecatedMenus = installTs > V8_BETA_14_TS;
-  const menuList = getMenuList(embeddedProductMenu, hideDeprecatedMenus);
-  const uncollapsedWidth = i18n.language === 'en_US' || i18n.language === 'ru_RU' ? 'w-[250px]' : 'w-[172px]';
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIDE_MENU_WIDTH_STORAGE_KEY, String(menuWidthPx));
+    } catch {
+      /* ignore */
+    }
+  }, [menuWidthPx]);
+
+  const onResizeHandleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (collapsed) return;
+      e.preventDefault();
+      e.stopPropagation();
+      resizeActiveRef.current = true;
+      setIsResizingMenu(true);
+      const startX = e.clientX;
+      const startW = menuWidthPx;
+      const onMove = (ev: MouseEvent) => {
+        if (!resizeActiveRef.current) return;
+        const delta = ev.clientX - startX;
+        setMenuWidthPx(clampSideMenuWidth(startW + delta));
+      };
+      const onUp = () => {
+        resizeActiveRef.current = false;
+        setIsResizingMenu(false);
+        document.removeEventListener('mousemove', onMove);
+        document.removeEventListener('mouseup', onUp);
+        document.body.style.removeProperty('cursor');
+        document.body.style.removeProperty('user-select');
+      };
+      document.body.style.cursor = 'col-resize';
+      document.body.style.userSelect = 'none';
+      document.addEventListener('mousemove', onMove);
+      document.addEventListener('mouseup', onUp);
+    },
+    [collapsed, menuWidthPx],
+  );
+
+  const expandedMenuWidth = collapsed ? 56 : menuWidthPx;
 
   return (
     <div
@@ -212,33 +280,57 @@ const SideMenu = (props: SideMenuProps) => {
       }}
     >
       <div
-        className={cn('relative flex h-screen shrink-0', collapsed ? 'w-[64px]' : '')}
-        onMouseEnter={() => {
-          collapsed && setCollapsedHover(true);
-        }}
-        onMouseLeave={() => setCollapsedHover(false)}
+        className={cn('relative flex h-screen shrink-0', collapsed ? 'w-[56px]' : '')}
       >
-        <div
+        <aside
           className={cn(
-            'z-20 flex h-full select-none flex-col justify-between border-0 border-r border-solid transition-width',
-            collapsed ? 'w-[64px]' : uncollapsedWidth,
-            collapsedHover ? `absolute ${uncollapsedWidth} shadow-mf` : '',
+            'relative z-20 flex h-full shrink-0 select-none flex-col justify-between border-0 border-r border-solid bg-sidebar',
+            !isResizingMenu && 'transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]',
             !IS_ENT ? 'border-fc-300' : '',
           )}
-          style={{ background: sideMenuBgColor, borderColor: 'var(--fc-border-color)' }}
+          style={{
+            width: expandedMenuWidth,
+            minWidth: expandedMenuWidth,
+            maxWidth: expandedMenuWidth,
+            background: sideMenuBgColor,
+            borderColor: isCustomBg ? 'var(--fc-border-color)' : 'var(--fc-sidemenu-border)',
+          }}
         >
-          <div className='flex flex-1 flex-col justify-between gap-8 overflow-hidden'>
-            <SideMenuHeader collapsed={collapsed} collapsedHover={collapsedHover} sideMenuBgMode={sideMenuBgMode} defaultLogos={defaultLogos} />
-            <ScrollArea className='-mr-2 flex-1'>
+          {!collapsed && (
+            <div
+              role='separator'
+              aria-orientation='vertical'
+              aria-label={t('resizeWidth')}
+              title={t('resizeWidth')}
+              className={cn('absolute right-0 top-0 z-30 h-full w-1 cursor-col-resize touch-none', 'hover:bg-[var(--fc-text-link)]/25 active:bg-[var(--fc-text-link)]/35')}
+              onMouseDown={onResizeHandleMouseDown}
+            />
+          )}
+          <div className='flex flex-1 flex-col justify-between gap-0 overflow-hidden'>
+            <SideMenuHeader collapsed={collapsed} sideMenuBgMode={sideMenuBgMode} defaultLogos={defaultLogos} />
+            <div
+              className={cn(
+                'shrink-0 h-px',
+                collapsed ? 'mx-2' : 'mx-3',
+                isCustomBg ? 'bg-[rgba(255,255,255,0.12)]' : 'bg-[hsla(240,5%,92%,0.7)]',
+              )}
+            />
+            <ScrollArea className='-mr-2 mt-3 flex-1'>
               <MenuList
                 list={menus}
-                collapsed={collapsed && !collapsedHover}
+                collapsed={collapsed}
                 selectedKeys={selectedKeys}
                 sideMenuBgColor={sideMenuBgColor}
                 isCustomBg={isCustomBg}
                 quickMenuRef={quickMenuRef}
                 topExtra={topExtra}
-                onClick={onMenuClick}
+                onClick={(key, opts) => {
+                  if (collapsed && !opts?.keepCollapsed) {
+                    setCollapsed(false);
+                    localStorage.setItem('menuCollapsed', '0');
+                  }
+                  onMenuClick?.(key);
+                }}
                 isGoldTheme={isGoldTheme}
               />
             </ScrollArea>
@@ -250,7 +342,6 @@ const SideMenu = (props: SideMenuProps) => {
                 const nextCollapsed = !collapsed;
                 setCollapsed(nextCollapsed);
                 localStorage.setItem('menuCollapsed', nextCollapsed ? '1' : '0');
-                setCollapsedHover(false);
               }}
             >
               {collapsed ? (
@@ -260,7 +351,7 @@ const SideMenu = (props: SideMenuProps) => {
               )}
             </div>
           </div>
-        </div>
+        </aside>
       </div>
 
       {IS_ENT ? <QuickStart ref={quickMenuRef} items={menus} /> : <QuickMenu ref={quickMenuRef} menuList={menus} />}

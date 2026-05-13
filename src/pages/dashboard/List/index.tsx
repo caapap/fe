@@ -47,7 +47,7 @@ import PublicForm from './PublicForm';
 import './style.less';
 
 const N9E_GIDS_LOCALKEY = 'N9E_BOARD_NODE_ID';
-const SEARCH_LOCAL_STORAGE_KEY = 'n9e_dashboard_search';
+const SEARCH_SESSION_STORAGE_KEY = 'n9e_dashboard_search';
 const PUBLIC_SELECT_GIDS_LOCALKEY = 'N9E_PUBLIC_SELECT_GIDS';
 const getDefaultPublicSelectGids = (localKey: string) => {
   const valueStr = localStorage.getItem(localKey);
@@ -63,7 +63,7 @@ export default function index() {
   const [list, setList] = useState<any[]>([]);
   const [selectRowKeys, setSelectRowKeys] = useState<number[]>([]);
   const [refreshKey, setRefreshKey] = useState(_.uniqueId('refreshKey_'));
-  const [searchVal, setsearchVal] = useState<string>(localStorage.getItem(SEARCH_LOCAL_STORAGE_KEY) || '');
+  const [searchVal, setsearchVal] = useState<string>(sessionStorage.getItem(SEARCH_SESSION_STORAGE_KEY) || '');
   const [selectedBusinessGroup, setSelectedBusinessGroup] = useState<number[] | undefined>(getDefaultPublicSelectGids(PUBLIC_SELECT_GIDS_LOCALKEY)); // 目前只有公开仪表盘会用到
   const [busiGroups, setBusiGroups] = useState<any[]>([]);
   const pagination = usePagination({ PAGESIZE_KEY: 'dashboard-pagesize' });
@@ -72,7 +72,7 @@ export default function index() {
   useUpdateEffect(() => {
     setGids(businessGroup.ids);
     setsearchVal('');
-    localStorage.removeItem(SEARCH_LOCAL_STORAGE_KEY);
+    sessionStorage.removeItem(SEARCH_SESSION_STORAGE_KEY);
   }, [businessGroup.ids]);
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export default function index() {
           allOptionLabel={t('default_filter.all')}
           allOptionTooltip={t('default_filter.all_tip')}
         />
-        <div className='fc-border dashboards-v2'>
+        <div className='fc-border rounded-lg dashboards-v2'>
           <Header
             gids={gids}
             selectRowKeys={selectRowKeys}
@@ -129,7 +129,7 @@ export default function index() {
             searchVal={searchVal}
             onSearchChange={(val) => {
               setsearchVal(val);
-              localStorage.setItem(SEARCH_LOCAL_STORAGE_KEY, val);
+              sessionStorage.setItem(SEARCH_SESSION_STORAGE_KEY, val);
             }}
             columnsConfigs={columnsConfigs}
             setColumnsConfigs={setColumnsConfigs}
@@ -194,10 +194,10 @@ export default function index() {
                                 if (queryItem.includes(tag)) return;
                                 setsearchVal((searchVal) => {
                                   if (searchVal) {
-                                    localStorage.setItem(SEARCH_LOCAL_STORAGE_KEY, searchVal + ' ' + tag);
+                                    sessionStorage.setItem(SEARCH_SESSION_STORAGE_KEY, searchVal + ' ' + tag);
                                     return searchVal + ' ' + tag;
                                   }
-                                  localStorage.setItem(SEARCH_LOCAL_STORAGE_KEY, tag);
+                                  sessionStorage.setItem(SEARCH_SESSION_STORAGE_KEY, tag);
                                   return tag;
                                 });
                               }}
@@ -221,8 +221,13 @@ export default function index() {
                     render: (text: number) => moment.unix(text).format('YYYY-MM-DD HH:mm:ss'),
                   },
                   {
-                    title: t('common:table.update_by'),
+                    title: t('common:table.username'),
                     dataIndex: 'update_by',
+                    width: 100,
+                  },
+                  {
+                    title: t('common:table.nickname'),
+                    dataIndex: 'update_by_nickname',
                     width: 100,
                   },
                   {

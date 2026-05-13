@@ -19,18 +19,19 @@ import { Form, Space, Button, message, Affix, Card, Alert } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useHistory, useParams, Link } from 'react-router-dom';
 import _ from 'lodash';
+
 import { CommonStateContext } from '@/App';
 import { addStrategy, EditStrategy } from '@/services/warning';
 import { scrollToFirstError } from '@/utils';
 import AffixWrapper from '@/components/AffixWrapper';
+
 import Base from './Base';
 import Rule from './Rule';
 import Effective from './Effective';
 import Notify from './Notify';
-import EventSettings from './EventSettings';
 import { processFormValues, processInitialValues } from './utils';
 import { defaultValues } from './constants';
-import PipelineConfigs from './PipelineConfigs';
+import PipelineConfigsNG, { PipelineConfigsNGRef } from './PipelineConfigsNG';
 
 interface IProps {
   type?: number; // 空: 新增 1:编辑 2:克隆 3:查看
@@ -40,6 +41,7 @@ interface IProps {
 
 export const FormStateContext = createContext({
   disabled: false,
+  type: undefined as number | undefined,
 });
 
 export default function index(props: IProps) {
@@ -51,6 +53,7 @@ export default function index(props: IProps) {
   const { licenseRulesRemaining, datasourceCateOptions } = useContext(CommonStateContext);
   const disabled = type === 3;
   const containerRef = React.useRef(null);
+  const pipelineConfigsRef = React.useRef<PipelineConfigsNGRef>(null);
   // TODO: 废弃的检测，beta.5 起已经不需要
   const handleCheck = async (values) => {
     if (values.cate === 'prometheus') {
@@ -124,12 +127,13 @@ export default function index(props: IProps) {
     <FormStateContext.Provider
       value={{
         disabled,
+        type,
       }}
     >
-      <div style={{ overflow: 'hidden auto', padding: 0 }} ref={containerRef}>
-        <Form form={form} layout='vertical' disabled={disabled} style={{ background: 'unset' }}>
-          <div className='p-4'>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div className='flex h-full'>
+        <div className='flex-1 min-w-0 h-full best-looking-scroll' ref={containerRef}>
+          <Form form={form} layout='vertical' disabled={disabled}>
+            <div className='flex flex-col gap-4'>
               {editable === false && (
                 <Affix
                   target={() => {
@@ -144,9 +148,10 @@ export default function index(props: IProps) {
               </Form.Item>
               <Base />
               <Rule form={form} />
-              <EventSettings initialValues={initialValues} />
-              <Effective />
-              <PipelineConfigs />
+              <PipelineConfigsNG ref={pipelineConfigsRef} initialValues={initialValues ? processInitialValues(initialValues) : defaultValues} />
+              {/* <EventSettings initialValues={initialValues} /> */}
+              <Effective initialValues={initialValues ? processInitialValues(initialValues) : defaultValues} />
+              {/* <PipelineConfigs /> */}
               <Notify disabled={disabled} />
             </div>
             <AffixWrapper>
@@ -186,8 +191,8 @@ export default function index(props: IProps) {
                 )}
               </Card>
             </AffixWrapper>
-          </div>
-        </Form>
+          </Form>
+        </div>
       </div>
     </FormStateContext.Provider>
   );

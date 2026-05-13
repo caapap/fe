@@ -19,6 +19,7 @@ interface Props {
   onOperClick: (field: string, type: 'show' | 'available') => void;
   fields: Field[];
   enableStats?: boolean;
+  disableEmptyValueClick?: boolean;
   onValueFilter?: (parmas: { key: string; value: any; operator: string }) => void;
   fetchStats?: (field: Field) => Promise<StatsResult>;
   loading?: boolean;
@@ -37,7 +38,7 @@ interface Props {
       field?: string;
       ref?: string;
       group_by?: string;
-      appendQuery?: string;
+      field_filter?: string;
     },
   ) => void;
 }
@@ -50,6 +51,7 @@ export default function index(props: Props) {
     onOperClick,
     fields,
     enableStats = true,
+    disableEmptyValueClick = true,
     onValueFilter,
     fetchStats,
     loading,
@@ -64,6 +66,10 @@ export default function index(props: Props) {
   return (
     <div className='h-full min-h-0'>
       <Input
+        style={{
+          borderBottomLeftRadius: 0,
+          borderBottomRightRadius: 0,
+        }}
         placeholder={t('field_search_placeholder')}
         value={fieldsSearch}
         onChange={(e) => {
@@ -75,7 +81,7 @@ export default function index(props: Props) {
         style={{
           height: 'calc(100% - 31px)',
         }}
-        className='overflow-y-auto mt-[-1px] border border-antd border-t-0 rounded-bl-sm rounded-br-sm py-2'
+        className='best-looking-scroll overflow-y-auto mt-[-1px] border border-antd border-t-0 rounded-bl-sm rounded-br-sm py-2'
       >
         <Spin spinning={loading}>
           {organizeFieldNames && organizeFieldNames.length > 0 && (
@@ -104,6 +110,7 @@ export default function index(props: Props) {
                           onOperClick(item.field, 'show');
                         }}
                         field={item}
+                        disableEmptyValueClick={disableEmptyValueClick}
                         onValueFilter={onValueFilter}
                         typeMap={typeMap}
                         fetchStats={fetchStats}
@@ -143,6 +150,7 @@ export default function index(props: Props) {
                       }}
                       operType='available'
                       field={item}
+                      disableEmptyValueClick={disableEmptyValueClick}
                       onValueFilter={onValueFilter}
                       typeMap={typeMap}
                       fetchStats={fetchStats}

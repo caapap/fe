@@ -15,7 +15,7 @@
  *
  */
 import React, { useEffect, useContext } from 'react';
-import { Switch, Route, useLocation, Redirect, useHistory } from 'react-router-dom';
+import { Switch, Route, useLocation, Redirect, useHistory, matchPath } from 'react-router-dom';
 import querystring from 'query-string';
 import _ from 'lodash';
 import { getMenuPerm } from '@/services/common';
@@ -71,6 +71,7 @@ import NotificationSettings from '@/pages/help/NotificationSettings';
 import MigrateDashboards from '@/pages/help/migrate';
 import VariableConfigs from '@/pages/variableConfigs';
 import SiteSettings from '@/pages/siteSettings';
+import Landing from '@/pages/landing';
 import { dynamicPackages, Entry, dynamicPages } from '@/utils';
 // @ts-ignore
 import { Jobs as StrategyBrain } from 'plus:/datasource/anomaly';
@@ -78,6 +79,8 @@ import { Jobs as StrategyBrain } from 'plus:/datasource/anomaly';
 import plusLoader from 'plus:/utils/loader';
 // @ts-ignore
 import useIsPlus from 'plus:/components/useIsPlus';
+import { isM1MenuPath } from '@/components/SideMenu/constants';
+import { spaceIdRoutes } from './config';
 
 const Packages = dynamicPackages();
 let lazyRoutes = Packages.reduce((result: any, module: Entry) => {
@@ -121,7 +124,9 @@ export default function Content() {
       !_.includes(['/', '/account/profile/info', '/account/profile/pwd', '/account/profile/token', '/alert-aggr-events'], location.pathname) &&
       !location.pathname.includes('/settings/datasource/edit/') &&
       !location.pathname.includes('/settings/infrastructure/add') &&
-      !location.pathname.includes('/settings/source/')
+      !location.pathname.includes('/settings/source/') &&
+      !isM1MenuPath(location.pathname) &&
+      !location.pathname.includes('/403')
     ) {
       if (profile?.roles.indexOf('Admin') === -1) {
         // 如果没有权限则重定向到 403 页面
@@ -135,6 +140,15 @@ export default function Content() {
       }
     }
   }, []);
+
+  useEffect(() => {
+    if (import.meta.env.VITE_IS_ENT === 'true') {
+      const isMatch = spaceIdRoutes.find((route) => matchPath(location.pathname, { path: route, exact: true }));
+      if (isMatch) {
+        // urlAddSpaceId(history);
+      }
+    }
+  }, [location.pathname]);
 
   return (
     <div className='content'>
@@ -183,7 +197,7 @@ export default function Content() {
         <Route exact path='/alert-his-events' component={historyEvents} />
         <Route exact path='/alert-cur-events/:eventId' component={EventDetail} />
         <Route exact path='/alert-his-events/:eventId' component={EventDetail} />
-        <Route exact path='/targets' component={Targets} />
+        {/* <Route exact path='/targets' component={Targets} /> */}
 
         <Route exact path='/job-tpls' component={TaskTpl} />
         <Route exact path='/job-tpls/add' component={TaskTplAdd} />
@@ -214,6 +228,8 @@ export default function Content() {
 
         {import.meta.env.VITE_IS_ENT !== 'true' && <Route exact path='/system/site-settings' component={SiteSettings} />}
 
+        <Route exact path='/landing' component={Landing} />
+
         {lazyRoutes.map((route, i) => (
           <RouteWithSubRoutes key={i} {...route} />
         ))}
@@ -224,7 +240,7 @@ export default function Content() {
           <RouteWithSubRoutes key={i} {...route} />
         ))}
         <Route path='/' exact>
-          <Redirect to={siteInfo?.home_page_url || '/metric/explorer'} />
+          <Redirect to={siteInfo?.home_page_url || '/landing'} />
         </Route>
         <Route path='/403' component={Page403} />
         <Route path='/404' component={NotFound} />

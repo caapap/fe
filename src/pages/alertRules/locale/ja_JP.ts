@@ -35,6 +35,10 @@ const ja_JP = {
   enable_in_bg: 'このビジネスグループでのみ有効',
   enable_in_bg_tip:
     'アラートイベントに ident タグが含まれており、対応するマシンがこのビジネスグループに属していない場合、アラートイベントは破棄されます。アラートイベントに ident タグが含まれていない場合、このフィルタ条件は有効にならず、フォローアップ処理が続行されます。',
+  time_zone: 'タイムゾーン',
+  time_zone_tip: 'タイムゾーンはルールの開始時間と終了時間にのみ影響し、アラートイベントの関連する時間フィールドの表示には影響しません',
+  local_time: '現地時間',
+
   notify_configs: '通知設定',
   notify_rule_ids: '通知ルール',
   switch_to_old: '切り替え旧版',
@@ -55,6 +59,9 @@ const ja_JP = {
   callbacks: 'コールバックURL',
   callbacks_tip: '変数の設定をサポートします。変数の使用方法については、<a>変数参照</a>ドキュメントを参照してください',
   override_global_webhook: 'グローバルコールバックを上書き',
+  enrich_queries: {
+    tip: 'アラートがトリガーされると、追加クエリが実行され、結果がイベントの extra_info（フォーマット済み文字列）および extra_info_map（生のキーと値のペア）フィールドに書き込まれます。通知テンプレートでは {{ .ExtraInfo }} または {{ .ExtraInfoMap }} を使用して参照できます',
+  },
   override_global_webhook_tip: 'このスイッチをオンにすると、アラートイベントはこのルールのコールバックアドレスのみに送信され、グローバルコールバックアドレスには送信されません',
   annotations: '追加情報',
   annotationsOptions: {
@@ -118,6 +125,7 @@ const ja_JP = {
       name: 'アラートルール',
       result: 'インポート結果',
       errmsg: 'エラー情報',
+      force_overwrite: '同名の場合は強制上書き',
     },
     import_builtin: '内蔵アラートルールをインポート',
     import_prometheus: 'Prometheus アラートルールをインポート',
@@ -161,6 +169,7 @@ const ja_JP = {
         annotations: '追加情報',
         triggers: 'アラート条件',
         cron_pattern: '実行頻度',
+        time_zone: 'タイムゾーン',
       },
     },
     cloneToHosts: {
@@ -222,13 +231,13 @@ const ja_JP = {
     disabled: '有効',
     severity: 'レベル',
     status: 'ステータス',
-    status_tip: 'アラーム ルールが現在アラーム イベントをトリガーしているかどうか。デフォルトの統計は過去 30 日間のデータです。',
+    status_tip: 'アラーム ルールが現在アラーム イベントをトリガーしているかどうか。 過去 30 日間のデータのみがカウントおよび表示されます',
   },
   expired: 'アラートルールが他のユーザによって変更されました。相互に上書きされることを避けるために、ページを更新して最新の構成を確認してください。',
   relabel: {
-    title: 'イベント relabel',
+    title: 'イベント Relabel',
     help_btn: '使用説明',
-    if_tip: '選択可能、この一致条件を満たすイベントのみラベルを relabel します',
+    if_tip: '選択可能、この一致条件を満たすイベントのみラベルを Relabel します',
     target_label_tip: '新しいラベルのキー',
     replacement_tip:
       'ラベルの最終的な値。セパレータを構成した場合、このフィールドは空白にできます。正規表現を構成した場合、このフィールドには正規表現で一致した内容を使用して最終的な目標値を構築できます',
@@ -252,7 +261,7 @@ const ja_JP = {
       label: 'ラベル',
       labelFromEvent: 'アラートイベントからラベルを選択',
       btn: 'テスト',
-      result: 'relabel の結果',
+      result: 'Relabel の結果',
     },
   },
   task_tpls: {
@@ -340,6 +349,27 @@ const ja_JP = {
     title: 'イベント処理',
     name_placeholder: 'イベント処理ワークフローを選択してください',
     add_btn: 'イベント処理ワークフローを追加',
+  },
+  pipeline_configuration_ng: {
+    title: 'イベント処理',
+    select_workflow: '既存ワークフローを選択',
+    select_workflow_tooltip:
+      '現在の業務グループの既存イベント処理ワークフローを再利用し、複数のアラートルールで同じプロセッサセットを共有できます。また、この入口で「新規ワークフロー」を選択して、本ルールのプロセッサを独立して管理することもできます。',
+    add_workflow: '新規ワークフロー',
+    add_pipeline: 'プロセッサを追加',
+    enabled: '有効',
+    save_workflow: 'ワークフローを保存',
+    save_workflow_modal_title_new: '新しいワークフローとして保存',
+    save_workflow_modal_title_edit: 'ワークフローを編集',
+    workflow_name: 'ワークフロー名',
+    workflow_name_placeholder: 'ワークフロー名を入力してください',
+    workflow_name_required: 'ワークフロー名は必須です',
+    workflow_unsaved: 'ワークフロー設定は未保存です',
+    legacy_multi_workflow_tip: '旧バージョン設定です。ワークフローは一つのみ保持することを推奨します。',
+    save_workflow_failed: 'ワークフローの保存に失敗しました',
+    reference_workflow_tip: 'ワークフロー「{{workflowName}}」を参照中です。下のプロセッサを変更すると、このワークフローを参照するすべてのルールに反映されます。',
+    no_changes: 'プロセッサ設定に変更はありません',
+    save_workflow_tip: '保存をクリックすると、イベント処理ワークフローが作成または更新されます',
   },
 };
 

@@ -29,3 +29,35 @@ export function getBusiGroupsTags() {
     method: RequestMethod.Get,
   }).then((res) => res.dat);
 }
+
+export function postTargetsUpgrade(data: { idents: string[]; new_version: string; download_url: string }) {
+  return request('/api/n9e/n9e-plus/targets/upgrade', {
+    method: RequestMethod.Post,
+    data,
+  }).then((res) => res.dat);
+}
+
+export function deleteTargetsUpgrade(data: { idents: string[] }) {
+  return request('/api/n9e/n9e-plus/targets/upgrade', {
+    method: RequestMethod.Delete,
+    data,
+  }).then((res) => res.dat);
+}
+
+export function getTargetCollectConfigs(ident: string) {
+  return request(`/api/n9e/n9e-plus/targets/${ident}/collect-configs`, {
+    method: RequestMethod.Get,
+  }).then((res) => res.dat || []);
+}
+
+export function postTargetRestart(ident: string) {
+  return request(`/api/n9e/n9e-plus/targets/${ident}/restart`, {
+    method: RequestMethod.Post,
+  }).then((res) => res.dat);
+}
+
+export function deleteTargetAgent(ident: string) {
+  return request(`/api/n9e/n9e-plus/targets/${ident}/agent`, {
+    method: RequestMethod.Delete,
+  }).then((res) => res.dat);
+}

@@ -55,8 +55,38 @@ const processError = (res: any): string => {
   return JSON.stringify(res);
 };
 
+const redirectTo403 = _.debounce(
+  () => {
+    location.href = `${basePrefix}/403`;
+  },
+  1000,
+  { leading: true, trailing: false },
+);
+
 const combineLoginURL = () => {
   return `${basePrefix}/login${location.pathname != '/' ? '?redirect=' + encodeURIComponent(location.pathname + location.search) : ''}`;
+};
+
+/** UpdateAccessToken 请求锁，确保同时只有一个刷新token的请求 */
+let updateAccessTokenPromise: Promise<any> | null = null;
+
+const updateAccessTokenWithLock = () => {
+  // 如果已经有一个请求在进行中，直接返回这个 Promise
+  if (updateAccessTokenPromise) {
+    return updateAccessTokenPromise;
+  }
+
+  // 创建新的 Promise 并执行请求
+  updateAccessTokenPromise = UpdateAccessToken()
+    .then((res) => {
+      return res;
+    })
+    .finally(() => {
+      // 请求完成后，清空 Promise 引用
+      updateAccessTokenPromise = null;
+    });
+
+  return updateAccessTokenPromise;
 };
 
 /** 配置request请求时的默认参数 */
@@ -130,23 +160,41 @@ request.interceptors.response.use(
               };
             }
           }
+        })
+        .catch(async (error) => {
+          if (!(error instanceof SyntaxError)) {
+            throw error;
+          }
+
+          const raw = await response.clone().text();
+          const preview = raw.slice(0, 120).replace(/\s+/g, ' ');
+          throw {
+            name: `Invalid JSON response from ${response.url}`,
+            message: `Invalid JSON response from ${response.url}: ${preview}`,
+            silence: options.silence,
+            response,
+          };
         });
     } else if (status === 401 && !_.includes(response.url, '/api/n9e-plus/proxy') && !_.includes(response.url, '/api/n9e/proxy')) {
       if (response.url.indexOf('/api/n9e/auth/refresh') > 0) {
         location.href = combineLoginURL();
       } else {
         localStorage.getItem('refresh_token')
-          ? UpdateAccessToken().then((res) => {
-              console.log('401 err', res);
-              if (res.err) {
+          ? updateAccessTokenWithLock()
+              .then((res) => {
+                console.log('401 err', res);
+                if (res.err) {
+                  location.href = combineLoginURL();
+                } else {
+                  const { access_token, refresh_token } = res.dat;
+                  localStorage.setItem(AccessTokenKey, access_token);
+                  localStorage.setItem('refresh_token', refresh_token);
+                  location.href = `${basePrefix}${location.pathname}${location.search}`;
+                }
+              })
+              .catch(() => {
                 location.href = combineLoginURL();
-              } else {
-                const { access_token, refresh_token } = res.dat;
-                localStorage.setItem(AccessTokenKey, access_token);
-                localStorage.setItem('refresh_token', refresh_token);
-                location.href = `${basePrefix}${location.pathname}${location.search}`;
-              }
-            })
+              })
           : (location.href = combineLoginURL());
       }
     } else if (
@@ -160,9 +208,20 @@ request.interceptors.response.use(
         .clone()
         .json()
         .then((data) => {
-          location.href = `${basePrefix}/403`;
+          redirectTo403();
           if (data.error && data.error.message) throw new Error(data.error.message);
         });
+    } else if (status === 598) {
+      if (location.pathname !== '/system/license-management') {
+        location.href = `${basePrefix}/system/license-management`;
+      } else {
+        return response
+          .clone()
+          .json()
+          .then((data) => {
+            return data;
+          });
+      }
     } else if ([502, 503, 504].includes(status)) {
       throw {
         message: i18next.t('common:request_fail_msg'),

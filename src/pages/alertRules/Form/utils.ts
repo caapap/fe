@@ -78,6 +78,7 @@ export const stringifyExpressions = (
 };
 
 export function processFormValues(values) {
+  values = _.cloneDeep(values);
   let cate = values.cate;
   if (values.prod === 'host') {
     cate = 'host';
@@ -150,7 +151,7 @@ export function processFormValues(values) {
     };
   });
   const data = {
-    ..._.omit(values, 'effective_time'),
+    ..._.omit(values, ['effective_time']),
     cate,
     enable_days_of_weeks: values.effective_time.map((item) => item.enable_days_of_week),
     enable_stimes: values.effective_time.map((item) => item.enable_stime.format('HH:mm')),
@@ -161,7 +162,16 @@ export function processFormValues(values) {
     callbacks: _.map(values.callbacks, (item) => item.url),
     annotations: _.chain(values.annotations).keyBy('key').mapValues('value').value(),
     extra_config: {
-      ...extra_config,
+      ..._.omit(extra_config),
+      service_cal_configs: _.map(extra_config.service_cal_configs, (item) => {
+        return {
+          service_cal_ids: item.service_cal_ids,
+          time_range: {
+            start: item.time_range.start.format('HH:mm'),
+            end: item.time_range.end.format('HH:mm'),
+          },
+        };
+      }),
       enrich_queries,
     },
   };
@@ -169,6 +179,7 @@ export function processFormValues(values) {
 }
 
 export function processInitialValues(values) {
+  values = _.cloneDeep(values);
   if (values?.rule_config?.queries) {
     values.rule_config.queries = _.map(values.rule_config.queries, (item) => {
       if (item?.keys?.labelKey !== undefined) {
@@ -236,8 +247,18 @@ export function processInitialValues(values) {
     })),
     extra_config: {
       ...extra_config,
+      service_cal_configs: _.map(values?.extra_config?.service_cal_configs, (item) => {
+        return {
+          service_cal_ids: item.service_cal_ids,
+          time_range: {
+            start: item.time_range.start ? moment(item.time_range.start, 'HH:mm') : undefined,
+            end: item.time_range.end ? moment(item.time_range.end, 'HH:mm') : undefined,
+          },
+        };
+      }),
       enrich_queries,
     },
+    pipeline_configs: values?.pipeline_configs ?? [{ enable: true }],
   };
 }
 

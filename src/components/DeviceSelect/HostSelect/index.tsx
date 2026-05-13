@@ -1,6 +1,6 @@
 import React from 'react';
-import { Form, Card, Space, Select } from 'antd';
-import { PlusCircleOutlined, MinusCircleOutlined } from '@ant-design/icons';
+import { Form, Card, Space, Select, Tooltip } from 'antd';
+import { PlusCircleOutlined, MinusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import _ from 'lodash';
 import ValuesSelect from './ValuesSelect';
@@ -9,6 +9,8 @@ import '../locale';
 
 interface Props {
   prefixName: (string | number)[];
+  title?: React.ReactNode;
+  helpContent?: React.ReactNode;
 }
 
 export default function index(props: Props) {
@@ -32,7 +34,12 @@ export default function index(props: Props) {
           <Card
             title={
               <Space>
-                <span>{t('host.title')}</span>
+                <span>{props.title || t('host.title')}</span>
+                {props.helpContent ? (
+                  <Tooltip title={props.helpContent}>
+                    <QuestionCircleOutlined />
+                  </Tooltip>
+                ) : null}
                 <PlusCircleOutlined
                   onClick={() =>
                     add({

@@ -14,20 +14,21 @@
  * limitations under the License.
  *
  */
-import React, { useContext } from 'react';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import gfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import classNames from 'classnames';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { dark } from 'react-syntax-highlighter/dist/esm/styles/prism';
-import { CommonStateContext } from '@/App';
+
 import './index.less';
+import './typora-theme-lark.less';
 
 interface IMarkDownPros {
   content: string;
   style?: any;
-  darkMode?: boolean;
+  inTooltip?: boolean;
 }
 
 dark['pre[class*="language-"]'] = {
@@ -38,34 +39,54 @@ dark['pre[class*="language-"]'] = {
 };
 
 // https://github.com/vitejs/vite/issues/3592 bug solve 记录
-const Markdown: React.FC<IMarkDownPros> = ({ content, style = {}, darkMode }) => {
-  const currentDarkMode = darkMode ?? useContext(CommonStateContext)?.darkMode;
-
+const Markdown: React.FC<IMarkDownPros> = ({ content, style = {}, inTooltip }) => {
   return (
-    <div className='markdown-wrapper' style={style}>
-      <ReactMarkdown
-        remarkPlugins={[gfm]}
-        children={content}
-        rehypePlugins={[rehypeRaw]}
-        components={{
-          code({ node, inline, className, children, ...props }) {
-            const match = /language-(\w+)/.exec(className || '');
-            return !inline && match ? (
-              <SyntaxHighlighter {...props} children={String(children).replace(/\n$/, '')} language={match[1]} PreTag='div' style={currentDarkMode ? dark : undefined} />
-            ) : (
-              <div
-                className={classNames({
-                  [className || '']: !!className,
-                  'base-code': true,
-                  'base-code-inline': inline,
-                })}
-              >
-                <code {...props}>{children}</code>
-              </div>
-            );
-          },
-        }}
-      />
+    <div className={inTooltip ? 'theme-dark bg-transparent' : ''}>
+      <div className='typora-theme-lark' style={style}>
+        <ReactMarkdown
+          remarkPlugins={[gfm]}
+          children={content}
+          rehypePlugins={[rehypeRaw]}
+          components={{
+            code({ node, inline, className, children, ...props }) {
+              const match = /language-(\w+)/.exec(className || '');
+              const isInlineCode = inline || !String(children).includes('\n');
+              return !inline && match ? (
+                <SyntaxHighlighter
+                  {...props}
+                  children={String(children).replace(/\n$/, '')}
+                  language={match[1]}
+                  PreTag='div'
+                  style={inTooltip ? dark : undefined}
+                  customStyle={{
+                    margin: '1em 0',
+                    borderRadius: '4px',
+                  }}
+                />
+              ) : isInlineCode ? (
+                <span
+                  className={classNames({
+                    [className || '']: !!className,
+                    'base-code': true,
+                    'base-code-inline': true,
+                  })}
+                >
+                  <code {...props}>{children}</code>
+                </span>
+              ) : (
+                <div
+                  className={classNames({
+                    [className || '']: !!className,
+                    'base-code': true,
+                  })}
+                >
+                  <code {...props}>{children}</code>
+                </div>
+              );
+            },
+          }}
+        />
+      </div>
     </div>
   );
 };

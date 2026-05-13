@@ -11,7 +11,7 @@ interface Props {
     field?: string;
     ref?: string;
     group_by?: string;
-    appendQuery?: string;
+    field_filter?: string;
   };
   onStatisticClick?: (
     type: string,
@@ -20,7 +20,7 @@ interface Props {
       field?: string;
       ref?: string;
       group_by?: string;
-      appendQuery?: string;
+      field_filter?: string;
     },
   ) => void;
   setTopNVisible: (visible: boolean) => void;
@@ -66,7 +66,9 @@ export default function StatisticPopover(props: Props) {
       }
       visible={statisticPopoverVisible}
       onVisibleChange={(visible) => {
-        setStatisticPopoverVisible(visible);
+        if (onStatisticClick) {
+          setStatisticPopoverVisible(visible);
+        }
       }}
     >
       {children}

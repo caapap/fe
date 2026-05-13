@@ -30,6 +30,12 @@ export const getBusiGroupsAlertMutes = function (gids?: string) {
   });
 };
 
+export const getShield = function (busiId: number, id: number) {
+  return request(`/api/n9e/busi-group/${busiId}/alert-mute/${id}`, {
+    method: RequestMethod.Get,
+  });
+};
+
 export const addShield = function (data: any, busiId: number) {
   return request(`/api/n9e/busi-group/${busiId}/alert-mutes`, {
     method: RequestMethod.Post,
@@ -68,6 +74,13 @@ export const previewMutedEvents = function (data: any, busiId: number) {
 export const alertMuteTryrun = (data: { event_id: number; config: any }) => {
   return request('/api/n9e/alert-mute-tryrun', {
     method: RequestMethod.Post,
+    data,
+  });
+};
+
+export const deleteAlertMutes = (data: { timestamp: number; group_ids?: number[] }) => {
+  return request('/api/n9e/alert-mutes', {
+    method: RequestMethod.Delete,
     data,
   });
 };

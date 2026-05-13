@@ -1,0 +1,86 @@
+import _ from 'lodash';
+
+/**
+ * 根据分隔符分割文本
+ * @param value 需要分割的文本
+ * @param delimiters 分割符
+ * @returns 分割后的数组结果
+ * 例子:
+ * delimiters = ["@","&","?","|","#","(",")","=","'","\\"",",",";",":","<",">","[","]","{","}","/"," ","\\n","\\t","\\r","\\\\"]
+ * value = "a@b&c?d|e#f(g)h=i'j\"k,l;m:n<o>p[q]r{s}t/u v\nw\tx\ry\\z"
+ * return = [{
+ *  value: "a",
+ *  type: "text"
+ * }, {
+ *  value: "@",
+ *  type: "delimiter"
+ * }]
+ */
+export function tokenizer(
+  value: string,
+  delimiters: string[],
+): {
+  value: string;
+  type: 'text' | 'delimiter';
+  start: number;
+  end: number;
+}[] {
+  const result: {
+    value: string;
+    type: 'text' | 'delimiter';
+    start: number;
+    end: number;
+  }[] = [];
+  let temp = '';
+  let tokenStart = 0;
+  for (let i = 0; i < value.length; i++) {
+    const char = value[i];
+    if (_.includes(delimiters, char)) {
+      if (temp) {
+        result.push({
+          value: temp,
+          type: 'text',
+          start: tokenStart,
+          end: i,
+        });
+        temp = '';
+      }
+      result.push({
+        value: char,
+        type: 'delimiter',
+        start: i,
+        end: i + 1,
+      });
+      tokenStart = i + 1;
+    } else {
+      if (!temp) {
+        tokenStart = i;
+      }
+      temp += char;
+    }
+  }
+  if (temp) {
+    result.push({
+      value: temp,
+      type: 'text',
+      start: tokenStart,
+      end: value.length,
+    });
+  }
+  return result;
+}
+
+export function toString(val: string | number | boolean | object | null | undefined) {
+  if (val === undefined) {
+    return '';
+  }
+  if (typeof val === 'string') {
+    return val;
+  }
+  try {
+    const serialized = JSON.stringify(val);
+    return typeof serialized === 'string' ? serialized : '';
+  } catch (e) {
+    return 'unknow';
+  }
+}

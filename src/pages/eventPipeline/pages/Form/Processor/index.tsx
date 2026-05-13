@@ -12,7 +12,7 @@ import DocumentDrawer from '@/components/DocumentDrawer';
 // @ts-ignore
 import PlusProcessor, { options as PlusOptions } from 'plus:/parcels/eventPipeline';
 
-import { NS, DEFAULT_PROCESSOR_CONFIG_MAP } from '../../../constants';
+import { NS, DEFAULT_PROCESSOR_CONFIG_MAP, documentPathMap } from '../../../constants';
 import TestModal from '../TestModal';
 import Relabel from './Relabel';
 import Callback from './Callback';
@@ -28,13 +28,6 @@ interface Props {
   move: (from: number, to: number) => void;
 }
 
-const documentPathMap = {
-  relabel: 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/notification/processor-event-relabel/',
-  event_drop: 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/notification/processor-event-drop/',
-  event_update: 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/notification/processor-event-update/',
-  callback: 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/notification/processor-callback/',
-  ai_summary: 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/notification/processor-ai-summary/',
-};
 export default function NotifyConfig(props: Props) {
   const { t, i18n } = useTranslation(NS);
   const { darkMode } = useContext(CommonStateContext);
@@ -109,31 +102,12 @@ export default function NotifyConfig(props: Props) {
         }
       >
         <Select
-          options={_.concat(
-            [
-              {
-                label: 'Relabel',
-                value: 'relabel',
-              },
-              {
-                label: 'Callback',
-                value: 'callback',
-              },
-              {
-                label: 'Event Update',
-                value: 'event_update',
-              },
-              {
-                label: 'Event Drop',
-                value: 'event_drop',
-              },
-              {
-                label: 'AI Summary',
-                value: 'ai_summary',
-              },
-            ],
-            IS_PLUS ? PlusOptions : [],
-          )}
+          options={_.map(_.concat(['relabel', 'event_drop', 'event_update', 'callback', 'ai_summary'], IS_PLUS ? PlusOptions : []), (item) => {
+            return {
+              label: t(`processor.options.${item}`),
+              value: item,
+            };
+          })}
           onChange={(newTyp) => {
             const newConfig = _.cloneDeep(DEFAULT_PROCESSOR_CONFIG_MAP[newTyp]);
             const formValues = _.cloneDeep(form.getFieldsValue());
