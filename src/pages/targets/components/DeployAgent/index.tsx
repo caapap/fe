@@ -27,7 +27,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 }
 
 export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
-  const { t } = useTranslation('hosts');
+  const { t } = useTranslation(['hosts', 'common']);
   const [visible, setVisible] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -214,7 +214,7 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
         onCancel={close}
         footer={
           runId != null ? (
-            <Button onClick={close}>{t('common:btn.close')}</Button>
+            <Button onClick={close}>{t('btn.close', { ns: 'common' })}</Button>
           ) : (
             <div className='flex justify-end gap-2'>
               <Button onClick={close}>{t('deploy_agent.cancel')}</Button>

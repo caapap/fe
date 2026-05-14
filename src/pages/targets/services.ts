@@ -107,7 +107,7 @@ export function addSSHCredential(data: {
   ssh_port: number;
   auth_type: 'password' | 'private_key';
   secret: string;
-}): Promise<void> {
+}): Promise<SSHCredential> {
   return request('/api/n9e/ssh/credentials', {
     method: RequestMethod.Post,
     data,

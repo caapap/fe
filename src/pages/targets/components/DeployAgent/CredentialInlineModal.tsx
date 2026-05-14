@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Form, Input, InputNumber, Modal, Radio, message } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import { SSHCredential, addSSHCredential, getSSHCredentials } from '../../services';
+import { SSHCredential, addSSHCredential } from '../../services';
 
 interface Props {
   open: boolean;
@@ -28,7 +28,7 @@ export default function CredentialInlineModal({ open, onCancel, onCreated }: Pro
     try {
       const values = await form.validateFields();
       setSubmitting(true);
-      await addSSHCredential({
+      const created = await addSSHCredential({
         name: values.name.trim(),
         ssh_user: values.ssh_user.trim(),
         ssh_port: Number(values.ssh_port) || 22,
@@ -36,14 +36,9 @@ export default function CredentialInlineModal({ open, onCancel, onCreated }: Pro
         secret: values.secret,
       });
 
-      // Re-fetch to get server-assigned id; match by name which is unique per user.
-      const list = await getSSHCredentials();
-      const created = list.find((c) => c.name === values.name.trim());
-      if (created) {
-        onCreated(created);
-        message.success(t('deploy_agent.credential_modal.success'));
-        form.resetFields();
-      }
+      form.resetFields();
+      onCreated(created);
+      message.success(t('deploy_agent.credential_modal.success'));
     } catch (err: any) {
       if (err?.errorFields) return; // form validation — already shown inline
       message.error(err?.message ?? t('deploy_agent.credential_modal.validation'));
