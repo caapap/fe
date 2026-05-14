@@ -17,6 +17,10 @@ interface FormValues {
   arch: string;
 }
 
+const stopOverlayPropagation = (e: React.MouseEvent<HTMLElement>) => {
+  e.stopPropagation();
+};
+
 export default function UploadPackageModal({ open, onCancel, onUploaded }: Props) {
   const { t } = useTranslation('hosts');
   const [form] = Form.useForm<FormValues>();
@@ -67,27 +71,19 @@ export default function UploadPackageModal({ open, onCancel, onUploaded }: Props
       confirmLoading={submitting}
       destroyOnClose
       maskClosable={false}
+      modalRender={(node) => (
+        <div onClick={stopOverlayPropagation} onMouseDown={stopOverlayPropagation}>
+          {node}
+        </div>
+      )}
     >
-      <Form
-        form={form}
-        layout='vertical'
-        initialValues={{ os: 'linux', arch: 'amd64' } satisfies Partial<FormValues>}
-      >
-        <Form.Item
-          name='version'
-          label={t('deploy_agent.upload_modal.version')}
-          rules={[{ required: true, whitespace: true }]}
-        >
+      <Form form={form} layout='vertical' initialValues={{ os: 'linux', arch: 'amd64' } satisfies Partial<FormValues>}>
+        <Form.Item name='version' label={t('deploy_agent.upload_modal.version')} rules={[{ required: true, whitespace: true }]}>
           <Input placeholder='v0.4.9' />
         </Form.Item>
 
         <div className='flex gap-3'>
-          <Form.Item
-            name='os'
-            label={t('deploy_agent.upload_modal.os')}
-            rules={[{ required: true }]}
-            className='flex-1'
-          >
+          <Form.Item name='os' label={t('deploy_agent.upload_modal.os')} rules={[{ required: true }]} className='flex-1'>
             <Select
               options={[
                 { label: 'linux', value: 'linux' },
@@ -96,12 +92,7 @@ export default function UploadPackageModal({ open, onCancel, onUploaded }: Props
               ]}
             />
           </Form.Item>
-          <Form.Item
-            name='arch'
-            label={t('deploy_agent.upload_modal.arch')}
-            rules={[{ required: true }]}
-            className='flex-1'
-          >
+          <Form.Item name='arch' label={t('deploy_agent.upload_modal.arch')} rules={[{ required: true }]} className='flex-1'>
             <Select
               options={[
                 { label: 'amd64', value: 'amd64' },

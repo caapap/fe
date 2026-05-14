@@ -2,14 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Input, message, Modal } from 'antd';
 import { useTranslation } from 'react-i18next';
 
-import {
-  AgentPackage,
-  DeployAgentRequest,
-  SSHCredential,
-  getAgentPackages,
-  getSSHCredentials,
-  postDeployAgent,
-} from '../../services';
+import { AgentPackage, DeployAgentRequest, SSHCredential, getAgentPackages, getSSHCredentials, postDeployAgent } from '../../services';
 import CredentialInlineModal from './CredentialInlineModal';
 import RunView from './RunView';
 import SourcePanel from './SourcePanel';
@@ -25,6 +18,10 @@ interface Props {
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return <div className='mb-1 text-sm text-text-secondary'>{children}</div>;
 }
+
+const stopOverlayPropagation = (e: React.MouseEvent<HTMLElement>) => {
+  e.stopPropagation();
+};
 
 export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
   const { t } = useTranslation(['hosts', 'common']);
@@ -174,21 +171,11 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
         <div className='flex gap-3'>
           <div className='flex-1'>
             <SectionLabel>{t('deploy_agent.install_dir')}</SectionLabel>
-            <Input
-              placeholder={t('deploy_agent.install_dir_default')}
-              value={installDir}
-              onChange={(e) => setInstallDir(e.target.value)}
-              allowClear
-            />
+            <Input placeholder={t('deploy_agent.install_dir_default')} value={installDir} onChange={(e) => setInstallDir(e.target.value)} allowClear />
           </div>
           <div className='flex-1'>
             <SectionLabel>{t('deploy_agent.section.server')}</SectionLabel>
-            <Input
-              placeholder={t('deploy_agent.server_url_default')}
-              value={serverURL}
-              onChange={(e) => setServerURL(e.target.value)}
-              allowClear
-            />
+            <Input placeholder={t('deploy_agent.server_url_default')} value={serverURL} onChange={(e) => setServerURL(e.target.value)} allowClear />
           </div>
         </div>
       </div>
@@ -212,6 +199,11 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
         destroyOnClose
         maskClosable={false}
         onCancel={close}
+        modalRender={(node) => (
+          <div onClick={stopOverlayPropagation} onMouseDown={stopOverlayPropagation}>
+            {node}
+          </div>
+        )}
         footer={
           runId != null ? (
             <Button onClick={close}>{t('btn.close', { ns: 'common' })}</Button>

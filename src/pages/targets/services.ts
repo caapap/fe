@@ -30,7 +30,7 @@ export function getBusiGroupsTags() {
   }).then((res) => res.dat);
 }
 
-export function postTargetsUpgrade(data: { idents: string[]; new_version: string; download_url: string }) {
+export function postTargetsUpgrade(data: { idents: string[]; new_version: string; download_url?: string; package_id?: number }) {
   return request('/api/n9e/n9e-plus/targets/upgrade', {
     method: RequestMethod.Post,
     data,
@@ -101,13 +101,7 @@ export function getSSHCredentials(): Promise<SSHCredential[]> {
   }).then((res) => res.dat || []);
 }
 
-export function addSSHCredential(data: {
-  name: string;
-  ssh_user: string;
-  ssh_port: number;
-  auth_type: 'password' | 'private_key';
-  secret: string;
-}): Promise<SSHCredential> {
+export function addSSHCredential(data: { name: string; ssh_user: string; ssh_port: number; auth_type: 'password' | 'private_key'; secret: string }): Promise<SSHCredential> {
   return request('/api/n9e/ssh/credentials', {
     method: RequestMethod.Post,
     data,

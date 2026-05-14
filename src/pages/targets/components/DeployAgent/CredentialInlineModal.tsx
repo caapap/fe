@@ -18,6 +18,10 @@ interface FormValues {
   secret: string;
 }
 
+const stopOverlayPropagation = (e: React.MouseEvent<HTMLElement>) => {
+  e.stopPropagation();
+};
+
 export default function CredentialInlineModal({ open, onCancel, onCreated }: Props) {
   const { t } = useTranslation('hosts');
   const [form] = Form.useForm<FormValues>();
@@ -61,45 +65,27 @@ export default function CredentialInlineModal({ open, onCancel, onCreated }: Pro
       confirmLoading={submitting}
       destroyOnClose
       maskClosable={false}
+      modalRender={(node) => (
+        <div onClick={stopOverlayPropagation} onMouseDown={stopOverlayPropagation}>
+          {node}
+        </div>
+      )}
     >
-      <Form
-        form={form}
-        layout='vertical'
-        initialValues={{ ssh_port: 22, auth_type: 'password' } satisfies Partial<FormValues>}
-        requiredMark='optional'
-      >
-        <Form.Item
-          name='name'
-          label={t('deploy_agent.credential_modal.name')}
-          rules={[{ required: true, whitespace: true }]}
-        >
+      <Form form={form} layout='vertical' initialValues={{ ssh_port: 22, auth_type: 'password' } satisfies Partial<FormValues>} requiredMark='optional'>
+        <Form.Item name='name' label={t('deploy_agent.credential_modal.name')} rules={[{ required: true, whitespace: true }]}>
           <Input placeholder={t('deploy_agent.credential_modal.name_placeholder')} />
         </Form.Item>
 
         <div className='flex gap-3'>
-          <Form.Item
-            name='ssh_user'
-            label={t('deploy_agent.credential_modal.ssh_user')}
-            rules={[{ required: true, whitespace: true }]}
-            className='flex-1'
-          >
+          <Form.Item name='ssh_user' label={t('deploy_agent.credential_modal.ssh_user')} rules={[{ required: true, whitespace: true }]} className='flex-1'>
             <Input placeholder='root' />
           </Form.Item>
-          <Form.Item
-            name='ssh_port'
-            label={t('deploy_agent.credential_modal.ssh_port')}
-            rules={[{ required: true, type: 'number', min: 1, max: 65535 }]}
-            className='w-32'
-          >
+          <Form.Item name='ssh_port' label={t('deploy_agent.credential_modal.ssh_port')} rules={[{ required: true, type: 'number', min: 1, max: 65535 }]} className='w-32'>
             <InputNumber className='w-full' min={1} max={65535} />
           </Form.Item>
         </div>
 
-        <Form.Item
-          name='auth_type'
-          label={t('deploy_agent.credential_modal.auth_type')}
-          rules={[{ required: true }]}
-        >
+        <Form.Item name='auth_type' label={t('deploy_agent.credential_modal.auth_type')} rules={[{ required: true }]}>
           <Radio.Group>
             <Radio.Button value='password'>{t('deploy_agent.credential_modal.auth_password')}</Radio.Button>
             <Radio.Button value='private_key'>{t('deploy_agent.credential_modal.auth_key')}</Radio.Button>
@@ -108,18 +94,10 @@ export default function CredentialInlineModal({ open, onCancel, onCreated }: Pro
 
         <Form.Item
           name='secret'
-          label={
-            authType === 'password'
-              ? t('deploy_agent.credential_modal.secret_password')
-              : t('deploy_agent.credential_modal.secret_key')
-          }
+          label={authType === 'password' ? t('deploy_agent.credential_modal.secret_password') : t('deploy_agent.credential_modal.secret_key')}
           rules={[{ required: true }]}
         >
-          {authType === 'password' ? (
-            <Input.Password autoComplete='new-password' />
-          ) : (
-            <Input.TextArea rows={8} placeholder='-----BEGIN OPENSSH PRIVATE KEY-----' />
-          )}
+          {authType === 'password' ? <Input.Password autoComplete='new-password' /> : <Input.TextArea rows={8} placeholder='-----BEGIN OPENSSH PRIVATE KEY-----' />}
         </Form.Item>
       </Form>
     </Modal>

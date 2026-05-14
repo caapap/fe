@@ -44,6 +44,34 @@ const IDENT_IP_V4_MAX_SAMPLE = 'IP 255.255.255.255';
 const IDENT_IP_V6_MAX_SAMPLE = 'IP ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff';
 /** Suffix for meta width: long OS + arch placeholder (cores count + t('cores') prepended in render) */
 const IDENT_META_MAX_SAMPLE_SUFFIX = 'windows aarch64';
+const rowClickIgnoreSelector = [
+  'button',
+  'a[href]',
+  'input',
+  'textarea',
+  'select',
+  'label.ant-checkbox-wrapper',
+  '.ant-checkbox-wrapper',
+  '.ant-dropdown',
+  '.ant-select',
+  '.ant-picker',
+  '.ant-table-selection-column',
+  '.ant-modal-root',
+  '.ant-modal-wrap',
+  '.ant-modal',
+  '.ant-modal-content',
+  '.ant-modal-header',
+  '.ant-modal-body',
+  '.ant-modal-footer',
+  '.ant-modal-close',
+  '.ant-tabs',
+  '.ant-upload',
+  '.ant-form-item',
+  '.ant-radio-group',
+  '.ant-popover',
+  '.ant-tooltip',
+  '.ant-drawer',
+].join(', ');
 
 function isHostIpLikelyIpv6(hostIp: string): boolean {
   return hostIp.trim().includes(':');
@@ -323,19 +351,19 @@ export default function List(props: Props) {
                       onOk={() => {
                         setRefreshFlag(_.uniqueId('refreshFlag_'));
                       }}
-                        />
-                      </Menu.Item>
-                      <Menu.Item key='DeployAgent'>
-                        <DeployAgent
-                          selectedIdents={selectedIdents}
-                          onOk={() => {
-                            setRefreshFlag(_.uniqueId('refreshFlag_'));
-                          }}
-                        />
-                      </Menu.Item>
-                    </Menu>
-                  }
-                >
+                    />
+                  </Menu.Item>
+                  <Menu.Item key='DeployAgent'>
+                    <DeployAgent
+                      selectedIdents={selectedIdents}
+                      onOk={() => {
+                        setRefreshFlag(_.uniqueId('refreshFlag_'));
+                      }}
+                    />
+                  </Menu.Item>
+                </Menu>
+              }
+            >
               <Button>
                 {t('common:btn.batch_operations')} <DownOutlined />
               </Button>
@@ -361,11 +389,7 @@ export default function List(props: Props) {
             className: 'group cursor-pointer',
             onClick: (e) => {
               const el = e.target as HTMLElement;
-              if (
-                el.closest(
-                  'button, a[href], input, textarea, select, label.ant-checkbox-wrapper, .ant-checkbox-wrapper, .ant-dropdown, .ant-select, .ant-picker, .ant-table-selection-column',
-                )
-              ) {
+              if (el.closest(rowClickIgnoreSelector)) {
                 return;
               }
               setMetaDrawerIdent(record.ident);
@@ -573,7 +597,9 @@ export default function List(props: Props) {
                         <VersionIcon className='flex leading-none' />
                         <span className='leading-none'>{display}</span>
                       </div>
-                      {record.new_version && record.new_version !== record.agent_version ? <Tag color='orange'>{t('operations.upgrading', { version: record.new_version })}</Tag> : null}
+                      {record.new_version && record.new_version !== record.agent_version ? (
+                        <Tag color='orange'>{t('operations.upgrading', { version: record.new_version })}</Tag>
+                      ) : null}
                       {isPendingActionActive(record) && record.pending_action === 'restart' ? <Tag color='blue'>{t('operations.status_restarting')}</Tag> : null}
                       {isPendingActionActive(record) && record.pending_action === 'uninstall' ? <Tag color='red'>{t('operations.status_uninstalling')}</Tag> : null}
                       {record.agent_status === 'uninstalled' ? <Tag>{t('operations.status_uninstalled')}</Tag> : null}

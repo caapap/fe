@@ -37,6 +37,7 @@ import Feedback from '@/components/Feedback';
 import { IRawTimeRange } from '@/components/TimeRangePicker';
 import { getN9eConfig } from '@/pages/siteSettings/services';
 import { getDarkMode, updateDarkMode } from '@/utils/darkMode';
+import { AccessTokenKey } from '@/utils/constant';
 import SharedDetail from '@/pages/event/DetailNG/SharedDetail';
 import { AiChatProvider, AiChatContainer } from '@/components/AiChatNG';
 import HocRenderer from './components/HocRenderer';
@@ -244,6 +245,7 @@ function App() {
       (async () => {
         const iconLink = document.querySelector("link[rel~='icon']") as any;
         let siteInfo;
+        const hasAccessToken = !!window.localStorage.getItem(AccessTokenKey);
         const siteInfoStr = await getN9eConfig('site_info');
         if (siteInfoStr) {
           try {
@@ -259,12 +261,24 @@ function App() {
         if (siteInfo?.font_family) {
           document.body.style.fontFamily = siteInfo.font_family;
         }
+        if (!anonymous && !hasAccessToken) {
+          const redirect = `${location.pathname}${location.search}`;
+          location.href = `${basePrefix}/login${redirect !== '/' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`;
+          return;
+        }
         // 非匿名访问，需要初始化一些公共数据
-        if (!anonymous) {
+        if (!anonymous && hasAccessToken) {
           const installTs = await getInstallDate();
-          const { dat: profile } = await GetProfile();
-          const { dat: busiGroups } = await getBusiGroups();
-          const { dat: perms } = await getMenuPerm();
+          const profileRes = await GetProfile().catch(() => undefined);
+          if (!profileRes?.dat) {
+            removePreloader();
+            initialized.current = true;
+            setCommonState((state) => ({ ...state, siteInfo }));
+            return;
+          }
+          const profile = profileRes.dat;
+          const { dat: busiGroups } = await getBusiGroups().catch(() => ({ dat: [] }));
+          const { dat: perms } = await getMenuPerm().catch(() => ({ dat: [] }));
           const datasourceList = await getDatasourceBriefList();
           const { licenseRulesRemaining, licenseExpireDays, feats } = await getLicense(t);
           let versions = { version: '', github_verison: '', newVersion: false };
