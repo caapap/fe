@@ -50,7 +50,7 @@ export interface AgentPackage {
   version: string;
   os: string;
   arch: string;
-  sha256: string;
+  md5: string;
   size: number;
   created_at: number;
   created_by: string;

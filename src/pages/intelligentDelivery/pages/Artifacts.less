@@ -1,0 +1,9 @@
+/* 制品列表：排序箭头始终双显，仅高亮当前方向（覆盖 App.less 单箭头隐藏逻辑） */
+.artifacts-package-table {
+  .ant-table-column-has-sorters .ant-table-column-sorter-inner {
+    &:has(.ant-table-column-sorter-up.active) .ant-table-column-sorter-down,
+    &:has(.ant-table-column-sorter-down.active) .ant-table-column-sorter-up {
+      opacity: 1;
+    }
+  }
+}
