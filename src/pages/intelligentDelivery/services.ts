@@ -34,6 +34,76 @@ export interface UploadArtifactParams {
 }
 
 /** 通用制品上传：包名 + 自定义版本号，底层仍走 agent-packages 存储 */
+// --- Pipeline APIs ---
+
+export interface Pipeline {
+  id: number;
+  name: string;
+  description: string;
+  group_id: number;
+  status: string;
+  latest_config_id: number;
+  latest_run_id: number;
+  latest_run_no: number;
+  latest_status: string;
+  latest_stage: string;
+  latest_operator: string;
+  latest_trigger: string;
+  latest_start_at: number;
+  latest_elapsed_ms: number;
+  creator: string;
+  create_at: number;
+  update_at: number;
+  update_by: string;
+}
+
+export interface PipelineListResult {
+  list: Pipeline[];
+  total: number;
+}
+
+export function getPipelines(params?: { group_id?: number; query?: string; page?: number; limit?: number }): Promise<PipelineListResult> {
+  return request('/api/n9e-plus/delivery/pipelines', {
+    method: RequestMethod.Get,
+    params: { group_id: -1, page: 1, limit: 20, ...params },
+  }).then((res) => res?.dat ?? { list: [], total: 0 });
+}
+
+export function createPipeline(data: { flow_yaml: string; group_id?: number }): Promise<number> {
+  return request('/api/n9e-plus/delivery/pipelines', {
+    method: RequestMethod.Post,
+    data,
+  }).then((res) => res?.dat);
+}
+
+export function deletePipeline(id: number): Promise<void> {
+  return request(`/api/n9e-plus/delivery/pipelines/${id}`, {
+    method: RequestMethod.Delete,
+  });
+}
+
+export function triggerPipelineRun(id: number, variables?: Record<string, string>): Promise<any> {
+  return request(`/api/n9e-plus/delivery/pipelines/${id}/run`, {
+    method: RequestMethod.Post,
+    data: { variables: variables ? JSON.stringify(variables) : '' },
+  }).then((res) => res?.dat);
+}
+
+export function getPipelineRuns(pipelineId: number, params?: { page?: number; limit?: number }): Promise<{ list: any[]; total: number }> {
+  return request(`/api/n9e-plus/delivery/pipelines/${pipelineId}/runs`, {
+    method: RequestMethod.Get,
+    params: { page: 1, limit: 20, ...params },
+  }).then((res) => res?.dat ?? { list: [], total: 0 });
+}
+
+export function getPipelineRunDetail(runId: number): Promise<any> {
+  return request(`/api/n9e-plus/delivery/pipeline-runs/${runId}`, {
+    method: RequestMethod.Get,
+  }).then((res) => res?.dat);
+}
+
+// --- Artifact APIs ---
+
 export function uploadArtifact(params: UploadArtifactParams): Promise<ArtifactPackage> {
   const { file, packageName, version, onProgress } = params;
   const formData = new FormData();
