@@ -69,7 +69,7 @@ export function getPipelines(params?: { group_id?: number; query?: string; page?
   }).then((res) => res?.dat ?? { list: [], total: 0 });
 }
 
-export function createPipeline(data: { flow_yaml: string; group_id?: number }): Promise<number> {
+export function createPipeline(data: { flow_yaml: string; group_id?: number; name?: string; description?: string; status?: string }): Promise<number> {
   return request('/api/n9e-plus/delivery/pipelines', {
     method: RequestMethod.Post,
     data,
@@ -100,6 +100,78 @@ export function getPipelineRunDetail(runId: number): Promise<any> {
   return request(`/api/n9e-plus/delivery/pipeline-runs/${runId}`, {
     method: RequestMethod.Get,
   }).then((res) => res?.dat);
+}
+
+// --- Service Connection APIs ---
+
+export interface ServiceConnection {
+  id: number;
+  name: string;
+  type: 'SSH_KEY' | 'USERNAME_PASSWORD' | 'TOKEN';
+  description: string;
+  params: string;
+  creator: string;
+  create_at: number;
+  update_at: number;
+}
+
+export interface ServiceConnectionListResult {
+  list: ServiceConnection[];
+  total: number;
+}
+
+export interface SSHKeyParams {
+  host: string;
+  port: number;
+  username: string;
+  private_key: string;
+}
+
+export interface PasswordParams {
+  host: string;
+  port: number;
+  username: string;
+  password: string;
+}
+
+export function getServiceConnections(params?: { query?: string; page?: number; limit?: number }): Promise<ServiceConnectionListResult> {
+  return request('/api/n9e-plus/delivery/service-connections', {
+    method: RequestMethod.Get,
+    params: { page: 1, limit: 50, ...params },
+  }).then((res) => res?.dat ?? { list: [], total: 0 });
+}
+
+export function createServiceConnection(data: {
+  name: string;
+  type: ServiceConnection['type'];
+  description?: string;
+  params: SSHKeyParams | PasswordParams | Record<string, unknown>;
+}): Promise<void> {
+  return request('/api/n9e-plus/delivery/service-connections', {
+    method: RequestMethod.Post,
+    data,
+  });
+}
+
+export function updateServiceConnection(
+  id: number,
+  data: Partial<{
+    name: string;
+    type: ServiceConnection['type'];
+    description: string;
+    params: SSHKeyParams | PasswordParams | Record<string, unknown>;
+  }>,
+): Promise<void> {
+  return request(`/api/n9e-plus/delivery/service-connections/${id}`, {
+    method: RequestMethod.Put,
+    data,
+  });
+}
+
+export function deleteServiceConnection(id: number): Promise<void> {
+  return request(`/api/n9e-plus/delivery/service-connections/${id}`, {
+    method: RequestMethod.Delete,
+  });
 }
 
 // --- Artifact APIs ---

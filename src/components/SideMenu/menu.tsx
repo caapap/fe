@@ -160,6 +160,10 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
           label: 'menu.intelligent_delivery_artifacts',
         },
         {
+          key: '/intelligent-delivery/service-connections',
+          label: 'menu.intelligent_delivery_service_connections',
+        },
+        {
           key: '/intelligent-delivery/knowledge',
           label: 'menu.intelligent_delivery_knowledge',
         },

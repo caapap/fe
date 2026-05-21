@@ -17,11 +17,12 @@ interface Props {
 const accentClassMap: Record<ModuleKey, string> = {
   pipelines: 'from-[#5B8FF9] via-[#6A5AF9] to-[#8B5CF6]',
   artifacts: 'from-[#14B8A6] via-[#0EA5A4] to-[#22C55E]',
+  serviceConnections: 'from-[#0EA5E9] via-[#06B6D4] to-[#10B981]',
   knowledge: 'from-[#F59E0B] via-[#FB923C] to-[#F97316]',
   tests: 'from-[#EC4899] via-[#F43F5E] to-[#EF4444]',
 };
 
-const siblingOrder: ModuleKey[] = ['pipelines', 'artifacts', 'knowledge', 'tests'];
+const siblingOrder: ModuleKey[] = ['pipelines', 'artifacts', 'serviceConnections', 'knowledge', 'tests'];
 
 function InfoCard(props: { label: string; value: string }) {
   const { label, value } = props;

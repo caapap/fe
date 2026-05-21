@@ -51,6 +51,7 @@ const en_US = {
     intelligent_delivery: 'Intelligent Delivery',
     intelligent_delivery_pipelines: 'Pipelines',
     intelligent_delivery_artifacts: 'Artifact Repository',
+    intelligent_delivery_service_connections: 'Service Connections',
     intelligent_delivery_knowledge: 'Knowledge Base',
     intelligent_delivery_tests: 'Test Management',
     notification_settings: 'Notification settings',

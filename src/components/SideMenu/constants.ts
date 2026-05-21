@@ -7,6 +7,7 @@ export const M1_MENU_KEYS = [
   '/pingmesh',
   '/intelligent-delivery/pipelines',
   '/intelligent-delivery/artifacts',
+  '/intelligent-delivery/service-connections',
   '/intelligent-delivery/knowledge',
   '/intelligent-delivery/tests',
 ];

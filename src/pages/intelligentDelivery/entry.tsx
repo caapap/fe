@@ -6,6 +6,7 @@ import Knowledge from './pages/Knowledge';
 import Pipelines from './pages/Pipelines';
 import PipelineDetail from './pages/PipelineDetail';
 import PipelineEdit from './pages/PipelineEdit';
+import ServiceConnections from './pages/ServiceConnections';
 import Tests from './pages/Tests';
 import './locale';
 
@@ -34,6 +35,11 @@ export default {
     {
       path: PATHS.artifacts,
       component: Artifacts,
+      exact: true,
+    },
+    {
+      path: PATHS.serviceConnections,
+      component: ServiceConnections,
       exact: true,
     },
     {

@@ -50,6 +50,7 @@ const zh_HK = {
     intelligent_delivery: '智能交付',
     intelligent_delivery_pipelines: '流水線',
     intelligent_delivery_artifacts: '製品倉庫',
+    intelligent_delivery_service_connections: '服務連線',
     intelligent_delivery_knowledge: '知識庫',
     intelligent_delivery_tests: '測試管理',
     notification_settings: '通知設置',
