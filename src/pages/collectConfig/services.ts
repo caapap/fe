@@ -2,7 +2,7 @@ import request from '@/utils/request';
 import { RequestMethod } from '@/store/common';
 import { CollectRule, CollectTemplate } from './types';
 
-const apiPrefix = '/api/n9e/n9e-plus';
+const apiPrefix = '/api/n9e-plus';
 
 export const getCollectRules = (params?: Record<string, any>): Promise<CollectRule[]> => {
   return request(`${apiPrefix}/collects`, {

@@ -22,22 +22,22 @@ export default function ArtifactApiGuideDrawer({ open, onClose }: Props) {
   const encodedPkg = encodeURIComponent(pkg);
   const exp = String(Date.now() + 3600_000);
 
-  const uploadCurl = `curl -X POST '${base}/v1/n9e/delivery/artifacts/files/${encodedPkg}?version=${version}&fileName=${encodedPkg}&versionDescription=release-notes' \\
+  const uploadCurl = `curl -X POST '${base}/v1/n9e-plus/delivery/artifacts/files/${encodedPkg}?version=${version}&fileName=${encodedPkg}&versionDescription=release-notes' \\
   -H 'X-User-Token: ${tokenVar}' \\
   -F 'file=@./${pkg}'`;
 
-  const downloadCurl = `curl -L '${base}/v1/n9e/delivery/artifacts/files/${encodedPkg}?version=${version}' \\
+  const downloadCurl = `curl -L '${base}/v1/n9e-plus/delivery/artifacts/files/${encodedPkg}?version=${version}' \\
   -H 'X-User-Token: ${tokenVar}' \\
   -o ${pkg}`;
 
-  const signCurl = `curl -I '${base}/v1/n9e/delivery/artifacts/files/${encodedPkg}?version=${version}&signUrl=true&expiration=${exp}' \\
+  const signCurl = `curl -I '${base}/v1/n9e-plus/delivery/artifacts/files/${encodedPkg}?version=${version}&signUrl=true&expiration=${exp}' \\
   -H 'X-User-Token: ${tokenVar}'`;
 
   const markdownContent = useMemo(
     () => `
 ## 上传制品
 
-\`POST /v1/n9e/delivery/artifacts/files/{filePath}\`  
+\`POST /v1/n9e-plus/delivery/artifacts/files/{filePath}\`  
 Query 参数：
 
 - \`version\`（必填）
@@ -65,7 +65,7 @@ ${uploadCurl}
 
 ## 下载制品
 
-\`GET /v1/n9e/delivery/artifacts/files/{filePath}?version={version}\`
+\`GET /v1/n9e-plus/delivery/artifacts/files/{filePath}?version={version}\`
 
 \`\`\`bash
 ${downloadCurl}
@@ -73,7 +73,7 @@ ${downloadCurl}
 
 ## 获取临时免密下载地址
 
-\`HEAD /v1/n9e/delivery/artifacts/files/{filePath}?version={version}&signUrl=true&expiration={msTimestamp}\`
+\`HEAD /v1/n9e-plus/delivery/artifacts/files/{filePath}?version={version}&signUrl=true&expiration={msTimestamp}\`
 
 关键响应头：
 

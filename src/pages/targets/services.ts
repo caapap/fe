@@ -31,14 +31,14 @@ export function getBusiGroupsTags() {
 }
 
 export function postTargetsUpgrade(data: { idents: string[]; new_version: string; download_url?: string; package_id?: number }) {
-  return request('/api/n9e/n9e-plus/targets/upgrade', {
+  return request('/api/n9e-plus/targets/upgrade', {
     method: RequestMethod.Post,
     data,
   }).then((res) => res.dat);
 }
 
 export function postTargetsAction(data: { idents: string[]; action: 'restart' | 'uninstall' }) {
-  return request('/api/n9e/n9e-plus/targets/actions', {
+  return request('/api/n9e-plus/targets/actions', {
     method: RequestMethod.Post,
     data,
   }).then((res) => res.dat);
@@ -58,7 +58,7 @@ export interface AgentPackage {
 }
 
 export function getAgentPackages(): Promise<AgentPackage[]> {
-  return request('/api/n9e/n9e-plus/agent-packages', {
+  return request('/api/n9e-plus/agent-packages', {
     method: RequestMethod.Get,
   }).then((res) => res.dat || []);
 }
@@ -69,14 +69,14 @@ export function uploadAgentPackage(data: { file: File; version: string; os: stri
   formData.append('version', data.version);
   formData.append('os', data.os);
   formData.append('arch', data.arch);
-  return request('/api/n9e/n9e-plus/agent-packages', {
+  return request('/api/n9e-plus/agent-packages', {
     method: RequestMethod.Post,
     data: formData,
   }).then((res) => res.dat);
 }
 
 export function postTargetsDeploy(data: { idents: string[]; version: string; download_url?: string; package_id?: number }) {
-  return request('/api/n9e/n9e-plus/targets/deploy', {
+  return request('/api/n9e-plus/targets/deploy', {
     method: RequestMethod.Post,
     data,
   }).then((res) => res.dat);
@@ -125,7 +125,7 @@ export interface DeployAgentRequest {
 }
 
 export function postDeployAgent(data: DeployAgentRequest): Promise<{ run_id: number }> {
-  return request('/api/n9e/n9e-plus/deploy/agent', {
+  return request('/api/n9e-plus/deploy/agent', {
     method: RequestMethod.Post,
     data,
   }).then((res) => res.dat);
@@ -156,44 +156,44 @@ export interface DeployTaskHostResult {
 }
 
 export function getDeployRun(runId: number): Promise<DeployTaskRun> {
-  return request(`/api/n9e/n9e-plus/deploy/runs/${runId}`, {
+  return request(`/api/n9e-plus/deploy/runs/${runId}`, {
     method: RequestMethod.Get,
   }).then((res) => res.dat);
 }
 
 export function getDeployRunHosts(runId: number): Promise<DeployTaskHostResult[]> {
-  return request(`/api/n9e/n9e-plus/deploy/runs/${runId}/hosts`, {
+  return request(`/api/n9e-plus/deploy/runs/${runId}/hosts`, {
     method: RequestMethod.Get,
   }).then((res) => res.dat || []);
 }
 
 export function getDeployHost(hostId: number): Promise<DeployTaskHostResult> {
-  return request(`/api/n9e/n9e-plus/deploy/hosts/${hostId}`, {
+  return request(`/api/n9e-plus/deploy/hosts/${hostId}`, {
     method: RequestMethod.Get,
   }).then((res) => res.dat);
 }
 
 export function deleteTargetsUpgrade(data: { idents: string[] }) {
-  return request('/api/n9e/n9e-plus/targets/upgrade', {
+  return request('/api/n9e-plus/targets/upgrade', {
     method: RequestMethod.Delete,
     data,
   }).then((res) => res.dat);
 }
 
 export function getTargetCollectConfigs(ident: string) {
-  return request(`/api/n9e/n9e-plus/targets/${ident}/collect-configs`, {
+  return request(`/api/n9e-plus/targets/${ident}/collect-configs`, {
     method: RequestMethod.Get,
   }).then((res) => res.dat || []);
 }
 
 export function postTargetRestart(ident: string) {
-  return request(`/api/n9e/n9e-plus/targets/${ident}/restart`, {
+  return request(`/api/n9e-plus/targets/${ident}/restart`, {
     method: RequestMethod.Post,
   }).then((res) => res.dat);
 }
 
 export function deleteTargetAgent(ident: string) {
-  return request(`/api/n9e/n9e-plus/targets/${ident}/agent`, {
+  return request(`/api/n9e-plus/targets/${ident}/agent`, {
     method: RequestMethod.Delete,
   }).then((res) => res.dat);
 }

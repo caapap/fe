@@ -18,7 +18,7 @@ export interface ArtifactPackage {
 }
 
 export function getArtifactPackages(): Promise<ArtifactPackage[]> {
-  return request('/api/n9e/n9e-plus/agent-packages', {
+  return request('/api/n9e-plus/agent-packages', {
     method: RequestMethod.Get,
   }).then((res) => {
     const dat = res?.dat;
@@ -45,7 +45,7 @@ export function uploadArtifact(params: UploadArtifactParams): Promise<ArtifactPa
 
   return new Promise((resolve, reject) => {
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${basePrefix}/api/n9e/n9e-plus/agent-packages`);
+    xhr.open('POST', `${basePrefix}/api/n9e-plus/agent-packages`);
     xhr.setRequestHeader('Authorization', `Bearer ${localStorage.getItem(AccessTokenKey) || ''}`);
 
     xhr.upload.onprogress = (event) => {
