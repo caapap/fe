@@ -10,8 +10,7 @@ import EnhancedModal from '@/pages/alertRules/Form/components/EnhancedModal';
 import Query from './Query';
 import GraphPreview from './GraphPreview';
 import './style.less';
-// @ts-ignore
-import EnrichQueryValuesMaxLen from '@/plus/parcels/AlertRule/NotifyExtra/EnrichQueryValuesMaxLen.tsx';
+import EnrichQueryValuesMaxLen from 'plus:/parcels/AlertRule/NotifyExtra/EnrichQueryValuesMaxLen';
 
 interface IProps {
   disabled?: boolean;
