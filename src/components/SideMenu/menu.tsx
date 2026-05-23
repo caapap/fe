@@ -4,6 +4,7 @@
 import React from 'react';
 
 import IconFont from '@/components/IconFont';
+import SmartDeliveryIcon from '@/components/SideMenu/icons/SmartDeliveryIcon';
 
 import { MenuItem } from './types';
 import './locale';
@@ -143,6 +144,33 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
                 deprecated: true,
               },
             ]),
+      ],
+    },
+    {
+      key: 'intelligent_delivery',
+      label: 'menu.intelligent_delivery',
+      icon: <SmartDeliveryIcon />,
+      children: [
+        {
+          key: '/intelligent-delivery/pipelines',
+          label: 'menu.intelligent_delivery_pipelines',
+        },
+        {
+          key: '/intelligent-delivery/artifacts',
+          label: 'menu.intelligent_delivery_artifacts',
+        },
+        {
+          key: '/intelligent-delivery/service-connections',
+          label: 'menu.intelligent_delivery_service_connections',
+        },
+        {
+          key: '/intelligent-delivery/knowledge',
+          label: 'menu.intelligent_delivery_knowledge',
+        },
+        {
+          key: '/intelligent-delivery/tests',
+          label: 'menu.intelligent_delivery_tests',
+        },
       ],
     },
     {

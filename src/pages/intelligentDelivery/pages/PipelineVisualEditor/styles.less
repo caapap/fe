@@ -1,0 +1,82 @@
+.pipeline-visual-editor {
+  .react-flow {
+    background: var(--fc-fill-1);
+  }
+
+  .react-flow__node {
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    padding: 0;
+  }
+
+  .react-flow__handle {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .react-flow__node:hover .react-flow__handle,
+  .react-flow__node.selected .react-flow__handle {
+    opacity: 1;
+  }
+
+  .react-flow__edge-path {
+    stroke-linecap: round;
+  }
+
+  .react-flow__controls {
+    border-color: var(--fc-fill-4);
+    background: var(--fc-fill-2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
+    button {
+      background: var(--fc-fill-2);
+      border-color: var(--fc-fill-4);
+      color: var(--fc-text-2);
+
+      &:hover {
+        background: var(--fc-fill-3);
+      }
+    }
+  }
+
+  .react-flow__minimap {
+    background: var(--fc-fill-2);
+    border-color: var(--fc-fill-4);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  }
+
+  .react-flow__attribution {
+    display: none;
+  }
+
+  .pipeline-step-running {
+    animation: pipelinePulse 1.6s ease-in-out infinite;
+  }
+
+  .pipeline-step-success {
+    animation: pipelineSuccessPop 0.4s ease-out;
+  }
+}
+
+@keyframes pipelinePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(108, 83, 177, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(108, 83, 177, 0);
+  }
+}
+
+@keyframes pipelineSuccessPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

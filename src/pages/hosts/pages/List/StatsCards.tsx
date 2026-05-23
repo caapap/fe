@@ -12,7 +12,6 @@ import { NS, STATS_COLLAPSED_KEY } from '../../constants';
 import { getStats } from '../../services';
 import numberToLocaleString from '../../utils/numberToLocaleString';
 import UsageDistributionChart from './UsageDistributionChart';
-import VersionsDistributionChart from './VersionsDistributionChart';
 
 interface Props {
   gids?: string;
@@ -50,7 +49,7 @@ export default function StatsCards(props: Props) {
         })}
       >
         <Row gutter={SIZE * 2}>
-          <Col span={6}>
+          <Col span={8}>
             <div className='fc-border rounded-lg bg-fc-100 h-[164px] p-4 relative flex flex-col'>
               <div className='mb-3 text-[12px] font-normal text-hint leading-none shrink-0'>{t('count')}</div>
               <div className='flex-1 min-h-0 overflow-hidden'>
@@ -131,7 +130,7 @@ export default function StatsCards(props: Props) {
               )}
             </div>
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             <div className='fc-border rounded-lg bg-fc-100 h-[164px] p-4 relative flex flex-col'>
               <div className='mb-3 text-[12px] font-normal text-hint leading-none shrink-0'>
                 <Space size={2}>
@@ -151,7 +150,7 @@ export default function StatsCards(props: Props) {
               )}
             </div>
           </Col>
-          <Col span={6}>
+          <Col span={8}>
             <div className='fc-border rounded-lg bg-fc-100 h-[164px] p-4 relative flex flex-col'>
               <div className='mb-3 text-[12px] font-normal text-hint leading-none shrink-0'>
                 <Space size={2}>
@@ -173,92 +172,6 @@ export default function StatsCards(props: Props) {
               </div>
               <div className='flex-1 min-h-0 overflow-hidden'>
                 <UsageDistributionChart data={stats?.cpu_usage} chartId='cpu' />
-              </div>
-              {loading && (
-                <div className='absolute right-1 top-1'>
-                  <SyncOutlined spin />
-                </div>
-              )}
-            </div>
-          </Col>
-          <Col span={6}>
-            <div className='fc-border rounded-lg bg-fc-100 h-[164px] p-4 relative flex flex-col'>
-              <div className='mb-3 text-[12px] font-normal text-hint leading-none shrink-0'>{t('versions')}</div>
-              <div className='flex-1 min-h-0 overflow-hidden h-[104px]'>
-                <VersionsDistributionChart
-                  data={stats?.versions}
-                  renderTooltip={(bar) => {
-                    if (bar.otherVersions) {
-                      return (
-                        <div>
-                          <div className='flex justify-between'>
-                            <Space align='center'>
-                              <div
-                                className='w-2 h-2 rounded-full'
-                                style={{
-                                  backgroundColor: bar.color,
-                                }}
-                              />
-                              <span className='text-l1 text-title'>{bar.label}</span>
-                            </Space>
-                            <Space>
-                              <span>{bar.otherVersions?.length}</span>
-                              <span>versions</span>
-                            </Space>
-                          </div>
-                          <div
-                            className='my-2'
-                            style={{
-                              borderBottom: '1px solid var(--fc-border-color)',
-                            }}
-                          />
-                          {_.map(_.slice(_.orderBy(bar.otherVersions, 'value', 'desc'), 0, 10), (b) => (
-                            <div key={b.label} className='flex justify-between mb-1'>
-                              <span>{b.label || '(empty)'}</span>
-                              <span className='text-l1 text-title'>
-                                <Space size={16}>
-                                  <span>{b.percent}</span>
-                                  <span>{numberToLocaleString(b.value)}</span>
-                                </Space>
-                              </span>
-                            </div>
-                          ))}
-                          {bar.otherVersions.length > 10 && (
-                            <div className='flex justify-between'>
-                              <span>...</span>
-                              <span className='text-l1 text-title'>...</span>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    }
-                    return (
-                      <div>
-                        <div className='mb-2'>
-                          <Space align='center'>
-                            <div
-                              className='w-2 h-2 rounded-full'
-                              style={{
-                                backgroundColor: bar.color,
-                              }}
-                            />
-                            <span className='text-l1 text-title'>{bar.percent}</span>
-                          </Space>
-                        </div>
-                        <div
-                          className='my-2'
-                          style={{
-                            borderBottom: '1px solid var(--fc-border-color)',
-                          }}
-                        />
-                        <div className='flex justify-between'>
-                          <span>{bar.label}</span>
-                          <span className='text-l1 text-title'>{numberToLocaleString(bar.value)}</span>
-                        </div>
-                      </div>
-                    );
-                  }}
-                />
               </div>
               {loading && (
                 <div className='absolute right-1 top-1'>
