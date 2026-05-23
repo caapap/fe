@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { Node, Edge, useNodesState, useEdgesState, addEdge, Connection } from 'reactflow';
 import { getLayoutedElements } from '../utils/layoutEngine';
 import { StepType, StepStatus } from '../nodes/StepNode';
@@ -22,7 +22,18 @@ export interface PipelineStage {
   steps: PipelineStep[];
 }
 
-const DEMO_PIPELINE: { stages: PipelineStage[] } = {
+export interface PipelinePreset {
+  id: string;
+  title: string;
+  triggerLabel: string;
+  stages: PipelineStage[];
+  durationsMs: Record<string, number>;
+}
+
+const DEMO_PIPELINE: PipelinePreset = {
+  id: 'deploy-host-iso',
+  title: 'ISO 镜像源部署',
+  triggerLabel: '手动触发',
   stages: [
     {
       id: 'stage_1',
@@ -48,9 +59,112 @@ const DEMO_PIPELINE: { stages: PipelineStage[] } = {
       ],
     },
   ],
+  durationsMs: { step_1: 1500, step_2: 1200, step_3: 2000, step_4: 1500, step_5: 1000 },
 };
 
-function buildFlowFromPipeline(pipeline: { stages: PipelineStage[] }) {
+const ENV_PRECHECK_PIPELINE: PipelinePreset = {
+  id: 'env-precheck-iptse',
+  title: '环境预检 · IPTSE 标准',
+  triggerLabel: '手动触发',
+  stages: [
+    {
+      id: 'pre_stage_1',
+      name: '资产探测',
+      steps: [
+        {
+          id: 'pre_step_1',
+          name: '拉取 inventory',
+          stepType: 'mcp-call',
+          status: 'pending',
+          config: { provider: 'ansible-mcp-server', tool: 'list_inventory', args: { inventory: 'inventory.ini' } },
+        },
+        {
+          id: 'pre_step_2',
+          name: '连通性 / SSH 审计',
+          stepType: 'mcp-call',
+          status: 'pending',
+          config: {
+            provider: 'ansible-mcp-server',
+            tool: 'audit_inventory',
+            args: { inventory: 'inventory.ini', target_group: 'ddp', check_hostname: true, check_latency: true },
+          },
+        },
+      ],
+    },
+    {
+      id: 'pre_stage_2',
+      name: '规范核查',
+      steps: [
+        {
+          id: 'pre_step_3',
+          name: 'IPTSE 核查（os_check_all）',
+          stepType: 'env-precheck',
+          status: 'pending',
+          config: { target_hosts: 'ddp', mode: 'check', tags: ['phase1', 'ntp', 'jdk'], compress_output: true },
+        },
+      ],
+    },
+    {
+      id: 'pre_stage_3',
+      name: '人工卡点',
+      steps: [
+        {
+          id: 'pre_step_4',
+          name: '确认是否自动初始化',
+          stepType: 'approval',
+          status: 'pending',
+          config: { approver: 'ops-admin', timeout: 30 },
+        },
+      ],
+    },
+    {
+      id: 'pre_stage_4',
+      name: '自动初始化',
+      steps: [
+        {
+          id: 'pre_step_5',
+          name: 'IPTSE 初始化（os_init_all）',
+          stepType: 'env-precheck',
+          status: 'pending',
+          config: { target_hosts: 'ddp', mode: 'init', tags: ['phase1', 'ntp', 'jdk'] },
+        },
+      ],
+    },
+    {
+      id: 'pre_stage_5',
+      name: '复检',
+      steps: [
+        {
+          id: 'pre_step_6',
+          name: 'IPTSE 复核',
+          stepType: 'env-precheck',
+          status: 'pending',
+          config: { target_hosts: 'ddp', mode: 'check', tags: ['phase1', 'ntp', 'jdk'], compress_output: true },
+        },
+      ],
+    },
+  ],
+  durationsMs: {
+    pre_step_1: 800,
+    pre_step_2: 1400,
+    pre_step_3: 2400,
+    pre_step_4: 1000,
+    pre_step_5: 2200,
+    pre_step_6: 1800,
+  },
+};
+
+const PRESETS: Record<string, PipelinePreset> = {
+  'deploy-host-iso': DEMO_PIPELINE,
+  'env-precheck-iptse': ENV_PRECHECK_PIPELINE,
+};
+
+export function getPipelinePreset(id?: string): PipelinePreset {
+  if (id && PRESETS[id]) return PRESETS[id];
+  return DEMO_PIPELINE;
+}
+
+function buildFlowFromPipeline(pipeline: PipelinePreset) {
   const nodes: Node[] = [];
   const edges: Edge[] = [];
 
@@ -59,7 +173,7 @@ function buildFlowFromPipeline(pipeline: { stages: PipelineStage[] }) {
     id: triggerId,
     type: 'trigger',
     position: { x: 0, y: 0 },
-    data: { label: '手动触发', triggerType: 'manual' },
+    data: { label: pipeline.triggerLabel, triggerType: 'manual' },
   });
 
   let prevNodeId = triggerId;
@@ -87,7 +201,7 @@ function buildFlowFromPipeline(pipeline: { stages: PipelineStage[] }) {
         id: stepNodeId,
         type: 'step',
         position: { x: 0, y: 0 },
-        data: { label: step.name, stepType: step.stepType, status: step.status, stepId: step.id },
+        data: { label: step.name, stepType: step.stepType, status: step.status, stepId: step.id, config: step.config },
       });
       edges.push({
         id: `e_${prevStepId}_${stepNodeId}`,
@@ -119,16 +233,17 @@ function deriveEdgeStatus(steps: PipelineStep[]): EdgeStatus {
   return 'pending';
 }
 
-const STEP_EXECUTION_ORDER = ['step_1', 'step_2', 'step_3', 'step_4', 'step_5'];
-const STEP_DURATIONS_MS = [1500, 1200, 2000, 1500, 1000];
-
-export function usePipelineFlow() {
-  const initial = buildFlowFromPipeline(DEMO_PIPELINE);
+export function usePipelineFlow(presetId?: string) {
+  const preset = useMemo(() => getPipelinePreset(presetId), [presetId]);
+  const initial = useMemo(() => buildFlowFromPipeline(preset), [preset]);
   const [nodes, setNodes, onNodesChange] = useNodesState(initial.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initial.edges);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isRunning, setIsRunning] = useState(false);
+  const [completedAt, setCompletedAt] = useState<number | null>(null);
   const timersRef = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  const stepOrder = useMemo(() => preset.stages.flatMap((s) => s.steps.map((st) => st.id)), [preset]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((eds) => addEdge({ ...params, type: 'animated' }, eds)),
@@ -180,7 +295,7 @@ export function usePipelineFlow() {
 
   const updateStageStatus = useCallback(
     (stageNodeId: string, stageId: string) => {
-      const stageSteps = DEMO_PIPELINE.stages.find((s) => s.id === stageId)?.steps || [];
+      const stageSteps = preset.stages.find((s) => s.id === stageId)?.steps || [];
       const stageStepIds = stageSteps.map((s) => s.id);
       setNodes((nds) => {
         const myStepStatuses = nds
@@ -193,28 +308,30 @@ export function usePipelineFlow() {
         return nds.map((n) => (n.id === stageNodeId ? { ...n, data: { ...n.data, status: newStatus } } : n));
       });
     },
-    [setNodes],
+    [preset, setNodes],
   );
 
   const resetPipeline = useCallback(() => {
     timersRef.current.forEach(clearTimeout);
     timersRef.current = [];
     setIsRunning(false);
-    const fresh = buildFlowFromPipeline(DEMO_PIPELINE);
+    setCompletedAt(null);
+    const fresh = buildFlowFromPipeline(preset);
     setNodes(fresh.nodes);
     setEdges(fresh.edges);
-  }, [setNodes, setEdges]);
+  }, [preset, setNodes, setEdges]);
 
   const runPipeline = useCallback(() => {
     if (isRunning) return;
     setIsRunning(true);
+    setCompletedAt(null);
     timersRef.current.forEach(clearTimeout);
     timersRef.current = [];
 
     let elapsedMs = 0;
-    STEP_EXECUTION_ORDER.forEach((stepId, idx) => {
-      const duration = STEP_DURATIONS_MS[idx];
-      const stage = DEMO_PIPELINE.stages.find((s) => s.steps.some((step) => step.id === stepId));
+    stepOrder.forEach((stepId, idx) => {
+      const duration = preset.durationsMs[stepId] ?? 1500;
+      const stage = preset.stages.find((s) => s.steps.some((step) => step.id === stepId));
 
       const startTimer = setTimeout(() => {
         updateStepStatus(stepId, 'running');
@@ -226,17 +343,19 @@ export function usePipelineFlow() {
         const seconds = (duration / 1000).toFixed(1);
         updateStepStatus(stepId, 'success', `${seconds}s`);
         if (stage) updateStageStatus(`stage_${stage.id}`, stage.id);
-        if (idx === STEP_EXECUTION_ORDER.length - 1) {
+        if (idx === stepOrder.length - 1) {
           setIsRunning(false);
+          setCompletedAt(Date.now());
         }
       }, elapsedMs + duration);
       timersRef.current.push(endTimer);
 
       elapsedMs += duration + 200;
     });
-  }, [isRunning, updateStepStatus, updateStageStatus]);
+  }, [isRunning, preset, stepOrder, updateStepStatus, updateStageStatus]);
 
   return {
+    preset,
     nodes,
     edges,
     onNodesChange,
@@ -247,6 +366,7 @@ export function usePipelineFlow() {
     addStepNode,
     closeDrawer,
     isRunning,
+    completedAt,
     runPipeline,
     resetPipeline,
   };

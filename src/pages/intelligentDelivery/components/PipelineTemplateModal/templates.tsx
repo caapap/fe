@@ -11,10 +11,12 @@ import {
   FileSearchOutlined,
   ApiOutlined,
   PlusSquareOutlined,
+  SafetyOutlined,
+  MonitorOutlined,
 } from '@ant-design/icons';
 import React from 'react';
 
-export type TemplateCategory = 'org' | 'deploy' | 'test' | 'empty' | 'other';
+export type TemplateCategory = 'org' | 'precheck' | 'deploy' | 'test' | 'empty' | 'other';
 
 export interface TemplateChip {
   label: string;
@@ -34,6 +36,7 @@ export interface PipelineTemplate {
 
 export const TEMPLATE_CATEGORIES: { key: TemplateCategory; label: string; icon: React.ReactNode }[] = [
   { key: 'org', label: '组织模板', icon: <AppstoreAddOutlined /> },
+  { key: 'precheck', label: '巡检 / 预检', icon: <SafetyOutlined /> },
   { key: 'deploy', label: '部署', icon: <CloudUploadOutlined /> },
   { key: 'test', label: '测试', icon: <ExperimentOutlined /> },
   { key: 'empty', label: '空模板', icon: <PlusSquareOutlined /> },
@@ -41,6 +44,36 @@ export const TEMPLATE_CATEGORIES: { key: TemplateCategory; label: string; icon: 
 ];
 
 export const PIPELINE_TEMPLATES: PipelineTemplate[] = [
+  {
+    id: 'env-precheck-iptse',
+    category: 'precheck',
+    title: '环境预检 · IPTSE 标准',
+    subtitle: '星相预置 · MCP 驱动',
+    description: '资产探测 → IPTSE 规范核查 → 人工卡点 → 自动初始化 → 复检（驱动方：Ansible MCP Server）',
+    icon: <SafetyOutlined className='text-[var(--fc-fill-primary)]' />,
+    chips: [
+      { label: '资产探测', color: 'cyan' },
+      { label: 'IPTSE 核查', color: 'blue' },
+      { label: '人工卡点', color: 'orange' },
+      { label: '自动初始化', color: 'purple' },
+      { label: '复检', color: 'green' },
+    ],
+    preset: true,
+  },
+  {
+    id: 'env-precheck-quick',
+    category: 'precheck',
+    title: '环境预检 · 快速连通性',
+    subtitle: '星相预置',
+    description: '仅执行 audit_inventory，验证主机连通性、SSH 认证与主机名一致性',
+    icon: <MonitorOutlined className='text-[var(--fc-fill-primary)]' />,
+    chips: [
+      { label: 'Ping 连通', color: 'cyan' },
+      { label: 'SSH 认证', color: 'blue' },
+      { label: '主机名核对', color: 'green' },
+    ],
+    preset: true,
+  },
   {
     id: 'deploy-host-iso',
     category: 'deploy',

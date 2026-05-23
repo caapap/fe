@@ -9,9 +9,11 @@ import {
   LoadingOutlined,
   CloseCircleOutlined,
   ClockCircleOutlined,
+  SafetyOutlined,
+  ApiOutlined,
 } from '@ant-design/icons';
 
-export type StepType = 'shell-local' | 'shell-ssh' | 'deploy' | 'approval';
+export type StepType = 'shell-local' | 'shell-ssh' | 'deploy' | 'approval' | 'env-precheck' | 'mcp-call';
 export type StepStatus = 'pending' | 'running' | 'success' | 'failed' | 'skipped';
 
 interface StepData {
@@ -26,6 +28,8 @@ const STEP_META: Record<StepType, { icon: React.ReactNode; color: string; title:
   'shell-ssh': { icon: <GlobalOutlined />, color: 'cyan', title: 'SSH 远程' },
   deploy: { icon: <CloudUploadOutlined />, color: 'purple', title: '软件包部署' },
   approval: { icon: <CheckCircleOutlined />, color: 'orange', title: '人工审批' },
+  'env-precheck': { icon: <SafetyOutlined />, color: 'geekblue', title: '环境预检' },
+  'mcp-call': { icon: <ApiOutlined />, color: 'magenta', title: 'MCP 调用' },
 };
 
 const STATUS_ICON: Record<StepStatus, React.ReactNode> = {

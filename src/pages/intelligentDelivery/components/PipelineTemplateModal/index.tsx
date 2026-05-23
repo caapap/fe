@@ -14,8 +14,8 @@ interface PipelineTemplateModalProps {
 }
 
 export default function PipelineTemplateModal({ open, onCancel, onCreate }: PipelineTemplateModalProps) {
-  const [activeCategory, setActiveCategory] = useState<TemplateCategory>('deploy');
-  const [selectedId, setSelectedId] = useState<string>('deploy-host-iso');
+  const [activeCategory, setActiveCategory] = useState<TemplateCategory>('precheck');
+  const [selectedId, setSelectedId] = useState<string>('env-precheck-iptse');
   const [mode, setMode] = useState<CreateMode>('visual');
 
   const filtered = useMemo(() => {

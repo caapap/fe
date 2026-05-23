@@ -15,10 +15,11 @@ import {
   ToolOutlined,
   MonitorOutlined,
   HddOutlined,
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 import React from 'react';
 
-export type TaskCategory = 'test' | 'deploy' | 'tool' | 'cmd' | 'empty';
+export type TaskCategory = 'test' | 'deploy' | 'tool' | 'cmd' | 'empty' | 'mcp';
 export type TaskKind =
   | 'shell-local'
   | 'shell-ssh'
@@ -34,7 +35,10 @@ export type TaskKind =
   | 'manual-gate'
   | 'oss-download'
   | 'oss-upload'
-  | 'empty-task';
+  | 'empty-task'
+  | 'mcp-call'
+  | 'mcp-ansible-audit'
+  | 'mcp-ansible-playbook';
 
 export interface TaskOption {
   kind: TaskKind;
@@ -48,6 +52,7 @@ export interface TaskOption {
 export const TASK_CATEGORIES: { key: TaskCategory; label: string }[] = [
   { key: 'test', label: '测试' },
   { key: 'deploy', label: '部署' },
+  { key: 'mcp', label: 'MCP 工具' },
   { key: 'tool', label: '工具' },
   { key: 'cmd', label: '执行命令' },
   { key: 'empty', label: '空模板' },
@@ -87,8 +92,8 @@ export const TASK_OPTIONS: TaskOption[] = [
   {
     kind: 'env-precheck',
     category: 'deploy',
-    title: '环境预检',
-    description: '部署前检查目标主机连通性、磁盘、依赖',
+    title: '环境预检（IPTSE）',
+    description: '基于 Ansible MCP 对目标主机执行 IPTSE 标准核查与初始化',
     icon: <SafetyOutlined className='text-[#1677ff]' />,
     highlight: true,
   },
@@ -166,5 +171,28 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '空任务',
     description: '不配置任何动作的占位任务',
     icon: <AppstoreOutlined className='text-[#1677ff]' />,
+  },
+
+  {
+    kind: 'mcp-call',
+    category: 'mcp',
+    title: 'MCP 通用调用',
+    description: '通过 N9E MCP 网关调用任意已注册的 MCP 工具',
+    icon: <ToolOutlined className='text-[#1677ff]' />,
+    highlight: true,
+  },
+  {
+    kind: 'mcp-ansible-audit',
+    category: 'mcp',
+    title: 'Ansible · 资产审计',
+    description: '调用 ansible-mcp-server 的 audit_inventory（连通性 / SSH / 主机名）',
+    icon: <MonitorOutlined className='text-[#1677ff]' />,
+  },
+  {
+    kind: 'mcp-ansible-playbook',
+    category: 'mcp',
+    title: 'Ansible · Playbook 执行',
+    description: '调用 ansible-mcp-server 的 run_playbook（os_check_all / os_init_all）',
+    icon: <ThunderboltOutlined className='text-[#1677ff]' />,
   },
 ];
