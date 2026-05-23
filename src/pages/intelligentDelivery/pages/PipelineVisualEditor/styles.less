@@ -49,4 +49,34 @@
   .react-flow__attribution {
     display: none;
   }
+
+  .pipeline-step-running {
+    animation: pipelinePulse 1.6s ease-in-out infinite;
+  }
+
+  .pipeline-step-success {
+    animation: pipelineSuccessPop 0.4s ease-out;
+  }
+}
+
+@keyframes pipelinePulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(108, 83, 177, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(108, 83, 177, 0);
+  }
+}
+
+@keyframes pipelineSuccessPop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
 }

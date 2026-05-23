@@ -48,10 +48,11 @@ function StepNode({ data, selected }: NodeProps<StepData>) {
   const { label, stepType, status = 'pending', duration } = data;
   const meta = STEP_META[stepType] || STEP_META['shell-local'];
   const borderClass = STATUS_BORDER[status];
+  const animationClass = status === 'running' ? 'pipeline-step-running' : status === 'success' ? 'pipeline-step-success' : '';
 
   return (
     <div
-      className={`relative min-w-[200px] rounded-lg border bg-[var(--fc-fill-2)] p-3 transition-all ${borderClass} ${
+      className={`relative min-w-[200px] rounded-lg border bg-[var(--fc-fill-2)] p-3 transition-all ${borderClass} ${animationClass} ${
         selected ? 'ring-2 ring-[var(--fc-fill-primary)]/30' : ''
       }`}
     >

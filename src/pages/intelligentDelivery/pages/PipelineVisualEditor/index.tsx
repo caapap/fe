@@ -1,5 +1,7 @@
 import React, { useCallback } from 'react';
 import ReactFlow, { Background, Controls, MiniMap, ReactFlowProvider, Panel } from 'reactflow';
+import { Button, Space, Tag } from 'antd';
+import { PlayCircleOutlined, ReloadOutlined, LoadingOutlined } from '@ant-design/icons';
 import 'reactflow/dist/style.css';
 
 import TriggerNode from './nodes/TriggerNode';
@@ -32,6 +34,9 @@ function PipelineVisualEditorInner() {
     selectedNode,
     addStepNode,
     closeDrawer,
+    isRunning,
+    runPipeline,
+    resetPipeline,
   } = usePipelineFlow();
 
   const onDragOver = useCallback((e: React.DragEvent) => {
@@ -84,9 +89,26 @@ function PipelineVisualEditorInner() {
             }}
             className='!rounded-lg !border-fc-200'
           />
+          <Panel position='top-left'>
+            <Space>
+              <Button
+                type='primary'
+                icon={isRunning ? <LoadingOutlined /> : <PlayCircleOutlined />}
+                loading={isRunning}
+                onClick={runPipeline}
+                disabled={isRunning}
+              >
+                {isRunning ? '执行中...' : '运行流水线'}
+              </Button>
+              <Button icon={<ReloadOutlined />} onClick={resetPipeline} disabled={isRunning}>
+                重置
+              </Button>
+            </Space>
+          </Panel>
           <Panel position='top-right'>
-            <div className='rounded-lg border border-fc-200 bg-[var(--fc-fill-2)] px-3 py-1.5 text-xs text-[var(--fc-text-4)]'>
-              ISO 镜像源部署 · 演示流水线
+            <div className='flex items-center gap-2 rounded-lg border border-fc-200 bg-[var(--fc-fill-2)] px-3 py-1.5 text-xs'>
+              <Tag color='purple' className='!m-0'>演示</Tag>
+              <span className='text-[var(--fc-text-2)]'>ISO 镜像源部署</span>
             </div>
           </Panel>
         </ReactFlow>
