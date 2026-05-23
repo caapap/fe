@@ -1,16 +1,17 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import ReactFlow, { Background, Controls, MiniMap, ReactFlowProvider, Panel } from 'reactflow';
 import { Button, Space, Tag } from 'antd';
-import { PlayCircleOutlined, ReloadOutlined, LoadingOutlined } from '@ant-design/icons';
+import { PlayCircleOutlined, ReloadOutlined, LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import 'reactflow/dist/style.css';
 
 import TriggerNode from './nodes/TriggerNode';
 import StageNode from './nodes/StageNode';
 import StepNode from './nodes/StepNode';
 import AnimatedEdge from './edges/AnimatedEdge';
-import NodePalette from './panels/NodePalette';
 import StepConfigDrawer from './panels/StepConfigDrawer';
 import { usePipelineFlow } from './hooks/usePipelineFlow';
+import TaskTypeSelectorDrawer from '../../components/TaskTypeSelector';
+import { TaskOption } from '../../components/TaskTypeSelector/options';
 import './styles.less';
 
 const nodeTypes = {
@@ -21,6 +22,24 @@ const nodeTypes = {
 
 const edgeTypes = {
   animated: AnimatedEdge,
+};
+
+const TASK_KIND_TO_STEP_TYPE: Record<string, 'shell-local' | 'shell-ssh' | 'deploy' | 'approval'> = {
+  'shell-local': 'shell-local',
+  'shell-ssh': 'shell-ssh',
+  'deploy-host': 'deploy',
+  'deploy-host-script': 'deploy',
+  'deploy-rolling': 'deploy',
+  'env-precheck': 'shell-ssh',
+  'doc-parse': 'shell-local',
+  'unit-test': 'shell-local',
+  'smoke-test': 'shell-ssh',
+  'regression-test': 'shell-local',
+  'http-probe': 'shell-local',
+  'manual-gate': 'approval',
+  'oss-download': 'shell-local',
+  'oss-upload': 'shell-local',
+  'empty-task': 'shell-local',
 };
 
 function PipelineVisualEditorInner() {
@@ -39,6 +58,8 @@ function PipelineVisualEditorInner() {
     resetPipeline,
   } = usePipelineFlow();
 
+  const [taskSelectorOpen, setTaskSelectorOpen] = useState(false);
+
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
@@ -56,9 +77,14 @@ function PipelineVisualEditorInner() {
     [addStepNode],
   );
 
+  const handleTaskSelect = (opt: TaskOption) => {
+    const stepType = TASK_KIND_TO_STEP_TYPE[opt.kind] || 'shell-local';
+    addStepNode(stepType, opt.title);
+    setTaskSelectorOpen(false);
+  };
+
   return (
     <div className='pipeline-visual-editor flex h-[calc(100vh-260px)] min-h-[500px] gap-3'>
-      <NodePalette onAdd={addStepNode} />
       <div className='flex-1 overflow-hidden rounded-xl border border-fc-200'>
         <ReactFlow
           nodes={nodes}
@@ -92,6 +118,12 @@ function PipelineVisualEditorInner() {
           <Panel position='top-left'>
             <Space>
               <Button
+                icon={<PlusOutlined />}
+                onClick={() => setTaskSelectorOpen(true)}
+              >
+                添加任务
+              </Button>
+              <Button
                 type='primary'
                 icon={isRunning ? <LoadingOutlined /> : <PlayCircleOutlined />}
                 loading={isRunning}
@@ -114,6 +146,11 @@ function PipelineVisualEditorInner() {
         </ReactFlow>
       </div>
       <StepConfigDrawer node={selectedNode} onClose={closeDrawer} />
+      <TaskTypeSelectorDrawer
+        open={taskSelectorOpen}
+        onClose={() => setTaskSelectorOpen(false)}
+        onSelect={handleTaskSelect}
+      />
     </div>
   );
 }

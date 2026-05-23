@@ -1,0 +1,28 @@
+.pipeline-template-modal {
+  .ant-modal-body {
+    padding: 16px 20px;
+  }
+
+  .create-mode-group {
+    .ant-radio-button-wrapper {
+      height: auto;
+      min-height: 48px;
+      line-height: normal;
+
+      &::before {
+        display: none;
+      }
+
+      &:hover {
+        border-color: var(--fc-fill-primary) !important;
+      }
+    }
+
+    .ant-radio-button-wrapper-checked {
+      background: var(--fc-primary-bg) !important;
+      border-color: var(--fc-fill-primary) !important;
+      color: var(--fc-fill-primary) !important;
+      box-shadow: none !important;
+    }
+  }
+}

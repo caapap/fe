@@ -16,6 +16,8 @@ import PageLayout from '@/components/pageLayout';
 
 import { PATHS } from '../constants';
 import { Pipeline, deletePipeline, getPipelines, triggerPipelineRun } from '../services';
+import PipelineTemplateModal, { CreateMode } from '../components/PipelineTemplateModal';
+import { PipelineTemplate } from '../components/PipelineTemplateModal/templates';
 
 const STATUS_TAG_MAP: Record<string, { color: string; label: string }> = {
   SUCCESS: { color: 'success', label: '成功' },
@@ -39,6 +41,13 @@ export default function Pipelines() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [templateOpen, setTemplateOpen] = useState(false);
+
+  const handleTemplateCreate = (template: PipelineTemplate, mode: CreateMode) => {
+    setTemplateOpen(false);
+    const params = new URLSearchParams({ template: template.id, mode });
+    history.push(`${PATHS.pipelines}/new?${params.toString()}`);
+  };
 
   const fetchData = async (p = page, query = searchKeyword) => {
     setLoading(true);
@@ -175,7 +184,7 @@ export default function Pipelines() {
               <Button
                 type='primary'
                 icon={<PlusOutlined />}
-                onClick={() => history.push(`${PATHS.pipelines}/new`)}
+                onClick={() => setTemplateOpen(true)}
               >
                 新建流水线
               </Button>
@@ -200,6 +209,12 @@ export default function Pipelines() {
           />
         </Card>
       </div>
+
+      <PipelineTemplateModal
+        open={templateOpen}
+        onCancel={() => setTemplateOpen(false)}
+        onCreate={handleTemplateCreate}
+      />
     </PageLayout>
   );
 }
