@@ -37,6 +37,7 @@ import Feedback from '@/components/Feedback';
 import { IRawTimeRange } from '@/components/TimeRangePicker';
 import { getN9eConfig } from '@/pages/siteSettings/services';
 import { getDarkMode, updateDarkMode } from '@/utils/darkMode';
+import { DEFAULT_PAGE_TITLE } from '@/utils/constant';
 import SharedDetail from '@/pages/event/DetailNG/SharedDetail';
 import HocRenderer from './components/HocRenderer';
 import HeaderMenu from './components/SideMenu';
@@ -243,7 +244,7 @@ function App() {
             console.error(e);
           }
         }
-        document.title = siteInfo?.page_title || '星相运维平台';
+        document.title = siteInfo?.page_title || DEFAULT_PAGE_TITLE;
         if (iconLink) {
           iconLink.href = siteInfo?.favicon_url || '/image/favicon.ico';
         }

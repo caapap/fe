@@ -20,6 +20,8 @@ import getFontFamily from './getFontFamily';
 // @ts-ignore
 import { AdvancedDatasourceCateEnum } from 'plus:/types';
 
+export const DEFAULT_PAGE_TITLE = '星相运维平台';
+
 export const PAGE_SIZE = 15;
 export const PAGE_SIZE_MAX = 100000;
 export const PAGE_SIZE_OPTION = 20;

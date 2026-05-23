@@ -26,7 +26,7 @@ import { useKeyPress } from 'ahooks';
 
 import { TimeRangePickerWithRefresh, IRawTimeRange } from '@/components/TimeRangePicker';
 import { CommonStateContext } from '@/App';
-import { IS_ENT } from '@/utils/constant';
+import { DEFAULT_PAGE_TITLE, IS_ENT } from '@/utils/constant';
 import { updateDashboard, updateDashboardConfigs, getBusiGroupsDashboards } from '@/services/dashboardV2';
 
 import DashboardLinks from '../DashboardLinks';
@@ -63,7 +63,7 @@ interface IProps {
   hideGoList?: boolean;
 }
 
-const cachePageTitle = document.title || 'Nightingale';
+const cachePageTitle = document.title || DEFAULT_PAGE_TITLE;
 
 export default function Title(props: IProps) {
   const { t } = useTranslation('dashboard');

@@ -14,7 +14,7 @@ const ja_JP = {
   site_url: 'サイトのURL',
   site_url_tip: '夜莺に外部からアクセスするためのアドレスです。バックエンドはこれを使用して、夜莺インスタンスにアクセスできるリンクを生成できます',
   page_title: 'サイトのタイトル',
-  page_title_tip: 'デフォルトのタイトル (Nightingale) をオーバーライドします',
+  page_title_tip: 'デフォルトのタイトル (星相运维平台) をオーバーライドします',
   home_page_url: 'ホームページのURL',
   home_page_url_tip: 'ホームページのURLをオーバーライドします (/metric/explorer)',
   displayMode: {

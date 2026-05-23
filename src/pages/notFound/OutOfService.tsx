@@ -17,6 +17,7 @@
 import React from 'react';
 import { Button } from 'antd';
 import { useTranslation } from 'react-i18next';
+import { DEFAULT_PAGE_TITLE } from '@/utils/constant';
 import { basePrefix } from '@/App';
 import './locale';
 
@@ -25,7 +26,7 @@ const OutOfService: React.FC = () => {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', flexDirection: 'column' }}>
       <h3 style={{ fontSize: 40, color: '#888' }}>
-        {import.meta.env.VITE_IS_ENT ? 'Flashcat' : 'Nightingale'} <span>{t('网络开小差了')}</span>
+        {import.meta.env.VITE_IS_ENT ? 'Flashcat' : DEFAULT_PAGE_TITLE} <span>{t('网络开小差了')}</span>
       </h3>
       <h6 style={{ fontSize: 32, color: '#999', display: 'flex', alignItems: 'center' }}>
         {t('可以刷新一下试试')}{' '}

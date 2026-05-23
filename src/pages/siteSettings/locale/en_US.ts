@@ -13,7 +13,7 @@ const en_US = {
   site_url: 'Site URL',
   site_url_tip: 'The address used for external access to Nightingale. The backend can use this to generate links that can access the Nightingale instance',
   page_title: 'Site title',
-  page_title_tip: 'Override the default title (Nightingale)',
+  page_title_tip: 'Override the default title (星相运维平台)',
   home_page_url: 'Home page URL',
   home_page_url_tip: 'Override the default home page URL (/metric/explorer)',
   displayMode: {

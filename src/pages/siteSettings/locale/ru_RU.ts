@@ -14,7 +14,7 @@ const ru_RU = {
   site_url: 'URL сайта',
   site_url_tip: 'Адрес, используемый для внешнего доступа к Nightingale. Бэкенд может использовать его для создания ссылок, которые могут получить доступ к экземпляру Nightingale',
   page_title: 'Заголовок сайта',
-  page_title_tip: 'Перезаписывает заголовок по умолчанию (Nightingale)',
+  page_title_tip: 'Перезаписывает заголовок по умолчанию (星相运维平台)',
   home_page_url: 'URL главной страницы',
   home_page_url_tip: 'Перезаписывает URL по умолчанию для главной страницы (/metric/explorer)',
   displayMode: {
