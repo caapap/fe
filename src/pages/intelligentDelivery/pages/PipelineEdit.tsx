@@ -39,9 +39,10 @@ import {
   getServiceConnections,
   triggerPipelineRun,
 } from '../services';
+import PipelineVisualEditor from './PipelineVisualEditor';
 
 const DEFAULT_YAML = `name: 部署应用到生产环境
-description: 从制品仓库下载软件包并通过 SSH 部署到目标服务器
+description: 从资源仓库下载软件包并通过 SSH 部署到目标服务器
 
 stages:
   - name: 部署阶段
@@ -112,7 +113,7 @@ const STEP_TEMPLATES = [
     type: 'deploy',
     icon: <CloudUploadOutlined />,
     title: '软件包部署',
-    desc: '从制品仓库下载软件包并部署到目标主机',
+    desc: '从资源仓库下载软件包并部署到目标主机',
     color: 'purple',
   },
 ] as const;
@@ -415,7 +416,10 @@ export default function PipelineEdit() {
           <Tabs.TabPane key='basic' tab='基本信息'>
             {renderBasicTab()}
           </Tabs.TabPane>
-          <Tabs.TabPane key='flow' tab='流程配置'>
+          <Tabs.TabPane key='visual' tab='可视化编排'>
+            <PipelineVisualEditor />
+          </Tabs.TabPane>
+          <Tabs.TabPane key='flow' tab='流程配置（YAML）'>
             {renderFlowTab()}
           </Tabs.TabPane>
           <Tabs.TabPane key='trigger' tab='触发设置'>
@@ -484,14 +488,14 @@ export default function PipelineEdit() {
                 type='info'
                 showIcon
                 className='mb-4'
-                message='软件包部署：从制品仓库下载并通过 SSH 解压到目标路径，自动备份 current 目录'
+                message='软件包部署：从资源仓库下载并通过 SSH 解压到目标路径，自动备份 current 目录'
               />
               <Form.Item name='pkg' label='软件包' rules={[{ required: true }]}>
                 <Select
                   placeholder='选择制品包'
                   showSearch
                   options={packageOptions.map((p) => ({ value: p.name, label: p.name }))}
-                  notFoundContent={<Empty description='请先到“制品仓库”上传软件包' />}
+                  notFoundContent={<Empty description='请先到”资源仓库”上传软件包' />}
                 />
               </Form.Item>
               <Form.Item name='version' label='版本' rules={[{ required: true }]}>
