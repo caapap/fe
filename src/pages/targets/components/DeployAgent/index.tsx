@@ -34,7 +34,14 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
   const [packageId, setPackageId] = useState<number | undefined>();
   const [remoteUrl, setRemoteUrl] = useState('');
   const [installDir, setInstallDir] = useState('');
-  const [serverURL, setServerURL] = useState('');
+  const [serverIP, setServerIP] = useState('');
+  const [serverPort, setServerPort] = useState('');
+
+  // Defaults applied when user leaves the corresponding field blank.
+  // IP: the host the user is currently using to access the platform (so categraf
+  //     reports back to the same center). Port: the canonical platform port 30007.
+  const DEFAULT_SERVER_PORT = '30007';
+  const platformDefaultIP = typeof window !== 'undefined' ? window.location.hostname : '';
 
   const [credModalOpen, setCredModalOpen] = useState(false);
   const [uploadModalOpen, setUploadModalOpen] = useState(false);
@@ -79,7 +86,8 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
     setPackageId(undefined);
     setRemoteUrl('');
     setInstallDir('');
-    setServerURL('');
+    setServerIP('');
+    setServerPort('');
     setRunId(undefined);
     // intentionally depend only on `visible`; reopening resets the form.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -105,10 +113,14 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
       message.warning(t('deploy_agent.validation_package'));
       return null;
     }
-    if (!serverURL.trim()) {
+    // IP / Port 都允许留空：IP 默认取当前页面 host（即平台自身 IP），端口默认 30007。
+    const ip = serverIP.trim() || platformDefaultIP;
+    const port = serverPort.trim() || DEFAULT_SERVER_PORT;
+    if (!ip) {
       message.warning(t('deploy_agent.validation_server'));
       return null;
     }
+    const assembledServerURL = `http://${ip}:${port}`;
     // Current backend accepts a single credential per run; if users picked
     // different credentials per row, use the first one for now. (Multi-credential
     // dispatch is a backlog item.)
@@ -119,7 +131,7 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
       package_id: packageId,
       download_url: remoteUrl.trim() || undefined,
       install_dir: installDir.trim() || undefined,
-      n9e_server_url: serverURL.trim(),
+      n9e_server_url: assembledServerURL,
     };
   };
 
@@ -175,12 +187,28 @@ export default function DeployAgent({ selectedIdents, title, onOk }: Props) {
           </div>
           <div className='flex-1'>
             <SectionLabel>{t('deploy_agent.section.server')}</SectionLabel>
-            <Input placeholder={t('deploy_agent.server_url_default')} value={serverURL} onChange={(e) => setServerURL(e.target.value)} allowClear />
+            <div className='flex gap-2'>
+              <Input
+                className='flex-1'
+                placeholder={t('deploy_agent.server_ip_placeholder', { ip: platformDefaultIP })}
+                value={serverIP}
+                onChange={(e) => setServerIP(e.target.value)}
+                allowClear
+              />
+              <Input
+                className='w-28'
+                placeholder={t('deploy_agent.server_port_placeholder', { port: DEFAULT_SERVER_PORT })}
+                value={serverPort}
+                onChange={(e) => setServerPort(e.target.value.replace(/\D/g, ''))}
+                allowClear
+                maxLength={5}
+              />
+            </div>
           </div>
         </div>
       </div>
     );
-  }, [runId, rows, credentials, preselectedIdents, packages, packageId, installDir, serverURL, t]);
+  }, [runId, rows, credentials, preselectedIdents, packages, packageId, installDir, serverIP, serverPort, platformDefaultIP, t]);
 
   return (
     <>

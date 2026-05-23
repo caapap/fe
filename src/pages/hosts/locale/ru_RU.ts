@@ -157,6 +157,8 @@ const ru_RU = {
     install_dir: 'Каталог установки',
     install_dir_default: 'По умолчанию /opt/categraf',
     server_url_default: 'По умолчанию LAN IP центра',
+    server_ip_placeholder: 'Оставьте пустым для текущей платформы ({{ip}})',
+    server_port_placeholder: 'По умолчанию {{port}}',
     validation_targets: 'Укажите хотя бы один хост (IP обязателен)',
     validation_credential: 'Выберите учётные данные для каждого хоста',
     validation_package: 'Выберите пакет Categraf или загрузите новый',
