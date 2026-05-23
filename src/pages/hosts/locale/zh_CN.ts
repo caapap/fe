@@ -163,6 +163,8 @@ const zh_CN = {
     install_dir: '安装目录',
     install_dir_default: '默认 /opt/categraf',
     server_url_default: '默认取 center 的 LAN IP',
+    server_ip_placeholder: '留空使用本平台 IP（{{ip}}）',
+    server_port_placeholder: '默认 {{port}}',
     validation_targets: '请至少填写一台目标机器（IP 必填）',
     validation_credential: '请为每台目标机器选择凭证',
     validation_package: '请选择已上传的 Categraf 包或上传新包',

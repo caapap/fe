@@ -158,6 +158,8 @@ const zh_HK = {
     install_dir: '安裝目錄',
     install_dir_default: '預設 /opt/categraf',
     server_url_default: '預設取 center 的 LAN IP',
+    server_ip_placeholder: '留空使用本平台 IP（{{ip}}）',
+    server_port_placeholder: '預設 {{port}}',
     validation_targets: '請至少填寫一台目標機器（IP 必填）',
     validation_credential: '請為每台目標機器選擇憑證',
     validation_package: '請選擇已上傳的 Categraf 包或上傳新包',
