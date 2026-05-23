@@ -202,7 +202,7 @@ export default function Artifacts() {
     <PageLayout
       title={
         <Space size={10}>
-          <span>制品仓库</span>
+          <span>资源仓库</span>
           <Tag color='processing'>组织内可见</Tag>
         </Space>
       }

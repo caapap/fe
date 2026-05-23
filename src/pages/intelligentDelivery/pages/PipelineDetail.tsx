@@ -79,7 +79,7 @@ function StepTypeBadge({ step }: { step: any }) {
   const { step_type, log = '' } = step || {};
   if (step_type === 'deploy') {
     return (
-      <Tooltip title='软件包部署：从制品仓库下载并通过 SSH 部署到目标服务器'>
+      <Tooltip title='软件包部署：从资源仓库下载并通过 SSH 部署到目标服务器'>
         <Tag icon={<CloudUploadOutlined />} color='purple'>
           deploy
         </Tag>

@@ -155,7 +155,7 @@ export default function Pipelines() {
   ];
 
   return (
-    <PageLayout title='部署流水线'>
+    <PageLayout title='流水线'>
       <div className='fc-page n9e'>
         <Card className='mb-4 rounded-2xl border-fc-200'>
           <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
