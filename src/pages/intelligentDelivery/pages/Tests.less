@@ -1,0 +1,235 @@
+.delivery-tests-page {
+  .ant-card {
+    border-radius: 8px;
+  }
+
+  .ant-card-body {
+    padding: 16px;
+  }
+}
+
+.delivery-tests-section {
+  border: 1px solid var(--fc-border-color);
+  background: var(--fc-fill-2);
+  box-shadow: none;
+}
+
+.delivery-tests-hero {
+  background: linear-gradient(120deg, var(--fc-primary-bg) 0%, var(--fc-fill-2) 60%);
+}
+
+.delivery-tests-card-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  color: var(--fc-text-1);
+  font-weight: 600;
+}
+
+.delivery-tests-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.delivery-tests-main,
+.delivery-tests-side {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.delivery-tests-link {
+  padding: 0;
+  color: var(--fc-fill-primary);
+  font: inherit;
+  font-weight: 500;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+
+  &:hover {
+    color: var(--fc-fill-primary-hover, var(--fc-fill-primary));
+    text-decoration: underline;
+  }
+}
+
+.delivery-tests-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.delivery-tests-metric {
+  padding: 10px 12px;
+  background: var(--fc-fill-3);
+  border: 1px solid var(--fc-border-color);
+  border-radius: 8px;
+
+  span {
+    display: block;
+    color: var(--fc-text-3);
+    font-size: 12px;
+  }
+
+  strong {
+    display: block;
+    margin-top: 2px;
+    color: var(--fc-text-1);
+    font-size: 20px;
+    line-height: 1.15;
+  }
+}
+
+.delivery-tests-metric.warn {
+  background: rgba(250, 173, 20, 0.08);
+  border-color: rgba(250, 173, 20, 0.32);
+
+  strong {
+    color: #d48806;
+  }
+}
+
+.delivery-tests-metric.danger {
+  background: rgba(207, 19, 34, 0.06);
+  border-color: rgba(207, 19, 34, 0.28);
+
+  strong {
+    color: #cf1322;
+  }
+}
+
+.delivery-tests-object-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  > div {
+    padding-bottom: 10px;
+    border-bottom: 1px solid var(--fc-border-color);
+
+    &:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+  }
+
+  span {
+    display: block;
+    color: var(--fc-text-3);
+    font-size: 12px;
+  }
+
+  strong {
+    display: block;
+    margin-top: 2px;
+    color: var(--fc-text-1);
+    font-size: 13px;
+    font-weight: 500;
+    word-break: break-word;
+  }
+}
+
+.delivery-tests-log-card {
+  .delivery-tests-card-title {
+    margin-bottom: 8px;
+  }
+}
+
+.delivery-tests-log {
+  max-height: 320px;
+  padding: 12px;
+  overflow: auto;
+  background: #0f1729;
+  border: 1px solid var(--fc-border-color);
+  border-radius: 8px;
+  scroll-behavior: smooth;
+
+  > div {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr);
+    gap: 12px;
+    padding: 6px 8px;
+    color: #d6e4ff;
+    font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+    font-size: 12px;
+    line-height: 1.55;
+    border-radius: 4px;
+    transition: background 0.18s ease;
+  }
+
+  > div.active {
+    background: rgba(96, 165, 250, 0.18);
+    box-shadow: inset 2px 0 0 var(--fc-fill-primary);
+  }
+
+  span {
+    color: #79b8ff;
+  }
+
+  p {
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+}
+
+.delivery-tests-drawer-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+
+  h3 {
+    margin: 0;
+    color: var(--fc-text-1);
+    font-size: 16px;
+  }
+}
+
+.delivery-tests-drawer {
+  p {
+    margin: 6px 0 0;
+    color: var(--fc-text-3);
+    line-height: 1.7;
+  }
+
+  pre {
+    margin: 8px 0 0;
+    padding: 10px;
+    overflow: auto;
+    color: #d6e4ff;
+    background: #0f1729;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+
+  strong {
+    color: var(--fc-text-1);
+  }
+}
+
+@media (max-width: 1180px) {
+  .delivery-tests-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .delivery-tests-hero .ant-radio-group {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .delivery-tests-hero .ant-radio-button-wrapper {
+    padding: 0 8px;
+    text-align: center;
+  }
+}
