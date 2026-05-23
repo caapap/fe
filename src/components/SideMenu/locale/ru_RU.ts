@@ -52,7 +52,7 @@ const ru_RU = {
     intelligent_delivery_pipelines: 'Пайплайны',
     intelligent_delivery_artifacts: 'Репозиторий артефактов',
     intelligent_delivery_service_connections: 'Сервисные подключения',
-    intelligent_delivery_knowledge: 'База знаний',
+    intelligent_delivery_knowledge: 'Разбор документов',
     intelligent_delivery_tests: 'Управление тестами',
     notification_settings: 'Настройка уведомлений',
     notification_tpls: 'Шаблоны',

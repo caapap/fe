@@ -51,7 +51,7 @@ const ja_JP = {
     intelligent_delivery: 'インテリジェントデリバリー',
     intelligent_delivery_pipelines: 'パイプライン',
     intelligent_delivery_artifacts: '成果物リポジトリ',
-    intelligent_delivery_knowledge: 'ナレッジベース',
+    intelligent_delivery_knowledge: 'ドキュメント解析',
     intelligent_delivery_tests: 'テスト管理',
     notification_settings: '通知設定',
     notification_tpls: '通知テンプレート',

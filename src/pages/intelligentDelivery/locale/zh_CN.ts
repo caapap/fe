@@ -1,6 +1,6 @@
 const zh_CN = {
   title: '智能交付',
-  subtitle: '把流水线编排、资源复用、知识沉淀与测试治理收进一个统一的交付工作台。',
+  subtitle: '把流水线编排、资源复用、文档解析与测试治理收进一个统一的交付工作台。',
   status: '规划中',
   sections: {
     pipelines: {
@@ -10,7 +10,7 @@ const zh_CN = {
       desc: '管理安装包、发布包和交付制品，保留版本、来源与复用关系。',
     },
     knowledge: {
-      desc: '沉淀运维手册、故障经验与发布规范，让交付与知识在同一上下文中协作。',
+      desc: '解析部署文档与部署视图，生成流水线草稿、CMDB 资产和服务连接候选项。',
     },
     tests: {
       desc: '围绕发布前后的质量门禁，组织测试计划、结果与追踪记录。',
@@ -28,9 +28,9 @@ const zh_CN = {
       desc: '统一归档安装包、版本包和交付产物，为离线分发、复用和追溯提供底座。',
     },
     knowledge: {
-      title: '知识库',
-      eyebrow: '经验沉淀',
-      desc: '把 SOP、FAQ、发布说明和事故复盘与交付动作关联起来，减少重复沟通。',
+      title: '文档解析',
+      eyebrow: '文档转模板',
+      desc: '把传统部署文档加工成流水线草稿，并从部署视图中提取 CMDB 与服务连接。',
     },
     tests: {
       title: '测试管理',
@@ -46,15 +46,15 @@ const zh_CN = {
   values: {
     pipelines_blueprint: '发布模板、环境晋级、人工审批、回滚节点',
     artifacts_blueprint: '包归档、元数据登记、保留策略、下载追踪',
-    knowledge_blueprint: '运维手册、FAQ、发布说明、复盘片段',
+    knowledge_blueprint: '部署文档解析、流程抽取、变量映射、导入草稿',
     tests_blueprint: '发布检查单、冒烟测试、回归测试、质量评分卡',
     pipelines_object: '机器、业务组、Agent 包、采集配置',
     artifacts_object: '版本制品、包渠道、环境标签',
-    knowledge_object: '团队、应用、发布窗口、事故场景',
+    knowledge_object: '流水线模板、CMDB、服务连接、制品包',
     tests_object: '流水线、发布单、环境、变更申请',
     pipelines_rhythm: '每次变更 / 每次发布',
     artifacts_rhythm: '持续积累',
-    knowledge_rhythm: '每次故障或发布后更新',
+    knowledge_rhythm: '每次新项目交付或部署视图变更',
     tests_rhythm: '发布前与回滚后',
   },
 };

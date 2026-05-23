@@ -52,7 +52,7 @@ const zh_CN = {
     intelligent_delivery_pipelines: '流水线',
     intelligent_delivery_artifacts: '资源仓库',
     intelligent_delivery_service_connections: '服务连接',
-    intelligent_delivery_knowledge: '知识库',
+    intelligent_delivery_knowledge: '文档解析',
     intelligent_delivery_tests: '测试管理',
     notification_settings: '通知设置', // 废弃的
     notification_tpls: '通知模板', // 废弃的

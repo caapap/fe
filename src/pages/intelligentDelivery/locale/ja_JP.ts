@@ -1,6 +1,6 @@
 const ja_JP = {
   title: 'インテリジェントデリバリー',
-  subtitle: 'パイプライン編成、成果物再利用、知識共有、テスト統制を一つのデリバリーワークスペースにまとめます。',
+  subtitle: 'パイプライン編成、成果物再利用、ドキュメント解析、テスト統制を一つのデリバリーワークスペースにまとめます。',
   status: '企画中',
   sections: {
     pipelines: {
@@ -10,7 +10,7 @@ const ja_JP = {
       desc: '成果物をバージョン、来歴、再利用可能な配布チャネルとともに管理します。',
     },
     knowledge: {
-      desc: '運用手順、障害対応ノート、デリバリー標準を実行フローの近くに蓄積します。',
+      desc: 'デプロイ文書とデプロイビューを解析し、パイプライン下書き、CMDB 資産、サービス接続候補を生成します。',
     },
     tests: {
       desc: 'リリース前のテスト計画、結果、品質ゲートをまとめて管理します。',
@@ -28,9 +28,9 @@ const ja_JP = {
       desc: 'インストールパッケージやリリース成果物を保管し、繰り返し配布できるようにします。',
     },
     knowledge: {
-      title: 'ナレッジベース',
-      eyebrow: '共有コンテキスト',
-      desc: 'SOP、障害ノート、リリース経験をデリバリー活動と一緒に蓄積します。',
+      title: 'ドキュメント解析',
+      eyebrow: 'Docs to templates',
+      desc: '従来のデプロイ文書をパイプライン下書きに変換し、CMDB とサービス接続候補を抽出します。',
     },
     tests: {
       title: 'テスト管理',
@@ -46,15 +46,15 @@ const ja_JP = {
   values: {
     pipelines_blueprint: 'リリーステンプレート、環境昇格、手動承認、ロールバック',
     artifacts_blueprint: 'パッケージ保管、メタデータ登録、保持ポリシー、ダウンロード追跡',
-    knowledge_blueprint: 'Runbook、FAQ、リリースノート、ポストモーテム断片',
+    knowledge_blueprint: 'デプロイ文書解析、手順抽出、変数マッピング、下書きインポート',
     tests_blueprint: 'リリースチェックリスト、スモークテスト、回帰テスト、品質スコアカード',
     pipelines_object: 'ホスト、ビジネスグループ、Agent パッケージ、収集設定',
     artifacts_object: 'バージョン付きバンドル、配布チャネル、環境ラベル',
-    knowledge_object: 'チーム、アプリケーション、リリース時間帯、障害シナリオ',
+    knowledge_object: 'パイプラインテンプレート、CMDB、サービス接続、成果物',
     tests_object: 'パイプライン、リリース、環境、変更申請',
     pipelines_rhythm: '変更単位 / リリース単位',
     artifacts_rhythm: '継続的な蓄積',
-    knowledge_rhythm: '障害やリリースのたびに更新',
+    knowledge_rhythm: '新規プロジェクト納品またはデプロイビュー変更時',
     tests_rhythm: 'リリース前とロールバック後',
   },
 };
