@@ -162,6 +162,8 @@ const en_US = {
     install_dir: 'Install directory',
     install_dir_default: 'Default /opt/categraf',
     server_url_default: 'Defaults to the LAN IP of the center',
+    server_ip_placeholder: 'Leave blank to use this platform ({{ip}})',
+    server_port_placeholder: 'Default {{port}}',
     validation_targets: 'Please fill in at least one target host (IP required)',
     validation_credential: 'Please pick a credential for every target host',
     validation_package: 'Please select an uploaded Categraf package or upload a new one',

@@ -71,7 +71,7 @@ export default function CredentialInlineModal({ open, onCancel, onCreated }: Pro
         </div>
       )}
     >
-      <Form form={form} layout='vertical' initialValues={{ ssh_port: 22, auth_type: 'password' } satisfies Partial<FormValues>} requiredMark='optional'>
+      <Form form={form} layout='vertical' initialValues={{ ssh_user: 'root', ssh_port: 22, auth_type: 'password' } satisfies Partial<FormValues>} requiredMark='optional'>
         <Form.Item name='name' label={t('deploy_agent.credential_modal.name')} rules={[{ required: true, whitespace: true }]}>
           <Input placeholder={t('deploy_agent.credential_modal.name_placeholder')} />
         </Form.Item>

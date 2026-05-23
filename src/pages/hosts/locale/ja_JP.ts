@@ -157,6 +157,8 @@ const ja_JP = {
     install_dir: 'インストールディレクトリ',
     install_dir_default: 'デフォルト /opt/categraf',
     server_url_default: 'center の LAN IP がデフォルト',
+    server_ip_placeholder: '空欄でこのプラットフォーム ({{ip}}) を使用',
+    server_port_placeholder: 'デフォルト {{port}}',
     validation_targets: '少なくとも 1 台のターゲットホストを入力してください（IP 必須）',
     validation_credential: 'すべてのターゲットホストに認証情報を選択してください',
     validation_package: 'アップロード済みパッケージを選択するか、新規アップロードしてください',
