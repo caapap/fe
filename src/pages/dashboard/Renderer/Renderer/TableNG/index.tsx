@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useContext } from 'react';
+import React, { useState, useEffect, useMemo, useContext, useImperativeHandle } from 'react';
 import { AllCommunityModule, ModuleRegistry, themeBalham, CellClickedEvent, DomLayoutType } from 'ag-grid-community';
 import { AgGridReact } from 'ag-grid-react';
 import { AG_GRID_LOCALE_CN, AG_GRID_LOCALE_HK, AG_GRID_LOCALE_EN, AG_GRID_LOCALE_JP } from '@ag-grid-community/locale';
@@ -12,6 +12,7 @@ import { useGlobalState } from '@/pages/dashboard/globalState';
 import localeCompare from '@/pages/dashboard/Renderer/utils/localeCompare';
 
 import { IPanel } from '../../../types';
+import { downloadCsv } from '../Table/utils';
 import { DARK_PARAMS, LIGHT_PARAMS } from './constants';
 import getFormattedRowData from './utils/getFormattedRowData';
 import normalizeData from './utils/normalizeData';
@@ -35,6 +36,7 @@ ModuleRegistry.registerModules([AllCommunityModule]);
 interface Props {
   themeMode?: 'dark';
   isPreview?: boolean;
+  id?: string; // dashboardID
   values: IPanel;
   series: any[];
   rangeMode?: 'lcro' | 'lcrc';
@@ -58,12 +60,13 @@ interface Props {
   domLayout?: DomLayoutType;
 }
 
-function index(props: Props) {
+function index(props: Props, ref: React.Ref<any>) {
   const { t, i18n } = useTranslation('dashboard');
   const { siteInfo } = useContext(CommonStateContext);
   const {
     themeMode,
     isPreview,
+    id: dashboardId,
     values,
     series,
     rangeMode,
@@ -78,6 +81,27 @@ function index(props: Props) {
     onCellClick,
     domLayout,
   } = props;
+
+  // 列宽缓存 key：dashboardID + panelID
+  const cacheKey = dashboardId && values?.id ? `tableNG_colWidths_${dashboardId}_${values.id}` : null;
+
+  // 从 localStorage 同步读取已缓存的（仅被用户修改过的）列宽，供 onGridReady 时恢复使用
+  const readCachedColWidths = (key: string | null): Record<string, number> => {
+    if (!key) return {};
+    try {
+      return JSON.parse(localStorage.getItem(key) || '{}');
+    } catch {
+      return {};
+    }
+  };
+
+  // useRef 不支持懒初始化，在渲染时直接同步读取初始值
+  const modifiedColWidthsRef = React.useRef<Record<string, number>>(readCachedColWidths(cacheKey));
+
+  // cacheKey 变化时（如面板切换）重新从 localStorage 加载列宽
+  React.useEffect(() => {
+    modifiedColWidthsRef.current = readCachedColWidths(cacheKey);
+  }, [cacheKey]);
 
   const { transformationsNG: transformations, custom, options, overrides } = values;
   const { showHeader = true, cellOptions = {}, filterable, sortColumn, sortOrder } = custom || {};
@@ -100,6 +124,17 @@ function index(props: Props) {
       formattedData,
     };
   }, [activeIndex, JSON.stringify(_.map(series, 'id')), JSON.stringify(transformations), JSON.stringify(cellOptions), JSON.stringify(options), JSON.stringify(overrides)]); // TODO : 依赖项可能需要更精确的控制，不然会导致不必要的重新渲染
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      exportCsv() {
+        const csvData = [columns, ..._.map(formattedData, (row) => _.map(columns, (col) => row[col]?.text ?? ''))];
+        downloadCsv(csvData, values.name);
+      },
+    }),
+    [columns, formattedData, values.name],
+  );
 
   const theme = useMemo(() => {
     if (themeMode === 'dark') {
@@ -152,8 +187,8 @@ function index(props: Props) {
               // 手动获取字段值，解决字段名包含"点"时无法正确获取的问题
               const fieldValue1 = node1.data?.[item];
               const fieldValue2 = node2.data?.[item];
-              const date1Number = fieldValue1?.value ?? null;
-              const date2Number = fieldValue2?.value ?? null;
+              const date1Number = fieldValue1?.stat ?? fieldValue1?.value ?? null;
+              const date2Number = fieldValue2?.stat ?? fieldValue2?.value ?? null;
               if (date1Number === null && date2Number === null) {
                 return 0;
               }
@@ -189,7 +224,7 @@ function index(props: Props) {
         })}
         defaultColDef={{
           flex: 1,
-          resizable: false,
+          resizable: true,
           minWidth: 100,
           sortable: true, // 启用排序功能
           cellStyle: {
@@ -211,7 +246,29 @@ function index(props: Props) {
             fontFamily: getFontFamily(siteInfo?.font_family),
           },
         }}
+        onColumnResized={(event) => {
+          // 仅在拖拽结束时保存，且只保存被修改的列宽
+          if (!event.finished || !cacheKey || !event.column) return;
+          const colId = event.column.getColId();
+          const width = event.column.getActualWidth();
+          modifiedColWidthsRef.current = {
+            ...modifiedColWidthsRef.current,
+            [colId]: width,
+          };
+          try {
+            localStorage.setItem(cacheKey, JSON.stringify(modifiedColWidthsRef.current));
+          } catch {
+            // ignore storage errors
+          }
+        }}
         onGridReady={(params) => {
+          // 恢复缓存的列宽
+          const cachedWidths = modifiedColWidthsRef.current;
+          if (!_.isEmpty(cachedWidths)) {
+            params.api.applyColumnState({
+              state: _.map(cachedWidths, (width, colId) => ({ colId, width })),
+            });
+          }
           // 列的默认排序
           if (sortColumn && sortOrder) {
             params.api.applyColumnState({
@@ -253,7 +310,7 @@ function index(props: Props) {
   );
 }
 
-export default React.memo(index, (prevProps, nextProps) => {
+export default React.memo(React.forwardRef(index), (prevProps, nextProps) => {
   const omitKeys = ['series'];
   const otherPropsEqual = _.isEqual(_.omit(prevProps, omitKeys), _.omit(nextProps, omitKeys));
   const seriesPropEqual = _.isEqual(_.map(prevProps.series, 'id'), _.map(nextProps.series, 'id'));

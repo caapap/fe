@@ -88,6 +88,7 @@ function index(
   const [visible, setVisible] = useState(false);
   const values = _.cloneDeep(props.values);
   const tableRef = useRef<any>(null);
+  const tableNGRef = useRef<any>(null);
   const bodyWrapRef = useRef<HTMLDivElement>(null);
   const { query, series, error, loading, loaded, range } = queryResult;
   const name = replaceTemplateVariables(values.name, {
@@ -126,7 +127,7 @@ function index(
     ),
     stat: () => <Stat {...subProps} bodyWrapRef={bodyWrapRef} themeMode={themeMode} isPreview={isPreview} />,
     table: () => <Table {...subProps} themeMode={themeMode} isPreview={isPreview} ref={tableRef} />,
-    tableNG: () => <TableNG {...subProps} themeMode={themeMode} isPreview={isPreview} />,
+    tableNG: () => <TableNG {...subProps} themeMode={themeMode} isPreview={isPreview} ref={tableNGRef} />,
     pie: () => <Pie {...subProps} themeMode={themeMode} isPreview={isPreview} />,
     hexbin: () => <Hexbin {...subProps} themeMode={themeMode} isPreview={isPreview} />,
     barGauge: () => <BarGauge {...subProps} themeMode={themeMode} isPreview={isPreview} />,
@@ -254,6 +255,7 @@ function index(
                             {t('common:btn.view')}
                           </Space>
                         </Menu.Item>
+
                         <Menu.Item
                           onClick={() => {
                             setVisible(true);
@@ -303,8 +305,7 @@ function index(
                             onClick={() => {
                               setVisible(false);
                               if (onCopyClick) {
-                                message.info(t('copyPanelTip'));
-                                onCopyClick();
+                                void onCopyClick();
                               }
                             }}
                             key='copy_btn'
@@ -341,6 +342,20 @@ function index(
                             </Space>
                           </Menu.Item>
                         )}
+                        {values.type === 'tableNG' && (
+                          <Menu.Item
+                            onClick={() => {
+                              tableNGRef.current.exportCsv();
+                              setVisible(false);
+                            }}
+                            key='export_btn'
+                          >
+                            <Space>
+                              <ExportOutlined />
+                              {t('export_btn')}
+                            </Space>
+                          </Menu.Item>
+                        )}
                         {values.type === 'table' && (
                           <Tooltip title={t('clear_cache_btn_tip')} placement='left'>
                             <Menu.Item
@@ -357,24 +372,25 @@ function index(
                             </Menu.Item>
                           </Tooltip>
                         )}
-
-                        <Menu.Item
-                          onClick={() => {
-                            setVisible(false);
-                            setTime &&
-                              setTime({
-                                ...time,
-                                refreshFlag: _.uniqueId('refreshFlag_ '),
-                              });
-                            setInspect(true);
-                          }}
-                          key='inspect_btn'
-                        >
-                          <Space>
-                            <InfoCircleOutlined />
-                            {t('inspect_btn')}
-                          </Space>
-                        </Menu.Item>
+                        {!isPreview && (
+                          <Menu.Item
+                            onClick={() => {
+                              setVisible(false);
+                              setTime &&
+                                setTime({
+                                  ...time,
+                                  refreshFlag: _.uniqueId('refreshFlag_ '),
+                                });
+                              setInspect(true);
+                            }}
+                            key='inspect_btn'
+                          >
+                            <Space>
+                              <InfoCircleOutlined />
+                              {t('inspect_btn')}
+                            </Space>
+                          </Menu.Item>
+                        )}
                         {isAuthorized && !values.repeatPanelId && (
                           <Menu.Item
                             onClick={() => {

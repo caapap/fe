@@ -339,7 +339,7 @@ const Targets: React.FC = () => {
   }, [businessGroup.ids]);
 
   return (
-    <PageLayout icon={<DatabaseOutlined />} title={t('title')} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/infrastructure/server-list/'>
+    <PageLayout icon={<DatabaseOutlined />} title={t('title')} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/usage/infrastructure/server-list/'>
       <div className='object-manage-page-content'>
         <BusinessGroup2
           showSelected={gids !== '0' && gids !== undefined}
@@ -378,7 +378,7 @@ const Targets: React.FC = () => {
           }}
         />
         <div
-          className='table-area fc-border'
+          className='table-area fc-border rounded-lg'
           style={{
             height: '100%',
             overflowY: 'auto',

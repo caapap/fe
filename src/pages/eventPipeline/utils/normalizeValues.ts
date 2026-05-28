@@ -7,6 +7,7 @@ interface HeaderItem {
 }
 
 export function normalizeFormValues(values: Item): any {
+  values = _.cloneDeep(values);
   return {
     ...values,
     processors: _.map(values.processors, (processor: any) => {
@@ -17,6 +18,9 @@ export function normalizeFormValues(values: Item): any {
       if (_.includes(['ai_summary'], processor?.typ) && config.custom_params) {
         config.custom_params = _.fromPairs(_.map(config.custom_params as HeaderItem[], (item) => [item.key, item.value]));
       }
+      if (_.includes(['alert_shot'], processor?.typ) && config.url_shot_opts?.headers) {
+        config.url_shot_opts.headers = _.fromPairs(_.map(config.url_shot_opts.headers as HeaderItem[], (item) => [item.key, item.value]));
+      }
       return {
         ...processor,
         config,
@@ -26,6 +30,7 @@ export function normalizeFormValues(values: Item): any {
 }
 
 export function normalizeInitialValues(values: any): Item {
+  values = _.cloneDeep(values);
   return {
     ...values,
     processors: _.map(values.processors, (processor: any) => {
@@ -38,6 +43,12 @@ export function normalizeInitialValues(values: any): Item {
       }
       if (_.includes(['ai_summary'], processor?.typ) && config.custom_params) {
         config.custom_params = _.map(config.custom_params as { [key: string]: string }, (value, key) => ({
+          key,
+          value,
+        }));
+      }
+      if (_.includes(['alert_shot'], processor?.typ) && config.url_shot_opts?.headers) {
+        config.url_shot_opts.headers = _.map(config.url_shot_opts.headers as { [key: string]: string }, (value, key) => ({
           key,
           value,
         }));

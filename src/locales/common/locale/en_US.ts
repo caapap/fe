@@ -18,6 +18,7 @@ const en_US = {
   unit: 'Unit',
   page_help: 'Help',
   document_title: 'Documentation',
+  product_document_title: 'Product documentation',
   more_document_link: 'More documents',
   and: 'And',
   yes: 'Yes',
@@ -172,6 +173,7 @@ const en_US = {
   disabling: 'Disabling',
   select_event: 'Select an alert event',
   click_to_view_doc: 'Click to view documentation',
+  format_sql: 'Format SQL',
 
   tpl: 'Self-healing',
   'tpl.create': 'Create',
@@ -259,5 +261,6 @@ const en_US = {
 
   copy_success: 'Successful copy {{num}} items',
   request_fail_msg: 'Request failed, please try again later',
+  trim_validator_msg: 'Leading or trailing spaces detected, please remove them manually',
 };
 export default en_US;

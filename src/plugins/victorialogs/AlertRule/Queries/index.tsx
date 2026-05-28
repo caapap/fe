@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
-import { Form, Space, Row, Col, Card, Input } from 'antd';
+import { Form, Space, Row, Col, Card, Input, Alert } from 'antd';
 import { PlusCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import _ from 'lodash';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
 
 import { CommonStateContext } from '@/App';
 import InputGroupWithFormItem from '@/components/InputGroupWithFormItem';
@@ -57,7 +57,15 @@ export default function index({ prefixField = {}, fullPrefixName = [], prefixNam
           >
             {fields.map((field) => {
               return (
-                <div key={field.key} className='bg-fc-200 p-4 mb-4 relative' style={{ padding: 16, marginBottom: 16, position: 'relative' }}>
+                <div key={field.key} className='bg-fc-200 p-4 mb-4 relative'>
+                  <Form.Item shouldUpdate noStyle>
+                    {({ getFieldValue }) => {
+                      const query = getFieldValue([...fullPrefixName, ...prefixName, 'queries', field.name]);
+                      const queryValue = query?.query;
+                      if (!queryValue || _.includes(queryValue, '_time')) return null;
+                      return <Alert className='mb-2' type='warning' message={<Trans ns={NAME_SPACE} i18nKey='alert.query_warning_no_time' components={{ b: <strong /> }} />} />;
+                    }}
+                  </Form.Item>
                   <Row gutter={8}>
                     <Col flex='32px'>
                       <Form.Item {...field} name={[field.name, 'ref']} initialValue={generateQueryName(_.map(queries, 'ref'))}>
@@ -77,7 +85,8 @@ export default function index({ prefixField = {}, fullPrefixName = [], prefixNam
                                     darkMode,
                                     title: t('common:page_help'),
                                     type: 'iframe',
-                                    documentPath: 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v8/usage/alert/query-data/victorialogs/',
+                                    documentPath:
+                                      'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/usage/alert-notify/rules/alert-rules/query-data/victorialogs/',
                                   });
                                 }}
                               />

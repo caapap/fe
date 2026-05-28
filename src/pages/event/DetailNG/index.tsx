@@ -8,6 +8,8 @@ import { useTranslation } from 'react-i18next';
 import { CommonStateContext, basePrefix } from '@/App';
 import { getESIndexPatternsWithParmas } from '@/pages/log/IndexPatterns/services';
 import { DatasourceCateEnum } from '@/utils/constant';
+import { AiButton } from '@/components/AiChatNG/FlashAiButton';
+import { getAlertEventDetailPrompts } from '@/components/AiChatNG/recommend';
 
 import EventNotifyRecords from '../EventNotifyRecords';
 import TaskTpls from '../TaskTpls';
@@ -31,7 +33,7 @@ interface Props {
 }
 
 export default function DetailNG(props: Props) {
-  const { t } = useTranslation('AlertCurEvents');
+  const { t, i18n } = useTranslation('AlertCurEvents');
   const commonState = useContext(CommonStateContext);
   const { busiGroups, datasourceList } = commonState;
   const { data: eventDetail, showGraph, token } = props;
@@ -62,19 +64,60 @@ export default function DetailNG(props: Props) {
       label: t('detail.rule_name'),
       key: 'rule_name',
       render(content, { rule_id }) {
-        if (!_.includes(['firemap', 'northstar'], eventDetail?.rule_prod)) {
+        // 从 tags 中解析出 spaceId、businessId 和 alertRuleId
+        const parseIdsFromTags = (tags: string[]) => {
+          const result: { spaceId?: string; businessId?: string; alertRuleId?: string } = {};
+          tags.forEach((tag) => {
+            const [key, value] = tag.split('=');
+            if (key === 'workspace_id') {
+              result.spaceId = value;
+            } else if (key === 'business_id') {
+              result.businessId = value;
+            } else if (key === 'rule_id') {
+              result.alertRuleId = value;
+            }
+          });
+          return result;
+        };
+
+        const { spaceId, businessId, alertRuleId } = parseIdsFromTags(eventDetail.tags || []);
+
+        if (eventDetail?.rule_prod === 'firemap') {
           return (
-            <Link
-              to={{
-                pathname: `/alert-rules/edit/${rule_id}`,
-              }}
-              target='_blank'
-            >
+            <Link to={`/firemap?spaceId=${spaceId}&alertRuleId=${alertRuleId}`} target='_blank'>
               {content}
             </Link>
           );
+        } else if (eventDetail?.rule_prod === 'northstar') {
+          return (
+            <Link to={`/polaris/${businessId}?spaceId=${spaceId}&alertRuleId=${alertRuleId}`} target='_blank'>
+              {content}
+            </Link>
+          );
+        } else {
+          return (
+            <Space>
+              <Link
+                to={{
+                  pathname: `/alert-rules/edit/${rule_id}`,
+                }}
+                target='_blank'
+              >
+                {content}
+              </Link>
+              <AiButton
+                size='small'
+                queryAction={{
+                  key: 'troubleshooting',
+                  param: {
+                    event_id: eventDetail.id,
+                  },
+                }}
+                promptList={getAlertEventDetailPrompts(i18n.language)}
+              />
+            </Space>
+          );
         }
-        return content;
       },
     },
     {
@@ -193,6 +236,17 @@ export default function DetailNG(props: Props) {
         return moment(time * 1000).format('YYYY-MM-DD HH:mm:ss');
       },
     },
+    ...(_.includes(['firemap', 'northstar'], eventDetail?.rule_prod)
+      ? [
+          {
+            label: t('detail.current_anomaly_time'),
+            key: 'trigger_time',
+            render(time) {
+              return moment(time * 1000).format('YYYY-MM-DD HH:mm:ss');
+            },
+          },
+        ]
+      : [false]),
     {
       label: t('detail.last_eval_time'),
       key: 'last_eval_time',
@@ -245,20 +299,32 @@ export default function DetailNG(props: Props) {
       indexPatterns,
     }) || []),
     ...(plusEventDetail(eventDetail?.cate, t) || []),
-    {
-      label: t('detail.prom_eval_interval'),
-      key: 'prom_eval_interval',
-      render(content) {
-        return `${content} s`;
-      },
-    },
-    {
-      label: t('detail.prom_for_duration'),
-      key: 'prom_for_duration',
-      render(content) {
-        return `${content} s`;
-      },
-    },
+    ...(!_.includes(['firemap', 'northstar'], eventDetail?.rule_prod)
+      ? [
+          {
+            label: t('detail.prom_eval_interval'),
+            key: 'prom_eval_interval',
+            render(content) {
+              return `${content} s`;
+            },
+          },
+          {
+            label: t('detail.prom_for_duration'),
+            key: 'prom_for_duration',
+            render(content) {
+              return `${content} s`;
+            },
+          },
+        ]
+      : [
+          {
+            label: t('detail.trigger_label'),
+            key: 'rule_config.anomaly_params',
+            render(content, record) {
+              return <Tag>{record.rule_config.anomaly_params}</Tag>;
+            },
+          },
+        ]),
     ...(eventDetail?.notify_version === 0
       ? [
           {

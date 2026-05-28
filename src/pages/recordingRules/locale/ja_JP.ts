@@ -1,6 +1,8 @@
 const ja_JP = {
   title: '記録ルール',
   search_placeholder: '名前またはタグで検索',
+  group_id: 'ビジネスグループ',
+  group_id_required: 'ビジネスグループを選択してください',
   name: '指標名',
   name_msg: '指標名が無効です',
   name_tip: 'promqlの周期的な計算によって、新しい指標が生成されます。この新しい指標の名前をここに入力してください',
@@ -11,6 +13,11 @@ const ja_JP = {
   append_tags_msg1: 'タグの長さは 64 文字以下にしてください',
   append_tags_msg2: 'タグの形式は key=value です。key はアルファベットまたはアンダースコアで始まり、アルファベット、数字、アンダースコアで構成されます',
   append_tags_placeholder: 'タグの形式は key=value です。改行または空白で区切ってください',
+  filter_disabled: {
+    placeholder: 'フィルターを選択',
+    0: '有効',
+    1: '無効',
+  },
   batch: {
     must_select_one: 'どのルールも選択されていません',
     import: {

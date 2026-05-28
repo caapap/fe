@@ -14,14 +14,15 @@ import flatten from '@/pages/logExplorer/components/LogsViewer/utils/flatten';
 import normalizeLogStructures from '@/pages/logExplorer/utils/normalizeLogStructures';
 import useFieldConfig from '@/pages/logExplorer/components/RenderValue/useFieldConfig';
 
-import { NAME_SPACE, NG_QUERY_LOGS_OPTIONS_CACHE_KEY, DEFAULT_LOGS_PAGE_SIZE, QUERY_LOGS_TABLE_COLUMNS_WIDTH_CACHE_KEY } from '../../../constants';
+import { NAME_SPACE, NG_QUERY_LOGS_OPTIONS_CACHE_KEY, DEFAULT_LOGS_PAGE_SIZE, QUERY_LOGS_TABLE_COLUMNS_WIDTH_CACHE_KEY, HIGHLIGHT_FIELD } from '../../../constants';
 import { getDorisLogsQuery, getDorisHistogram } from '../../../services';
-import { Field } from '../../../types';
+import { Field } from '../../types';
 import { getOptionsFromLocalstorage, setOptionsToLocalstorage } from '../../utils/optionsLocalstorage';
 import filteredFields from '../../utils/filteredFields';
 import { scrollToTop, getIsAtBottom } from '../../utils/tableElementMethods';
 import { PinIcon, UnPinIcon } from '../../SideBarNav/FieldsSidebar/PinIcon';
 import { HandleValueFilterParams } from '../../types';
+import QueryBuilderFilters from './QueryBuilderFilters';
 
 // @ts-ignore
 import DownloadModal from 'plus:/components/LogDownload/DownloadModal';
@@ -47,6 +48,7 @@ interface Props {
   setOrganizeFields: (value: string[]) => void;
   handleValueFilter: HandleValueFilterParams;
   setExecuteLoading: (loading: boolean) => void;
+  executeQuery: () => void;
 
   stackByField?: string;
   setStackByField: (field?: string) => void;
@@ -60,7 +62,7 @@ export default function index(props: Props) {
   const refreshFlag = Form.useWatch('refreshFlag');
   const datasourceValue = Form.useWatch('datasourceValue');
   const queryValues = Form.useWatch('query');
-
+  const queryStrRef = useRef<string>('');
   const {
     tableSelector,
     indexData,
@@ -70,6 +72,7 @@ export default function index(props: Props) {
     setOrganizeFields,
     handleValueFilter,
     setExecuteLoading,
+    executeQuery,
     stackByField,
     setStackByField,
     defaultSearchField,
@@ -96,13 +99,13 @@ export default function index(props: Props) {
     };
     setOptions(mergedOptions);
     setOptionsToLocalstorage(NG_QUERY_LOGS_OPTIONS_CACHE_KEY, mergedOptions);
+    // 只有在修改了 pageLoadMode 时才重置分页参数
     if (reload) {
       setServiceParams({
         ...serviceParams,
         pageSize: DEFAULT_LOGS_PAGE_SIZE,
-      });
-      form.setFieldsValue({
-        refreshFlag: _.uniqueId('refreshFlag_'),
+        current: 1,
+        refreshFlag: _.uniqueId('refreshFlag_'), // 避免其他参数没变时不触发刷新
       });
     }
   };
@@ -111,9 +114,11 @@ export default function index(props: Props) {
   const fixedRangeRef = useRef<boolean>(false);
   const loadTimeRef = useRef<number | null>(null);
 
+  type HighlightMap = Record<string, string[]>;
+
   const service = () => {
     const queryValues = form.getFieldValue('query'); // 实时获取最新的查询条件
-    if (refreshFlag && datasourceValue && queryValues?.database && queryValues?.table && queryValues?.time_field) {
+    if (refreshFlag && datasourceValue && queryValues?.database && queryValues?.table && queryValues?.time_field && queryValues.range) {
       const range = parseRange(queryValues.range);
       let timeParams =
         fixedRangeRef.current === false
@@ -127,7 +132,7 @@ export default function index(props: Props) {
       }
       rangeRef.current = timeParams;
       const queryStart = Date.now();
-      return getDorisLogsQuery({
+      const reqData = {
         cate: DatasourceCateEnum.doris,
         datasource_id: datasourceValue,
         query: [
@@ -136,21 +141,25 @@ export default function index(props: Props) {
             table: queryValues.table,
             time_field: queryValues.time_field,
             query: queryValues.query,
+            query_builder_filter: queryValues.query_builder_filter,
             from: timeParams.from,
             to: timeParams.to,
             lines: serviceParams.pageSize,
             offset: (serviceParams.current - 1) * serviceParams.pageSize,
             reverse: serviceParams.reverse,
             default_field: defaultSearchField,
+            highlight: true,
           },
         ],
-      })
+      };
+      queryStrRef.current = JSON.stringify(reqData);
+      return getDorisLogsQuery(reqData)
         .then((res) => {
           if (fixedRangeRef.current === false) {
             loadTimeRef.current = Date.now() - queryStart;
           }
           const newLogs = _.map(res.list, (item) => {
-            const normalizedItem = normalizeLogStructures(item);
+            const normalizedItem = normalizeLogStructures(_.omit(item, [HIGHLIGHT_FIELD]));
             return {
               ...(flatten(normalizedItem) || {}),
               ___raw___: normalizedItem,
@@ -159,22 +168,26 @@ export default function index(props: Props) {
           });
           if (appendRef.current) {
             appendRef.current = false;
+            const nextHighlights: HighlightMap[] = _.map(res.list, (item) => item[HIGHLIGHT_FIELD] || {});
             return {
               list: _.concat(data?.list, newLogs),
               total: res.total,
               hash: _.uniqueId('logs_'),
               colWidths: calcColWidthByData(_.concat(data?.list, newLogs)),
+              highlights: _.concat(data?.highlights || [], nextHighlights),
             };
           } else {
             if (pageLoadMode === 'infiniteScroll') {
               scrollToTop(tableSelector.antd, tableSelector.rgd);
             }
             appendRef.current = false;
+            const nextHighlights: HighlightMap[] = _.map(res.list, (item) => item[HIGHLIGHT_FIELD] || {});
             return {
               list: newLogs,
               total: res.total,
               hash: _.uniqueId('logs_'),
               colWidths: calcColWidthByData(newLogs),
+              highlights: nextHighlights,
             };
           }
         })
@@ -201,12 +214,14 @@ export default function index(props: Props) {
     data,
     loading,
     run: fetchLogs,
+    mutate: setData,
   } = useRequest<
     {
       list: { [index: string]: string }[];
       total: number;
       hash: string;
       colWidths?: { [key: string]: number };
+      highlights?: HighlightMap[];
     },
     any
   >(service, {
@@ -215,7 +230,7 @@ export default function index(props: Props) {
 
   const histogramService = () => {
     const queryValues = form.getFieldValue('query'); // 实时获取最新的查询条件
-    if (refreshFlag && datasourceValue && queryValues && queryValues.database && queryValues.table && queryValues.time_field) {
+    if (refreshFlag && datasourceValue && queryValues && queryValues.database && queryValues.table && queryValues.time_field && queryValues.range) {
       const range = parseRange(queryValues.range);
       return getDorisHistogram({
         cate: DatasourceCateEnum.doris,
@@ -228,6 +243,7 @@ export default function index(props: Props) {
             from: moment(range.start).unix(),
             to: moment(range.end).unix(),
             query: queryValues.query,
+            query_builder_filter: queryValues.query_builder_filter,
             group_by: stackByField,
             default_field: defaultSearchField,
           },
@@ -261,7 +277,11 @@ export default function index(props: Props) {
     }
   };
 
-  const { data: histogramData, loading: histogramLoading } = useRequest<
+  const {
+    data: histogramData,
+    loading: histogramLoading,
+    mutate: setHistogramData,
+  } = useRequest<
     {
       data: any[];
       hash: string;
@@ -300,16 +320,27 @@ export default function index(props: Props) {
 
   return (
     <>
+      <QueryBuilderFilters indexData={indexData} snapRangeRef={snapRangeRef} executeQuery={executeQuery} />
       {refreshFlag ? (
         <>
           {!_.isEmpty(data?.list) || !_.isEmpty(histogramData?.data) ? (
             <LogsViewer
+              logClusting={{
+                enabled: true,
+                queryStrRef,
+                logTotal: data?.total || 0,
+                cate: DatasourceCateEnum.doris,
+                datasourceValue: datasourceValue,
+                fieldCacheKey: queryValues?.database + queryValues?.table,
+              }}
+              enableLogTextSelectMenu
               timeField={queryValues?.time_field}
               histogramLoading={histogramLoading}
               histogram={histogramData?.data || []}
               histogramHash={histogramData?.hash}
               loading={loading}
               logs={data?.list || []}
+              highlights={data?.highlights || []}
               logsHash={data?.hash}
               fields={_.map(indexData, 'field')}
               options={options}
@@ -362,7 +393,7 @@ export default function index(props: Props) {
                         </>
                       )}
                       {toggleNode}
-                      {IS_PLUS && <DownloadModal marginLeft={0} queryData={{ ...form.getFieldsValue(), total: data?.total }} />}
+                      {IS_PLUS && <DownloadModal marginLeft={0} queryData={{ ...form.getFieldsValue(), mode: 'query', total: data?.total }} />}
                     </Space>
                   );
                 }
@@ -386,6 +417,7 @@ export default function index(props: Props) {
                   )}
                   {pageLoadMode === 'pagination' ? (
                     <Pagination
+                      showQuickJumper
                       size='small'
                       total={data?.total}
                       current={serviceParams.current}
@@ -425,12 +457,12 @@ export default function index(props: Props) {
                   to: undefined,
                 };
                 form.setFieldsValue({
-                  refreshFlag: _.uniqueId('refreshFlag_'),
                   query: {
                     ...query,
                     range,
                   },
                 });
+                executeQuery();
               }}
               onLogRequestParamsChange={(params) => {
                 // 这里只更新 serviceParams 从而只刷新日志数据，不刷新直方图
@@ -470,6 +502,9 @@ export default function index(props: Props) {
                     }));
                   }
                 }
+              }}
+              linesColumnFormat={(val) => {
+                return serviceParams.pageSize * (serviceParams.current - 1) + val;
               }}
               // state context
               fieldConfig={currentFieldConfig}
@@ -513,9 +548,16 @@ export default function index(props: Props) {
                   b: (
                     <a
                       onClick={() => {
-                        form.setFieldsValue({
-                          refreshFlag: _.uniqueId('refreshFlag_'),
+                        setData({
+                          list: [],
+                          total: 0,
+                          hash: _.uniqueId('logs_'),
                         });
+                        setHistogramData({
+                          data: [],
+                          hash: _.uniqueId('histogram_'),
+                        });
+                        executeQuery();
                       }}
                     />
                   ),

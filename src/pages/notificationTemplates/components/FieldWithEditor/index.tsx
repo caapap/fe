@@ -1,7 +1,13 @@
 import React from 'react';
-import CodeMirror from '@/components/CodeMirror';
 import _ from 'lodash';
+import { Space } from 'antd';
+import { useTranslation } from 'react-i18next';
 
+import CodeMirror from '@/components/CodeMirror';
+import { AiButton } from '@/components/AiChatNG/FlashAiButton';
+import { getNotifyTplPrompts } from '@/components/AiChatNG/recommend';
+
+import { NS } from '../../constants';
 import './style.less';
 
 interface IProps {
@@ -28,13 +34,27 @@ export const generateRules = (limitSize) => {
 };
 
 export default function FieldWithEditor(props: IProps) {
+  const { t, i18n } = useTranslation(NS);
   const { label, titleExtra, value, onChange, extensions, previewResult, scrolling = true } = props;
 
   return (
     <div className='n9e-notification-template-content'>
       <div className='n9e-notification-template-content-editor'>
         <div className='n9e-notification-template-content-editor-header'>
-          <div>{label}</div>
+          <div>
+            <div className='flex items-center gap-2'>
+              {label}
+              <AiButton
+                size='small'
+                queryAction={{
+                  key: 'notify_template_generator',
+                }}
+                promptList={getNotifyTplPrompts(i18n.language)}
+              >
+                {t('content.ai_generate')}
+              </AiButton>
+            </div>
+          </div>
           <div>{titleExtra}</div>
         </div>
         {previewResult ? (

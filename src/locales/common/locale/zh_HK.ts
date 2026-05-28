@@ -18,6 +18,7 @@ const zh_HK = {
   unit: '單位',
   page_help: '使用說明',
   document_title: '說明文檔',
+  product_document_title: '產品文檔',
   more_document_link: '更多文檔',
   and: '且',
   yes: '是',
@@ -82,7 +83,7 @@ const zh_HK = {
     host: '機器',
     error_msg: '錯誤',
     username: '用戶名',
-    nickname: '顯示名',
+    nickname: '用戶暱稱',
   },
   datasource: {
     prod: '監控類型',
@@ -171,6 +172,7 @@ const zh_HK = {
   disabling: '禁用中',
   select_event: '選擇告警事件',
   click_to_view_doc: '點擊查看文檔',
+  format_sql: '格式化 SQL',
 
   tpl: '自愈腳本',
   'tpl.create': '創建',
@@ -255,6 +257,7 @@ const zh_HK = {
   'msg.sort.success': '排序成功',
   copy_success: '複製成功 {{num}} 條記錄',
   request_fail_msg: '請求失敗，請檢查網絡連線',
+  trim_validator_msg: '前後有空格，請手動刪除',
 };
 
 export default zh_HK;

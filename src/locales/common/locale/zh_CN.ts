@@ -18,6 +18,7 @@ const zh_CN = {
   unit: '单位',
   page_help: '使用说明',
   document_title: '说明文档',
+  product_document_title: '产品文档',
   more_document_link: '更多文档',
   and: '且',
   yes: '是',
@@ -82,7 +83,7 @@ const zh_CN = {
     host: '机器',
     error_msg: '错误',
     username: '用户名',
-    nickname: '显示名',
+    nickname: '用户昵称',
   },
   datasource: {
     prod: '监控类型',
@@ -171,6 +172,7 @@ const zh_CN = {
   disabling: '禁用中',
   select_event: '选择告警事件',
   click_to_view_doc: '点击查看文档',
+  format_sql: '格式化 SQL',
 
   // 临时把 task 的翻译放在这里
   tpl: '自愈脚本',
@@ -258,5 +260,6 @@ const zh_CN = {
 
   copy_success: '复制成功 {{num}} 条记录',
   request_fail_msg: '网络请求超时，请稍后重试',
+  trim_validator_msg: '前后有空格，请手动删除',
 };
 export default zh_CN;

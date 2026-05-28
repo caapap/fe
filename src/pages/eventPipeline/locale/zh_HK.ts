@@ -1,7 +1,8 @@
 const zh_HK = {
   title: '工作流',
-  title_add: '新增事件工作流',
-  title_edit: '編輯事件工作流',
+  title_add: '新增工作流',
+  title_edit: '編輯工作流',
+  title_clone: '克隆工作流',
   teams: '授權團隊',
   teams_tip: '限定哪些團隊成員可以查看和修改此配置，可以關聯多個團隊<br />例如：將配置授權給 infra-team，則只有 infra-team 團隊下的成員可以訪問或調整本配置。',
   basic_configuration: '基本配置',
@@ -17,12 +18,86 @@ const zh_HK = {
     group_name: '業務組',
     cluster: '數據源',
     is_recovered: '是恢復事件？',
+    severity: '告警分級',
   },
+  use_case: {
+    label: '用途',
+    firemap: '滅火圖',
+    event_pipeline: '事件處理',
+  },
+  trigger_mode: {
+    label: '觸發模式',
+    event: '事件觸發',
+    api: 'API 觸發',
+  },
+  disabled: {
+    form_label: '啟用',
+    label: '狀態',
+    false: '已啟用',
+    true: '已禁用',
+  },
+  inputs: {
+    label: '前置變量',
+    help: '前置變量可在下面處理器中通過 {{$inputs.變量名}} 引用，比如可以設置 ident 變量，在處理器中，通過 {{$inputs.ident}} 的方式引用，指定腳本執行的機器。',
+    add_btn: '添加變量',
+    key: '變量名',
+    key_required: '變量名不能為空',
+    value: '變量默認值',
+    description: '變量描述',
+  },
+  executions: {
+    title: '執行記錄',
+    search_placeholder: '請輸入搜索關鍵字',
+    status: {
+      label: '狀態',
+      running: '執行中',
+      success: '成功',
+      failed: '失敗',
+    },
+    id: '執行 ID',
+    pipeline_name: '工作流名稱',
+    mode: '觸發模式',
+    created_at: '開始時間',
+    finished_at: '結束時間',
+    duration_ms: '執行耗時',
+    trigger_by: '觸發者',
+    detail_title: '執行詳情',
+    detail_basic_info: '基本信息',
+    error_message: '錯誤信息',
+    node_results_parsed_title: '節點執行結果',
+  },
+  test_modal: {
+    title: {
+      settings: '選擇告警事件',
+      result: '事件預覽',
+    },
+  },
+  batch: {
+    not_select: '請先選擇要操作的工作流',
+    export: {
+      title: '批量導出',
+    },
+  },
+
   processor: {
     title: '處理器',
     add_btn: '添加處理器',
     typ: '類型',
     help_btn: '使用說明',
+    options: {
+      relabel: '事件標籤重寫',
+      callback: '回調',
+      event_update: '事件更新',
+      event_drop: '事件丟棄',
+      ai_summary: 'AI 摘要',
+      label_enrich: '事件標籤豐富',
+      script: '腳本處理',
+      inhibit: '事件抑制',
+      inhibit_qd: '查詢數據抑制事件',
+      annotation_qd: '事件附加信息豐富',
+      event_recover: '故障自愈',
+      alert_shot: '告警截圖',
+    },
   },
   label_enrich: {
     label_source_type: {
@@ -44,12 +119,6 @@ const zh_HK = {
       source_key_placeholder: '詞表中的字段',
       rename_key: '重命名標籤 Key',
       target_key_placeholder: '標籤 Key',
-    },
-  },
-  test_modal: {
-    title: {
-      settings: '選擇告警事件',
-      result: '事件預覽',
     },
   },
   callback: {
@@ -84,7 +153,7 @@ const zh_HK = {
     url_tip: `- **說明**: AI服務的API接口地址\n- **示例**: \`https://api.deepseek.com/v1/chat/completions\``,
     api_key_tip: `- **說明**: AI服務提供商的API密鑰\n- **獲取方式**:\n  - OpenAI: 在OpenAI官網申請\n  - DeepSeek: 在DeepSeek官網註冊獲取`,
     model_name_tip: `- **說明**: 指定使用的AI模型名稱\n- **常用模型**:\n  - \`gpt-3.5-turbo\` (OpenAI)\n  - \`gpt-4\` (OpenAI)\n  - \`deepseek-chat\` (DeepSeek)`,
-    prompt_template_tip: `提示詞模板是AI分析的核心，可以使用 {{$event}} 引用事件的各個字段，事件的詳細結構參考[告警歷史表](https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/schema/alert_his_event/)說明，剛開始使用提供的默認模板即可`,
+    prompt_template_tip: `提示詞模板是AI分析的核心，可以使用 {{$event}} 引用事件的各個字段，事件的詳細結構參考[告警歷史表](https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/usage/alert-notify/events/alert-history/)說明，剛開始使用提供的默認模板即可`,
     custom_params_tip: `- AI模型參數配置\n\n用於精細化調整AI模型的行為：\n\n| 參數名 | 說明 | 推薦值 | 示例 |\n|--------|------|--------|------|\n| temperature | 控制回答的隨機性 | 0.3-0.7 | 0.7 |\n| max_tokens | 最大輸出token數 | 200-500 | 300 |\n| top_p | 採樣概率閾值 | 0.8-1.0 | 0.9 |\n\n**配置方法**:\n1. 點擊 "Custom Params" 旁的 + 按鈕\n2. 在"參數名"欄輸入參數名（如：temperature）\n3. 在"參數值"欄輸入對應值（如：0.7）`,
     prompt_template_placeholder: `請分析以下告警事件信息，並提供一個簡潔明了的中文總結：
 告警規則: {{$event.RuleName}}
@@ -170,6 +239,7 @@ const zh_HK = {
     select_alert_event_label: '已選告警樣例事件',
     query_required: '查詢條件不能為空',
     sql_limit_valid: 'SQL 查詢語句必須包含 LIMIT 子句',
+    oracle_sql_limit_valid: 'SQL 查詢語句必須包含 ROWNUM 子句',
     annotation_configs: '數據追加',
     annotation_configs_tip: '配置 Key/Value 將數據查詢結果，添加到告警信息中',
     annotation_key_tip: '定義新增字段 Key，建議使用英文字母命名',
@@ -182,6 +252,50 @@ const zh_HK = {
     data_preview_query: '查詢語句',
     data_preview_no_eventid: '請先選擇告警事件',
     query_limit: '返回條數限制',
+  },
+  event_recover: {
+    help: '告警自癒事件處理器，用於在告警觸發時，在機器上執行 shell 腳本，可用於取得相關告警資訊或執行自癒任務。 <a>使用文檔</a>',
+    title: '告警自癒',
+    create_btn: '建立自癒範本',
+    tpl_id: '自癒範本',
+    tpl_id_required: '自癒範本不能為空',
+    host: '執行機器',
+    host_placeholder: '預設可留空，如果為空，會從事件中的 ident 標籤取得要執行的機器',
+    args: '參數',
+    args_tip: '附於腳本之後的參數，多個參數之間用雙逗號,,分隔，比如arg1,,arg2,,arg3',
+    save_result: '保存執行結果',
+    save_result_tip: '將腳本 執行結果保存到告警事件中',
+    timeout: '等待執行時間',
+    timeout_tip: '若腳本無法在等待時間內執行完，則不會等待結果取得',
+    timeout_max_warning: '等待執行時間不能超過 60 秒',
+    select_host: '篩選機器',
+  },
+  alert_shot: {
+    help: '<a>使用文檔</a>',
+    title: '告警截圖',
+    shot_type: {
+      label: '對象類型',
+      options: {
+        board: '儀表盤',
+        url: 'URL 地址',
+      },
+    },
+    advanced_settings: '高級設置',
+    board_shot_opts: {
+      busi_group: '業務組',
+      board_id: '儀表盤',
+      board_url: '儀表盤 URL',
+      timeout: '超時時間（毫秒）',
+      width: '圖片寬度',
+    },
+    url_shot_opts: {
+      url: 'URL 地址',
+      headers: '請求頭',
+      proxy: '代理設置',
+      insecure_skip_verify: '跳過證書校驗',
+      timeout: '超時時間（毫秒）',
+      width: '圖片寬度',
+    },
   },
 };
 

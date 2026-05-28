@@ -37,11 +37,11 @@ export default function index() {
     <PageLayout
       title={<Space>{t('title')}</Space>}
       icon={<SoundOutlined />}
-      doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/system-configuration/notification-template/'
+      doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/usage/alert-notify/msg-template/notification-templates/'
     >
       <div>
         <div className='n9e-notification-tpls user-manage-content'>
-          <div className='n9e-notification-tpls-sidebar left-tree-area'>
+          <div className='n9e-notification-tpls-sidebar left-tree-area rounded-lg'>
             <div className='sub-title'>
               {t('list')}
               <Button

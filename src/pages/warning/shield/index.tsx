@@ -15,7 +15,7 @@
  *
  */
 import React, { useState, useEffect, useContext } from 'react';
-import { Button, Input, Table, Tooltip, message, Modal, Switch, Space, Tag } from 'antd';
+import { Button, Input, Table, Tooltip, message, Modal, Switch, Space, Tag, Select } from 'antd';
 import { ColumnsType } from 'antd/lib/table';
 import { CloseCircleOutlined, ExclamationCircleOutlined, SearchOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -33,6 +33,7 @@ import { DatasourceSelect } from '@/components/DatasourceSelect';
 import { CommonStateContext } from '@/App';
 import usePagination from '@/components/usePagination';
 import { allCates } from '@/components/AdvancedWrap/utils';
+import DeleteMutesModal from './components/DeleteMutesModal';
 
 import './locale';
 import './index.less';
@@ -43,16 +44,36 @@ export { default as Edit } from './edit';
 const { confirm } = Modal;
 const N9E_GIDS_LOCALKEY = 'n9e_mutes_gids';
 
+interface Filter {
+  query?: string;
+  datasourceIds?: number[];
+  disabled?: 0 | 1;
+}
+
+const FILTER_SESSION_STORAGE_KEY = 'alert-mutes-filter';
+
 const Shield: React.FC = () => {
   const { t } = useTranslation('alertMutes');
   const history = useHistory();
   const { datasourceList, groupedDatasourceList, businessGroup, busiGroups } = useContext(CommonStateContext);
   const [gids, setGids] = useState<string | undefined>(getDefaultGids(N9E_GIDS_LOCALKEY, businessGroup));
-  const [query, setQuery] = useState<string>('');
+  let defaultFilter = {} as Filter;
+  try {
+    defaultFilter = JSON.parse(window.sessionStorage.getItem(FILTER_SESSION_STORAGE_KEY) || '{}');
+  } catch (e) {
+    console.error(e);
+  }
+  const [query, setQuery] = useState<string>(defaultFilter.query ?? '');
   const [currentShieldDataAll, setCurrentShieldDataAll] = useState<Array<shieldItem>>([]);
   const [currentShieldData, setCurrentShieldData] = useState<Array<shieldItem>>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [datasourceIds, setDatasourceIds] = useState<number[]>();
+  const [datasourceIds, setDatasourceIds] = useState<number[] | undefined>(defaultFilter.datasourceIds);
+  const [filterDisabled, setFilterDisabled] = useState<0 | 1 | undefined>(defaultFilter.disabled);
+  const [deleteMutesModalVisible, setDeleteMutesModalVisible] = useState(false);
+  const saveFilter = (patch: Partial<Filter>) => {
+    const prev = JSON.parse(window.sessionStorage.getItem(FILTER_SESSION_STORAGE_KEY) || '{}');
+    window.sessionStorage.setItem(FILTER_SESSION_STORAGE_KEY, JSON.stringify({ ...prev, ...patch }));
+  };
   const columns: ColumnsType = _.concat(
     businessGroup.isLeaf && gids !== '-2'
       ? []
@@ -74,7 +95,7 @@ const Shield: React.FC = () => {
             <Link
               to={{
                 pathname: `/alert-mutes/edit/${record.id}`,
-                state: record,
+                search: `?bgid=${record.group_id}`,
               }}
             >
               {data}
@@ -118,15 +139,17 @@ const Shield: React.FC = () => {
         dataIndex: 'tags',
         render: (text: any) => {
           return (
-            <>
+            <div>
               {text
                 ? text.map((tag, index) => {
                     return tag ? (
-                      <div key={index} style={{ lineHeight: '16px' }}>{`${tag.key} ${tag.func} ${tag.func === 'in' ? tag.value.split(' ').join(', ') : tag.value}`}</div>
+                      <div className='max-w-[400px] break-all' key={index} style={{ lineHeight: '16px' }}>{`${tag.key} ${tag.func} ${
+                        tag.func === 'in' ? tag.value.split(' ').join(', ') : tag.value
+                      }`}</div>
                     ) : null;
                   })
                 : ''}
-            </>
+            </div>
           );
         },
       },
@@ -263,9 +286,9 @@ const Shield: React.FC = () => {
                     display: 'inline-block',
                   }}
                   onClick={() => {
-                    history.push(`/alert-mutes/edit/${record.id}?mode=clone`, {
-                      ...record,
-                      datasource_ids: record.datasource_ids || undefined,
+                    history.push({
+                      pathname: `/alert-mutes/edit/${record.id}`,
+                      search: `?mode=clone&bgid=${record.group_id}`,
                     });
                   }}
                 >
@@ -313,7 +336,7 @@ const Shield: React.FC = () => {
 
   useEffect(() => {
     filterData();
-  }, [query, datasourceIds, currentShieldDataAll]);
+  }, [query, datasourceIds, filterDisabled, currentShieldDataAll]);
 
   const includesProm = (ids) => {
     return _.some(ids, (id) => {
@@ -335,7 +358,7 @@ const Shield: React.FC = () => {
             return _.includes(datasourceIds, id);
           })
         : true;
-      return (_.includes(item.note, query) || _.includes(item.cause, query) || !!tagFind) && datsourceFind;
+      return (_.includes(item.note, query) || _.includes(item.cause, query) || !!tagFind) && datsourceFind && (filterDisabled === undefined || item.disabled === filterDisabled);
     });
     setCurrentShieldData(res || []);
   };
@@ -359,14 +382,15 @@ const Shield: React.FC = () => {
   const onSearchQuery = (e) => {
     let val = e.target.value;
     setQuery(val);
+    saveFilter({ query: val });
   };
 
   return (
-    <PageLayout title={t('title')} icon={<CloseCircleOutlined />} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/usage/alert/alert-mute/'>
+    <PageLayout title={t('title')} icon={<CloseCircleOutlined />} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/usage/alert-notify/rules/alert-mute/'>
       <div className='shield-content'>
         <BusinessGroupSideBarWithAll gids={gids} setGids={setGids} localeKey={N9E_GIDS_LOCALKEY} />
-        <div className='shield-index fc-border' style={{ height: '100%', overflowY: 'auto' }}>
-          <div className='header'>
+        <div className='shield-index fc-border rounded-lg' style={{ height: '100%', overflowY: 'auto' }}>
+          <div className='flex justify-between'>
             <Space>
               <RefreshIcon
                 onClick={() => {
@@ -379,9 +403,11 @@ const Shield: React.FC = () => {
                 value={datasourceIds}
                 onChange={(val) => {
                   setDatasourceIds(val);
+                  saveFilter({ datasourceIds: val });
                 }}
               />
               <Input
+                value={query}
                 onChange={onSearchQuery}
                 prefix={<SearchOutlined />}
                 placeholder={t('search_placeholder')}
@@ -389,9 +415,22 @@ const Shield: React.FC = () => {
                   width: 300,
                 }}
               />
+              <Select
+                allowClear
+                placeholder={t('filter_disabled.placeholder')}
+                options={[
+                  { label: t('filter_disabled.0'), value: 0 },
+                  { label: t('filter_disabled.1'), value: 1 },
+                ]}
+                value={filterDisabled}
+                onChange={(val) => {
+                  setFilterDisabled(val);
+                  saveFilter({ disabled: val });
+                }}
+              />
             </Space>
-            {businessGroup.isLeaf && gids !== '-2' && (
-              <div className='header-right'>
+            <Space>
+              {businessGroup.isLeaf && gids !== '-2' && (
                 <Button
                   type='primary'
                   className='add'
@@ -401,8 +440,15 @@ const Shield: React.FC = () => {
                 >
                   {t('common:btn.add')}
                 </Button>
-              </div>
-            )}
+              )}
+              <Button
+                onClick={() => {
+                  setDeleteMutesModalVisible(true);
+                }}
+              >
+                {t('delete_mutes.title')}
+              </Button>
+            </Space>
           </div>
           <Table
             className='mt-2'
@@ -414,6 +460,17 @@ const Shield: React.FC = () => {
             loading={loading}
             dataSource={currentShieldData}
             columns={columns}
+          />
+          <DeleteMutesModal
+            visible={deleteMutesModalVisible}
+            gids={gids}
+            onCancel={() => {
+              setDeleteMutesModalVisible(false);
+            }}
+            onOk={() => {
+              setDeleteMutesModalVisible(false);
+              refreshList();
+            }}
           />
         </div>
       </div>

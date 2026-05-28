@@ -18,6 +18,7 @@ const ja_JP = {
   unit: '単位',
   page_help: '使用説明',
   document_title: 'ドキュメント',
+  product_document_title: '製品ドキュメント',
   more_document_link: 'さらにドキュメント',
   and: 'および',
   yes: 'はい',
@@ -83,7 +84,7 @@ const ja_JP = {
     host: 'マシン',
     error_msg: 'エラー',
     username: 'ユーザー名',
-    nickname: '表示名',
+    nickname: 'ユーザーニックネーム',
   },
   datasource: {
     prod: '監視タイプ',
@@ -172,6 +173,7 @@ const ja_JP = {
   disabling: '無効化中',
   select_event: 'アラートイベントを選択',
   click_to_view_doc: 'クリックしてドキュメントを表示します',
+  format_sql: 'SQLをフォーマット',
 
   tpl: '自己修復スクリプト',
   'tpl.create': '作成',
@@ -256,6 +258,7 @@ const ja_JP = {
   'msg.sort.success': 'ソート成功',
   copy_success: 'コピー成功 {{num}} 件のレコード',
   request_fail_msg: 'ネットワークリクエストタイムアウト、しばらくしてから再試行してください',
+  trim_validator_msg: '前後にスペースがあります。手動で削除してください',
 };
 
 export default ja_JP;

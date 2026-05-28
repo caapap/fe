@@ -3,11 +3,17 @@ import { useLocation, useHistory } from 'react-router-dom';
 import queryString from 'query-string';
 import moment from 'moment';
 import _ from 'lodash';
+import { Space } from 'antd';
 import { FormInstance } from 'antd/lib/form/Form';
+import { useTranslation } from 'react-i18next';
 
+import { SIZE } from '@/utils/constant';
 import PromGraph from '@/components/PromGraphCpt';
 import { IRawTimeRange, timeRangeUnix, isMathString } from '@/components/TimeRangePicker';
 import { getHistoryEventsById } from '@/services/warning';
+
+import { AiButton } from '@/components/AiChatNG/FlashAiButton';
+import { buildPageFrom, getExplorerPrompts } from '@/components/AiChatNG/recommend';
 
 import { queryStringOptions } from '../constants';
 import HistoricalRecords, { setLocalQueryHistory } from './HistoricalRecords';
@@ -19,6 +25,7 @@ interface IProps {
   headerExtra: HTMLDivElement | null;
   datasourceValue: number;
   form: FormInstance;
+  panelKey?: string;
   panelIdx?: number;
   showBuiltinMetrics?: boolean;
   allowReplaceHistory?: boolean;
@@ -40,6 +47,7 @@ export default function Prometheus(props: IProps) {
     headerExtra,
     datasourceValue,
     form,
+    panelKey,
     panelIdx = 0,
     showBuiltinMetrics = true,
     allowReplaceHistory,
@@ -55,6 +63,7 @@ export default function Prometheus(props: IProps) {
     defaultTime,
     onDefaultTimeChange,
   } = props;
+  const { i18n } = useTranslation();
   const history = useHistory();
   const { search } = useLocation();
   const query = queryString.parse(search, queryStringOptions);
@@ -92,55 +101,80 @@ export default function Prometheus(props: IProps) {
   }, []);
 
   return (
-    <PromGraph
-      key={promql} // 当存在 query.__event_id 时需要异步获取 datasourceValue 和 prom_ql，这时需要强制重新渲染
-      type={query.mode as IMode}
-      defaultType={defaultType}
-      defaultTime={defaultTimeState}
-      onTimeChange={(newRange) => {
-        let { start, end } = newRange;
-        if (moment.isMoment(start) && moment.isMoment(end)) {
-          const parsedRange = timeRangeUnix(newRange);
-          start = parsedRange.start as any;
-          end = parsedRange.end as any;
+    <>
+      <PromGraph
+        // key={promql} // 当存在 query.__event_id 时需要异步获取 datasourceValue 和 prom_ql，这时需要强制重新渲染
+        type={query.mode as IMode}
+        defaultType={defaultType}
+        defaultTime={defaultTimeState}
+        onTimeChange={(newRange) => {
+          let { start, end } = newRange;
+          if (moment.isMoment(start) && moment.isMoment(end)) {
+            const parsedRange = timeRangeUnix(newRange);
+            start = parsedRange.start as any;
+            end = parsedRange.end as any;
+          }
+          if (panelIdx === 0 && allowReplaceHistory) {
+            history.replace({
+              search: queryString.stringify({ ...query, start, end }),
+            });
+          }
+          if (onDefaultTimeChange) {
+            onDefaultTimeChange(newRange);
+          }
+        }}
+        promQL={promql}
+        datasourceValue={datasourceValue}
+        graphOperates={{ enabled: true }}
+        globalOperates={{ enabled: true }}
+        headerExtra={headerExtra}
+        executeQuery={() => {
+          form.validateFields();
+        }}
+        showBuiltinMetrics={showBuiltinMetrics}
+        graphStandardOptionsType={graphStandardOptionsType}
+        graphStandardOptionsPlacement='bottomRight'
+        defaultUnit={defaultUnit}
+        showGlobalMetrics={showGlobalMetrics}
+        showBuilder={showBuilder}
+        onChange={(newPromQL) => {
+          if (newPromQL) {
+            setLocalQueryHistory(`${LOCAL_KEY}-${datasourceValue}`, newPromQL);
+          }
+          onChange && onChange(newPromQL);
+        }}
+        promQLInputTooltip={promQLInputTooltip}
+        onTypeChange={(newType) => {
+          if (onDefaultTypeChange) {
+            onDefaultTypeChange(newType);
+          }
+        }}
+        extra={
+          <Space size={SIZE}>
+            <AiButton
+              queryPageFrom={buildPageFrom({
+                param: {
+                  datasource_type: 'prometheus',
+                  datasource_id: datasourceValue,
+                },
+              })}
+              queryAction={{
+                key: 'query_generator',
+                param: {
+                  datasource_type: 'prometheus',
+                  datasource_id: datasourceValue,
+                },
+              }}
+              promptList={getExplorerPrompts(i18n.language)}
+              onExecuteQueryForQueryContent={(nextPromql) => {
+                setPromql(nextPromql);
+              }}
+            />
+            <HistoricalRecords localKey={LOCAL_KEY} datasourceValue={datasourceValue} onChange={setPromql} />
+          </Space>
         }
-        if (panelIdx === 0 && allowReplaceHistory) {
-          history.replace({
-            search: queryString.stringify({ ...query, start, end }),
-          });
-        }
-        if (onDefaultTimeChange) {
-          onDefaultTimeChange(newRange);
-        }
-      }}
-      promQL={promql}
-      datasourceValue={datasourceValue}
-      graphOperates={{ enabled: true }}
-      globalOperates={{ enabled: true }}
-      headerExtra={headerExtra}
-      executeQuery={() => {
-        form.validateFields();
-      }}
-      showBuiltinMetrics={showBuiltinMetrics}
-      graphStandardOptionsType={graphStandardOptionsType}
-      graphStandardOptionsPlacement='bottomRight'
-      defaultUnit={defaultUnit}
-      showGlobalMetrics={showGlobalMetrics}
-      showBuilder={showBuilder}
-      onChange={(newPromQL) => {
-        if (newPromQL) {
-          setLocalQueryHistory(`${LOCAL_KEY}-${datasourceValue}`, newPromQL);
-        }
-        onChange && onChange(newPromQL);
-      }}
-      promQLInputTooltip={promQLInputTooltip}
-      onTypeChange={(newType) => {
-        if (onDefaultTypeChange) {
-          onDefaultTypeChange(newType);
-        }
-      }}
-      extra={<HistoricalRecords localKey={LOCAL_KEY} datasourceValue={datasourceValue} />}
-      showExportButton
-    />
+        showExportButton
+      />
+    </>
   );
 }

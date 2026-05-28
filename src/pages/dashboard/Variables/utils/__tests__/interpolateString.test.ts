@@ -16,6 +16,11 @@ describe('formatString', () => {
     expect(result).toBe('http://example.com?ident=dev-n9e-02&var=1');
   });
 
+  test('should handle [[__field.labels.ident]] format', () => {
+    const result = formatString('http://example.com?ident=[[__field.labels.ident]]', testData);
+    expect(result).toBe('http://example.com?ident=dev-n9e-02');
+  });
+
   test('should handle $variableName format', () => {
     const result = formatString('Hello $name, you are $age years old', testData);
     expect(result).toBe('Hello John, you are 30 years old');
@@ -54,6 +59,30 @@ describe('formatString', () => {
   test('should handle ${undefined_var} format gracefully', () => {
     const result = formatString('Hello ${undefined_var}', testData);
     expect(result).toBe('Hello ${undefined_var}');
+  });
+
+  test('should replace existing undefined value with empty string', () => {
+    const result = formatString('ident: $ident / ${ident} / [[ident]]', {
+      ...testData,
+      ident: undefined,
+    });
+    expect(result).toBe('ident:  /  / ');
+  });
+
+  test('should replace existing null value with empty string', () => {
+    const result = formatString('ident=${ident}', {
+      ...testData,
+      ident: null,
+    });
+    expect(result).toBe('ident=');
+  });
+
+  test('should handle hasOwnProperty key collision safely', () => {
+    const result = formatString('$name [[name]] ${name}', {
+      name: 'John',
+      hasOwnProperty: 'shadowed',
+    });
+    expect(result).toBe('John John John');
   });
 
   test('should handle [[undefined_var]] format gracefully', () => {

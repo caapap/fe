@@ -14,26 +14,23 @@
  * limitations under the License.
  *
  */
-import React, { ReactNode, useContext, useState, useEffect } from 'react';
+import React, { ReactNode, useContext, useState, useEffect, useLayoutEffect } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import querystring from 'query-string';
 import { useTranslation } from 'react-i18next';
-import { Menu, Dropdown, Space, Drawer, Button, Tooltip } from 'antd';
-import { DownOutlined, RollbackOutlined } from '@ant-design/icons';
+import { Space, Button } from 'antd';
+import { RollbackOutlined, HistoryOutlined, GithubOutlined } from '@ant-design/icons';
 
-import { Logout } from '@/services/login';
 import AdvancedWrap, { License } from '@/components/AdvancedWrap';
 import { CommonStateContext } from '@/App';
-import { AccessTokenKey, IS_ENT, IS_PLUS } from '@/utils/constant';
-import DarkModeSelect from '@/components/DarkModeSelect';
+import { IS_ENT, IS_PLUS } from '@/utils/constant';
 import { findMenuByPath, getCurrentMenuList } from '@/components/SideMenu/utils';
 import { MenuMatchResult } from '@/components/SideMenu/types';
+import FlashAiButton from '@/components/AiChatNG/FlashAiButton';
+
 import DocLink from './DocLink';
 import { TabMenu } from './TabMenu';
-import LanguageIcon from '../icons/LanguageIcon';
-import DocIcon from '../icons/DocIcon';
 import Version from '../Version';
-import SideMenuColorSetting from '../SideMenuColorSetting';
 import HelpLink from '../HelpLink';
 import '../index.less';
 import '../locale';
@@ -56,24 +53,19 @@ interface IPageLayoutProps {
   tabGroup?: string;
 }
 
-const i18nMap = {
-  zh_CN: '简体',
-  zh_HK: '繁體',
-  en_US: 'En',
-  ja_JP: '日本語',
-  ru_RU: 'Русский',
-};
+const DEFAULT_DOCUMENT_URL_ENT = '/docs/content/flashcat/overview/';
+const DEFAULT_DOCUMENT_URL = 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/prologue/introduction/';
 
 const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introIcon, children, customArea, showBack, backPath, doc, tabGroup }) => {
   const { t, i18n } = useTranslation('pageLayout');
   const history = useHistory();
   const location = useLocation();
   const query = querystring.parse(location.search);
-  const { profile, siteInfo, i18nList } = useContext(CommonStateContext);
+  const { siteInfo } = useContext(CommonStateContext);
   const embed = localStorage.getItem('embed') === '1' && window.self !== window.top;
-  const [themeVisible, setThemeVisible] = useState(false);
   const [currentMenu, setCurrentMenu] = useState<MenuMatchResult | null>(null);
   const menuList = getCurrentMenuList();
+  const documentUrl = doc || siteInfo?.document_url || (IS_ENT ? DEFAULT_DOCUMENT_URL_ENT : DEFAULT_DOCUMENT_URL);
 
   useEffect(() => {
     const result = findMenuByPath(location.pathname, menuList);
@@ -82,10 +74,6 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
     }
   }, [location.pathname]);
 
-  // Stellar: 右上角「Latest changes」来自第三方 Headway（产品更新动态）。二开默认不展示；若要恢复：
-  // 1) 取消下面整段块注释；2) 在 React import 中增加 useLayoutEffect；3) 在 @ant-design/icons import 中增加 HistoryOutlined；
-  // 4) 取消 JSX 里「Headway 入口按钮」块注释（与下方 useLayoutEffect 成对）。
-  /*
   useLayoutEffect(() => {
     if (!IS_ENT && !IS_PLUS) {
       // 如果 Headway 不存在，则每隔 1 秒尝试初始化一次
@@ -100,45 +88,6 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
       }, 1000);
     }
   }, [i18n.language]);
-  */
-
-  const menu = (
-    <Menu>
-      <Menu.Item
-        onClick={() => {
-          history.push('/account/profile/info');
-        }}
-      >
-        {t('profile')}
-      </Menu.Item>
-      {!IS_ENT && (
-        <Menu.Item
-          onClick={() => {
-            setThemeVisible(true);
-          }}
-        >
-          {t('themeSetting')}
-        </Menu.Item>
-      )}
-      <Menu.Item
-        onClick={() => {
-          Logout().then((res) => {
-            localStorage.removeItem(AccessTokenKey);
-            localStorage.removeItem('refresh_token');
-            localStorage.removeItem('curBusiId');
-            // 如果 res.dat 是一个字符串，表示重定向 URL，则直接跳转到该 URL
-            if (res.dat && typeof res.dat === 'string') {
-              window.location.href = res.dat;
-            } else {
-              history.push('/login');
-            }
-          });
-        }}
-      >
-        {t('logout')}
-      </Menu.Item>
-    </Menu>
-  );
 
   return (
     <div className={'page-wrapper'}>
@@ -176,79 +125,32 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
                     </div>
                   )}
                   <TabMenu currentMenu={currentMenu} />
-                  {IS_ENT && doc && <DocLink link={doc} />}
                 </div>
 
                 <div className={'page-header-right-area flex-shrink-0'} style={{ display: sessionStorage.getItem('menuHide') === '1' ? 'none' : undefined }}>
                   <span className='page-layout-intro-container'>{introIcon}</span>
-                  <Version />
-
-                  <Space className='mr-2'>{rightArea}</Space>
-
-                  <AdvancedWrap var='VITE_IS_PRO,VITE_IS_ENT'>
-                    <License />
-                  </AdvancedWrap>
-                  <Space>
-                    {/* 整合版本关闭文档链接 */}
-                    {!IS_ENT && IS_PLUS && (
-                      <Button
-                        target='_blank'
-                        href={siteInfo?.document_url || 'https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v7/introduction/'}
-                        size='small'
-                        type='text'
-                      >
-                        <Tooltip title={t('docs')}>
-                          <DocIcon className='text-[12px]' />
-                        </Tooltip>
+                  <div className='page-header-action-group'>
+                    <Version />
+                    {!IS_ENT && !IS_PLUS && (
+                      <Button size='small' type='text' icon={<HistoryOutlined />} className='relative'>
+                        <div className='product-changelog absolute bottom-[2px] left-[7px]'></div>
                       </Button>
                     )}
-                  </Space>
-                  <AdvancedWrap var='VITE_IS_PRO,VITE_IS_ENT'>
-                    <FeatureNotification />
-                  </AdvancedWrap>
-
-                  {/* Stellar: Headway 挂载点（历史图标按钮），与上方注释块中的 Headway.init 对应；恢复时同步取消注释并补全 import。
-                  {!IS_ENT && !IS_PLUS && (
-                    <Button size='small' type='text' icon={<HistoryOutlined />} className='relative'>
-                      <div className='product-changelog absolute bottom-[2px] left-[7px]'></div>
-                    </Button>
-                  )}
-                  */}
-
-                  <Dropdown
-                    overlay={
-                      <Menu
-                        onSelect={({ key }) => {
-                          i18n.changeLanguage(key);
-                          localStorage.setItem('language', key);
-                        }}
-                        selectable
-                      >
-                        {Object.keys(i18nMap)
-                          .filter((el) => {
-                            return i18nList ? i18nList.includes(el) : true;
-                          })
-                          .map((el) => {
-                            return <Menu.Item key={el}>{i18nMap[el]}</Menu.Item>;
-                          })}
-                      </Menu>
-                    }
-                  >
-                    <Button size='small' type='text' style={{ marginLeft: 12 }} id='i18n-btn'>
-                      <LanguageIcon className='text-[12px]' />
-                    </Button>
-                  </Dropdown>
-
-                  <div style={{ marginRight: 12 }}>
-                    <DarkModeSelect />
+                    <FlashAiButton />
+                    {rightArea}
+                    <DocLink link={documentUrl} />
+                    {!IS_ENT && !IS_PLUS && (
+                      <Button className='text-hint text-[11px]' target='_blank' href='https://github.com/ccfos/nightingale/issues' size='small' icon={<GithubOutlined />}>
+                        {t('submit_issue')}
+                      </Button>
+                    )}
+                    <AdvancedWrap var='VITE_IS_PRO,VITE_IS_ENT'>
+                      <License />
+                    </AdvancedWrap>
+                    <AdvancedWrap var='VITE_IS_PRO,VITE_IS_ENT'>
+                      <FeatureNotification />
+                    </AdvancedWrap>
                   </div>
-                  <Dropdown overlay={menu} trigger={['click']}>
-                    <span className='avator' style={{ cursor: 'pointer' }}>
-                      <img src={profile.portrait || '/image/avatar1.png'} />
-                      <span className='display-name'>{profile.nickname || profile.username}</span>
-                      <DownOutlined />
-                    </span>
-                  </Dropdown>
                 </div>
                 {sessionStorage.getItem('menuHide') === '1' && <Space className='mr-2'>{rightArea}</Space>}
               </div>
@@ -258,26 +160,6 @@ const PageLayout: React.FC<IPageLayoutProps> = ({ icon, title, rightArea, introI
       )}
 
       {children && children}
-      <Drawer
-        closable={false}
-        visible={themeVisible}
-        onClose={() => {
-          setThemeVisible(false);
-        }}
-      >
-        <div>
-          <div>
-            <div className='text-lg font-semibold dark:text-slate-50 text-l1'>{t('theme.title')}</div>
-            <div className='text-sm text-hint mt-1'>{t('theme.title_help')}</div>
-          </div>
-          <div className='mt-6'>
-            <span className='font-semibold'>{t('theme.sideMenu')}</span> <span className='ml-2 text-hint'>{t('theme.sideMenu_help')}</span>
-          </div>
-          <div className='m-2'>
-            <SideMenuColorSetting />
-          </div>
-        </div>
-      </Drawer>
     </div>
   );
 };

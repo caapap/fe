@@ -45,11 +45,11 @@ export default function List() {
   }, [gids, refreshFlag]);
 
   return (
-    <PageLayout title={t('title')} icon={<CopyOutlined />} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v8/usecase/subscribe/'>
+    <PageLayout title={t('title')} icon={<CopyOutlined />} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/usecase/subscribe/'>
       <div className='shield-content'>
         <BusinessGroupSideBarWithAll gids={gids} setGids={setGids} localeKey={N9E_GIDS_LOCALKEY} />
         <div
-          className='fc-border p-4'
+          className='fc-border rounded-lg p-4'
           style={{
             width: '100%',
             overflow: 'hidden auto',

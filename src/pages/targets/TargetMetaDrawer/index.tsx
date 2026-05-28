@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Drawer, Tag } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { Tooltip, Space } from 'antd';
@@ -11,6 +11,11 @@ import './style.less';
 
 interface IProps {
   ident: string;
+  targetNode?: React.ReactNode;
+  /** 仅渲染抽屉，由父组件控制开关（如表格整行点击打开元信息） */
+  drawerOnly?: boolean;
+  drawerOpen?: boolean;
+  onDrawerOpenChange?: (open: boolean) => void;
 }
 
 function bytesToSize(bytes, precision) {
@@ -26,16 +31,14 @@ function bytesToSize(bytes, precision) {
 }
 
 function RenderInterfaces({ value }) {
+  const { darkMode } = useContext(CommonStateContext);
   const { t } = useTranslation('targets');
   const [expand, setExpand] = useState(false);
 
   return (
     <div>
       <div
-        style={{
-          cursor: 'pointer',
-          color: 'rgba(28, 43, 52, .68)',
-        }}
+        className='cursor-pointer text-hint'
         onClick={() => {
           setExpand(!expand);
         }}
@@ -61,7 +64,7 @@ function RenderInterfaces({ value }) {
                     <div className='target-information-interface-item-value'>
                       <Tooltip title={t('meta_value_click_to_copy')} placement='right'>
                         <Tag
-                          color='#f4f4f5'
+                          color={darkMode ? 'rgb(50 53 69)' : '#f4f4f5'}
                           onClick={() => {
                             copyToClipBoard(v);
                           }}
@@ -172,34 +175,53 @@ function Group({ name, data }) {
 
 export default function TargetMetaDrawer(props: IProps) {
   const { t } = useTranslation('targets');
-  let { ident } = props;
+  const { ident, targetNode, drawerOnly, drawerOpen, onDrawerOpenChange } = props;
   const [visible, setVisible] = useState(false);
   const groupsName = ['platform', 'cpu', 'memory', 'network', 'filesystem'];
   const [information, setInformation] = useState({});
 
+  const drawerVisible = drawerOnly ? !!drawerOpen : visible;
+
+  useEffect(() => {
+    if (!drawerOnly || !drawerOpen || !ident) return;
+    getTargetInformationByIdent(ident).then((res) => {
+      setInformation(res);
+    });
+  }, [drawerOnly, drawerOpen, ident]);
+
+  const handleClose = () => {
+    if (drawerOnly) {
+      onDrawerOpenChange?.(false);
+    } else {
+      setVisible(false);
+    }
+  };
+
+  const handleTriggerClick = () => {
+    setVisible(true);
+    getTargetInformationByIdent(ident).then((res) => {
+      setInformation(res);
+    });
+  };
+
   return (
     <>
-      <Tooltip title={t('meta_tip')}>
-        <a
-          onClick={() => {
-            setVisible(true);
-            getTargetInformationByIdent(ident).then((res) => {
-              setInformation(res);
-            });
-          }}
-        >
-          {ident}
-        </a>
-      </Tooltip>
+      {!drawerOnly && (
+        <Tooltip title={t('meta_tip')} placement='left'>
+          {targetNode ? (
+            <span onClick={handleTriggerClick}>{targetNode}</span>
+          ) : (
+            <a onClick={handleTriggerClick}>{ident}</a>
+          )}
+        </Tooltip>
+      )}
       <Drawer
         destroyOnClose
         title={t('meta_title')}
         width={800}
         placement='right'
-        onClose={() => {
-          setVisible(false);
-        }}
-        visible={visible}
+        onClose={handleClose}
+        visible={drawerVisible}
       >
         {_.map(groupsName, (groupName) => {
           return <Group key={groupName} name={groupName} data={information[groupName]} />;

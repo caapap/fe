@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
+ * 引用 UPlotChart 的 demo 测试页
  */
 import React from 'react';
-import _ from 'lodash';
+import ChartDemo from '@/components/UPlotChart/demo';
+
 import './style.less';
 
 export default function Demo() {
-  return <div />;
+  return <ChartDemo />;
 }

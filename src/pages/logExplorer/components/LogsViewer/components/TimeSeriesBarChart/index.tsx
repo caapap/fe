@@ -27,6 +27,12 @@ export interface TimeSeriesBarChartProps {
   stepMs?: number; // x 轴步长（毫秒），用于刻度格式化
 }
 
+function categoryFormatter(category: string | number | null | undefined) {
+  if (category === undefined) return 'default';
+  if (typeof category === 'string') return `"${category}"`;
+  return String(category);
+}
+
 const TimeSeriesBarChart: React.FC<TimeSeriesBarChartProps> = ({ darkMode, data, width, height = 400, onBarClick, onBrushEnd, stacked = false, stepMs }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<Chart | null>(null);
@@ -56,7 +62,7 @@ const TimeSeriesBarChart: React.FC<TimeSeriesBarChartProps> = ({ darkMode, data,
       ...item,
       // 保持为数值时间戳，确保使用连续时间轴而非分类轴
       time: typeof item.time === 'number' ? item.time : new Date(item.time).getTime(),
-      category: item.category || 'default',
+      category: categoryFormatter(item.category),
     }));
 
     // 配置图表
@@ -196,6 +202,8 @@ const TimeSeriesBarChart: React.FC<TimeSeriesBarChartProps> = ({ darkMode, data,
 
     // 监听绘图区域点击，命中最近的柱子（即使柱子高度很低）
     chart.on('plot:click', (event: any) => {
+      // 默认没有冒泡，导致外部的 useClickAway 无法触发，这里手动触发一次 click 事件
+      document.dispatchEvent(new MouseEvent('click'));
       if (!onBarClick) return;
 
       // 使用 snap 记录获取最近的柱子数据
