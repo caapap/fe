@@ -39,23 +39,23 @@ const DEMO_PIPELINE: PipelinePreset = {
       id: 'stage_1',
       name: '准备阶段',
       steps: [
-        { id: 'step_1', name: '挂载 ISO 镜像', stepType: 'shell-ssh', status: 'pending', config: { script: 'mount -o loop /data/CentOS-7.9.iso /mnt/iso' } },
+        { id: 'step_1', name: '环境预检', stepType: 'env-precheck', status: 'pending', config: { target_hosts: 'all', mode: 'check', tags: ['phase1'] } },
       ],
     },
     {
       id: 'stage_2',
       name: '部署阶段',
       steps: [
-        { id: 'step_2', name: '配置 yum 源', stepType: 'shell-ssh', status: 'pending', config: { script: 'cp /mnt/iso/local.repo /etc/yum.repos.d/' } },
-        { id: 'step_3', name: '安装 httpd', stepType: 'deploy', status: 'pending', config: { pkg: 'httpd', version: '2.4.6' } },
+        { id: 'step_2', name: '挂载 ISO / 配置 yum 源', stepType: 'shell-exec', status: 'pending', config: { target: 'ssh', script: 'mount -o loop /data/CentOS-7.9.iso /mnt/iso\ncp /mnt/iso/local.repo /etc/yum.repos.d/' } },
+        { id: 'step_3', name: '安装 httpd', stepType: 'app-deploy', status: 'pending', config: { deployForm: 'native', pkg: 'httpd', version: '2.4.6', targetPath: '/etc/httpd' } },
       ],
     },
     {
       id: 'stage_3',
       name: '验证阶段',
       steps: [
-        { id: 'step_4', name: '启动 httpd 服务', stepType: 'shell-ssh', status: 'pending', config: { script: 'systemctl start httpd && systemctl enable httpd' } },
-        { id: 'step_5', name: '健康检查', stepType: 'shell-local', status: 'pending', config: { script: 'curl -sf http://target:80/repodata/repomd.xml' } },
+        { id: 'step_4', name: '启动 httpd 服务', stepType: 'service-ctl', status: 'pending', config: { deployForm: 'native', action: 'start', serviceName: 'httpd' } },
+        { id: 'step_5', name: '健康检查', stepType: 'health-check', status: 'pending', config: { checkType: 'http', target: 'http://localhost:80/repodata/repomd.xml' } },
       ],
     },
   ],
@@ -111,7 +111,7 @@ const ENV_PRECHECK_PIPELINE: PipelinePreset = {
         {
           id: 'pre_step_4',
           name: '确认是否自动初始化',
-          stepType: 'approval',
+          stepType: 'manual-gate',
           status: 'pending',
           config: { approver: 'ops-admin', timeout: 30 },
         },
@@ -154,9 +154,160 @@ const ENV_PRECHECK_PIPELINE: PipelinePreset = {
   },
 };
 
+// ── 形态①：容器化部署（舆情平台 V1.4.5 · Docker + Helm）────────────────
+const DEPLOY_CONTAINER_PIPELINE: PipelinePreset = {
+  id: 'deploy-container-yqpt',
+  title: '容器化部署 · 舆情平台',
+  triggerLabel: '手动触发',
+  stages: [
+    {
+      id: 'c_stage_1',
+      name: '环境预检',
+      steps: [
+        { id: 'c_step_1', name: '环境预检（IPTSE）', stepType: 'env-precheck', status: 'pending', config: { target_hosts: 'all', mode: 'check', tags: ['phase1', 'security'] } },
+      ],
+    },
+    {
+      id: 'c_stage_2',
+      name: '配置注入',
+      steps: [
+        { id: 'c_step_2', name: 'ES 字段映射', stepType: 'config-render', status: 'pending', config: { configType: 'es-mapping', content: 'PUT yq_base_info/_doc/_mapping\n{ "properties": { "element_extract_theme": { "type": "keyword" } } }' } },
+        { id: 'c_step_3', name: 'MySQL 数据脚本', stepType: 'config-render', status: 'pending', config: { configType: 'sql', content: '-- 舆情平台初始化数据\nINSERT INTO ...' } },
+      ],
+    },
+    {
+      id: 'c_stage_3',
+      name: '镜像分发',
+      steps: [
+        { id: 'c_step_4', name: '上传 Docker 镜像', stepType: 'distribute', status: 'pending', config: { deployForm: 'container', artifact: 'docker.kxdigit.com/yqpt-ui:1.4.5-1001', registry: 'docker.kxdigit.com' } },
+      ],
+    },
+    {
+      id: 'c_stage_4',
+      name: 'Helm 部署',
+      steps: [
+        { id: 'c_step_5', name: 'Helm 安装应用', stepType: 'app-deploy', status: 'pending', config: { deployForm: 'container', helmChart: 'yqpt-app-1.4.5-1001.tgz', namespace: 'yqpt' } },
+      ],
+    },
+    {
+      id: 'c_stage_5',
+      name: '验证',
+      steps: [
+        { id: 'c_step_6', name: '健康检查', stepType: 'health-check', status: 'pending', config: { checkType: 'http', target: 'http://yqpt.internal/health', timeoutSec: 30 } },
+      ],
+    },
+  ],
+  durationsMs: { c_step_1: 2000, c_step_2: 800, c_step_3: 600, c_step_4: 3000, c_step_5: 2500, c_step_6: 800 },
+};
+
+// ── 形态②：托管平台部署（星云大数据 V1.4.1 · DataSophon）────────────────
+const DEPLOY_HOSTED_BIGDATA_PIPELINE: PipelinePreset = {
+  id: 'deploy-hosted-bigdata',
+  title: '托管平台部署 · 星云大数据',
+  triggerLabel: '手动触发',
+  stages: [
+    {
+      id: 'b_stage_1',
+      name: '环境预检',
+      steps: [
+        { id: 'b_step_1', name: '环境预检（IPTSE）', stepType: 'env-precheck', status: 'pending', config: { target_hosts: 'all', mode: 'check', tags: ['phase1', 'ntp', 'jdk'] } },
+      ],
+    },
+    {
+      id: 'b_stage_2',
+      name: 'Agent 分发',
+      steps: [
+        { id: 'b_step_2', name: 'Worker Agent 分发', stepType: 'distribute', status: 'pending', config: { deployForm: 'hosted', artifact: 'datasophon-worker-1.4.1.tar.gz', target_hosts: 'all' } },
+      ],
+    },
+    {
+      id: 'b_stage_3',
+      name: '集群组件安装',
+      steps: [
+        { id: 'b_step_3', name: 'ZooKeeper 集群', stepType: 'component', status: 'pending', config: { componentType: 'zookeeper', topology: 'cluster', target_hosts: 'all' } },
+        { id: 'b_step_4', name: 'HDFS HA 集群', stepType: 'component', status: 'pending', config: { componentType: 'hdfs', topology: 'cluster', target_hosts: 'all' } },
+        { id: 'b_step_5', name: 'YARN 集群', stepType: 'component', status: 'pending', config: { componentType: 'yarn', topology: 'cluster', target_hosts: 'all' } },
+      ],
+    },
+    {
+      id: 'b_stage_4',
+      name: '服务注册',
+      steps: [
+        { id: 'b_step_6', name: '服务分配启动', stepType: 'service-ctl', status: 'pending', config: { deployForm: 'hosted', action: 'start', serviceName: 'DataSophonApplicationServer' } },
+      ],
+    },
+    {
+      id: 'b_stage_5',
+      name: '验证',
+      steps: [
+        { id: 'b_step_7', name: '管理端健康检查', stepType: 'health-check', status: 'pending', config: { checkType: 'http', target: 'http://localhost:8081/ddh/', timeoutSec: 30 } },
+      ],
+    },
+  ],
+  durationsMs: { b_step_1: 2000, b_step_2: 1800, b_step_3: 2200, b_step_4: 2800, b_step_5: 2000, b_step_6: 1500, b_step_7: 800 },
+};
+
+// ── 形态③：原生 GPU 部署（星火大模型 V1.6 · Skynet + Ascend NPU）────────
+const DEPLOY_NATIVE_LLM_PIPELINE: PipelinePreset = {
+  id: 'deploy-native-llm',
+  title: '原生 GPU 部署 · 星火大模型',
+  triggerLabel: '手动触发',
+  stages: [
+    {
+      id: 'l_stage_1',
+      name: '环境预检',
+      steps: [
+        { id: 'l_step_1', name: '环境预检（IPTSE）', stepType: 'env-precheck', status: 'pending', config: { target_hosts: 'all', mode: 'check', tags: ['phase1', 'kernel'] } },
+        { id: 'l_step_2', name: 'GPU/NPU 环境检查', stepType: 'shell-exec', status: 'pending', config: { target: 'ssh', script: 'npu-smi info && source /usr/local/Ascend/ascend-toolkit/set_env.sh' } },
+      ],
+    },
+    {
+      id: 'l_stage_2',
+      name: '授权',
+      steps: [
+        { id: 'l_step_3', name: '采集授权指纹（c2v）', stepType: 'license-grant', status: 'pending', config: { licenseType: 'haspAuthCode', engineName: 'talker', step: 'collect' } },
+        { id: 'l_step_4', name: '安装授权文件（v2c）', stepType: 'license-grant', status: 'pending', config: { licenseType: 'haspAuthCode', engineName: 'talker', step: 'install', licensePath: '/iflytek/engine/bin' } },
+      ],
+    },
+    {
+      id: 'l_stage_3',
+      name: '模型分发',
+      steps: [
+        { id: 'l_step_5', name: '大模型资源分发（40GB+）', stepType: 'distribute', status: 'pending', config: { deployForm: 'native', artifact: 'res_0815_8p.zip', targetPath: '/iflytek/engine/res' } },
+        { id: 'l_step_6', name: '引擎包分发', stepType: 'distribute', status: 'pending', config: { deployForm: 'native', artifact: 'talker_v1.6.zip', targetPath: '/iflytek/engine/lib' } },
+      ],
+    },
+    {
+      id: 'l_stage_4',
+      name: '引擎部署',
+      steps: [
+        { id: 'l_step_7', name: '服务定义导入', stepType: 'app-deploy', status: 'pending', config: { deployForm: 'hosted', platform: 'skynet', zkConfig: 'turing-spark.zk.config', serviceName: 'turing-spark-gpt' } },
+      ],
+    },
+    {
+      id: 'l_stage_5',
+      name: '服务注册',
+      steps: [
+        { id: 'l_step_8', name: '推理服务启动', stepType: 'service-ctl', status: 'pending', config: { deployForm: 'hosted', action: 'start', serviceName: 'turing-spark-gpt' } },
+      ],
+    },
+    {
+      id: 'l_stage_6',
+      name: '推理验证',
+      steps: [
+        { id: 'l_step_9', name: '推理实测', stepType: 'health-check', status: 'pending', config: { checkType: 'inference', target: 'http://localhost/spark/chat', timeoutSec: 60 } },
+      ],
+    },
+  ],
+  durationsMs: { l_step_1: 2000, l_step_2: 1200, l_step_3: 1500, l_step_4: 1000, l_step_5: 4000, l_step_6: 2000, l_step_7: 1800, l_step_8: 1500, l_step_9: 1200 },
+};
+
 const PRESETS: Record<string, PipelinePreset> = {
   'deploy-host-iso': DEMO_PIPELINE,
   'env-precheck-iptse': ENV_PRECHECK_PIPELINE,
+  'deploy-container-yqpt': DEPLOY_CONTAINER_PIPELINE,
+  'deploy-hosted-bigdata': DEPLOY_HOSTED_BIGDATA_PIPELINE,
+  'deploy-native-llm': DEPLOY_NATIVE_LLM_PIPELINE,
 };
 
 export function getPipelinePreset(id?: string): PipelinePreset {

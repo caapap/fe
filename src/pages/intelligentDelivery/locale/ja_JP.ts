@@ -57,6 +57,20 @@ const ja_JP = {
     knowledge_rhythm: '新規プロジェクト納品またはデプロイビュー変更時',
     tests_rhythm: 'リリース前とロールバック後',
   },
+  atomicCapabilities: {
+    "env-precheck": "env-precheck",
+    "license-grant": "license-grant",
+    component: "component",
+    distribute: "distribute",
+    "app-deploy": "app-deploy",
+    "config-render": "config-render",
+    "service-ctl": "service-ctl",
+    "health-check": "health-check",
+    "shell-exec": "shell-exec",
+    "manual-gate": "manual-gate",
+    "mcp-call": "mcp-call",
+  },
+  deployForms: { native: "native", hosted: "hosted", container: "container" },
 };
 
 export default ja_JP;

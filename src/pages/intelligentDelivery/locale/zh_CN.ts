@@ -57,6 +57,24 @@ const zh_CN = {
     knowledge_rhythm: '每次新项目交付或部署视图变更',
     tests_rhythm: '发布前与回滚后',
   },
+  atomicCapabilities: {
+    'env-precheck': '环境预检（IPTSE）',
+    'license-grant': '授权',
+    component: '公共组件',
+    distribute: '分发下发',
+    'app-deploy': '应用部署',
+    'config-render': '配置注入',
+    'service-ctl': '服务管控',
+    'health-check': '健康检查',
+    'shell-exec': '命令执行',
+    'manual-gate': '人工卡点',
+    'mcp-call': 'MCP 调用',
+  },
+  deployForms: {
+    native: '原生',
+    hosted: '托管平台',
+    container: '容器化',
+  },
 };
 
 export default zh_CN;

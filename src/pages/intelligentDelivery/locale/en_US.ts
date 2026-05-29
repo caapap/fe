@@ -57,6 +57,20 @@ const en_US = {
     knowledge_rhythm: 'Per new project delivery or deployment view change',
     tests_rhythm: 'Before release and after rollback',
   },
+  atomicCapabilities: {
+    "env-precheck": "env-precheck",
+    "license-grant": "license-grant",
+    component: "component",
+    distribute: "distribute",
+    "app-deploy": "app-deploy",
+    "config-render": "config-render",
+    "service-ctl": "service-ctl",
+    "health-check": "health-check",
+    "shell-exec": "shell-exec",
+    "manual-gate": "manual-gate",
+    "mcp-call": "mcp-call",
+  },
+  deployForms: { native: "native", hosted: "hosted", container: "container" },
 };
 
 export default en_US;

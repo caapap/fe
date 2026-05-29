@@ -26,22 +26,19 @@ const edgeTypes = {
   animated: AnimatedEdge,
 };
 
-const TASK_KIND_TO_STEP_TYPE: Record<string, 'shell-local' | 'shell-ssh' | 'deploy' | 'approval' | 'env-precheck' | 'mcp-call'> = {
-  'shell-local': 'shell-local',
-  'shell-ssh': 'shell-ssh',
-  'deploy-host': 'deploy',
-  'deploy-host-script': 'deploy',
-  'deploy-rolling': 'deploy',
+import { StepType } from './nodes/StepNode';
+
+const TASK_KIND_TO_STEP_TYPE: Record<string, StepType> = {
   'env-precheck': 'env-precheck',
-  'doc-parse': 'shell-local',
-  'unit-test': 'shell-local',
-  'smoke-test': 'shell-ssh',
-  'regression-test': 'shell-local',
-  'http-probe': 'shell-local',
-  'manual-gate': 'approval',
-  'oss-download': 'shell-local',
-  'oss-upload': 'shell-local',
-  'empty-task': 'shell-local',
+  'license-grant': 'license-grant',
+  component: 'component',
+  distribute: 'distribute',
+  'app-deploy': 'app-deploy',
+  'config-render': 'config-render',
+  'service-ctl': 'service-ctl',
+  'health-check': 'health-check',
+  'shell-exec': 'shell-exec',
+  'manual-gate': 'manual-gate',
   'mcp-call': 'mcp-call',
   'mcp-ansible-audit': 'mcp-call',
   'mcp-ansible-playbook': 'mcp-call',
@@ -92,7 +89,7 @@ function PipelineVisualEditorInner() {
   );
 
   const handleTaskSelect = (opt: TaskOption) => {
-    const stepType = TASK_KIND_TO_STEP_TYPE[opt.kind] || 'shell-local';
+    const stepType = TASK_KIND_TO_STEP_TYPE[opt.kind] || 'shell-exec';
     addStepNode(stepType, opt.title);
     setTaskSelectorOpen(false);
   };

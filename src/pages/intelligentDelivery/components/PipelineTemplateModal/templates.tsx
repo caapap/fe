@@ -13,6 +13,8 @@ import {
   PlusSquareOutlined,
   SafetyOutlined,
   MonitorOutlined,
+  SafetyCertificateOutlined,
+  DatabaseOutlined,
 } from '@ant-design/icons';
 import React from 'react';
 
@@ -164,6 +166,55 @@ export const PIPELINE_TEMPLATES: PipelineTemplate[] = [
     description: '直接在 Server 或目标主机上执行任意 shell 命令',
     icon: <CodeOutlined className='text-[var(--fc-fill-primary)]' />,
     chips: [{ label: '执行命令', color: 'blue' }],
+    preset: true,
+  },
+  // ── 三形态部署模板（汇报演示）────────────────────────────────────────────
+  {
+    id: 'deploy-container-yqpt',
+    category: 'deploy',
+    title: '容器化部署 · 舆情平台',
+    subtitle: '星相预置 · Docker + Helm',
+    description: '预检 → 配置注入(ES字段/MySQL) → 镜像分发 → Helm 部署 → 健康检查',
+    icon: <ContainerOutlined className='text-[var(--fc-fill-primary)]' />,
+    chips: [
+      { label: '环境预检', color: 'blue' },
+      { label: '配置注入', color: 'cyan' },
+      { label: '镜像分发', color: 'cyan' },
+      { label: 'Helm 部署', color: 'blue' },
+      { label: '健康检查', color: 'green' },
+    ],
+    preset: true,
+  },
+  {
+    id: 'deploy-hosted-bigdata',
+    category: 'deploy',
+    title: '托管平台部署 · 星云大数据',
+    subtitle: '星相预置 · DataSophon',
+    description: '预检 → Agent 分发 → 集群组件(ZK/HDFS/YARN) → 服务注册 → 管理端验证',
+    icon: <DatabaseOutlined className='text-[var(--fc-fill-primary)]' />,
+    chips: [
+      { label: '环境预检', color: 'blue' },
+      { label: 'Agent 分发', color: 'cyan' },
+      { label: '集群组件', color: 'purple' },
+      { label: '服务注册', color: 'orange' },
+      { label: '健康检查', color: 'green' },
+    ],
+    preset: true,
+  },
+  {
+    id: 'deploy-native-llm',
+    category: 'deploy',
+    title: '原生 GPU 部署 · 星火大模型',
+    subtitle: '星相预置 · Skynet + Ascend NPU',
+    description: '预检 → GPU环境 → 授权(hasp指纹→v2c) → 模型分发(40GB+) → 引擎部署 → 推理验证',
+    icon: <SafetyCertificateOutlined className='text-[var(--fc-fill-primary)]' />,
+    chips: [
+      { label: '环境预检', color: 'blue' },
+      { label: '授权', color: 'orange' },
+      { label: '模型分发', color: 'cyan' },
+      { label: '引擎部署', color: 'blue' },
+      { label: '推理验证', color: 'green' },
+    ],
     preset: true,
   },
 ];

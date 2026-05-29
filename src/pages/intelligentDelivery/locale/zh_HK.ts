@@ -57,6 +57,20 @@ const zh_HK = {
     knowledge_rhythm: '每次新項目交付或部署視圖變更',
     tests_rhythm: '發布前與回滾後',
   },
+  atomicCapabilities: {
+    "env-precheck": "env-precheck",
+    "license-grant": "license-grant",
+    component: "component",
+    distribute: "distribute",
+    "app-deploy": "app-deploy",
+    "config-render": "config-render",
+    "service-ctl": "service-ctl",
+    "health-check": "health-check",
+    "shell-exec": "shell-exec",
+    "manual-gate": "manual-gate",
+    "mcp-call": "mcp-call",
+  },
+  deployForms: { native: "native", hosted: "hosted", container: "container" },
 };
 
 export default zh_HK;
