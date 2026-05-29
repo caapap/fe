@@ -1,6 +1,5 @@
 import React from 'react';
 import { Button } from 'antd';
-import { useLocation } from 'react-router-dom';
 import type { SizeType } from 'antd/lib/config-provider/SizeContext';
 import { useTranslation } from 'react-i18next';
 
@@ -11,21 +10,16 @@ import { useAiChatContext } from './context';
 import { buildPageFrom, getCurrentPageUrl, getRecommendByUrl } from './recommend';
 import { IAiChatPageInfo, IAiChatAction, AiChatExecuteQueryForQueryContent } from './types';
 import { useAiChatVisible, useAiExternalConfig, useAiHandleEvent, useParamsAiAction } from '../AiChat/utils/useHook';
-
-const FLASH_AI_BUTTON_PATH_WHITELIST = new Set(['/alert-rules', '/dashboards', '/alert-cur-events', '/alert-his-events']);
+import { EPageType } from '../AiChat/config';
 
 function FlashAiButtonContent() {
   const { i18n } = useTranslation();
   const { openAiChat } = useAiChatContext();
-  const location = useLocation();
-
-  if (!FLASH_AI_BUTTON_PATH_WHITELIST.has(location.pathname)) {
-    return null;
-  }
 
   return (
     <Button
-      icon={<img src='/image/ai-chat/ai.gif' className='w-[14px] h-[14px] mr-2 mb-1' />}
+      className='border-violet-600 text-violet-1100 bg-violet-300 hover:border-violet-700 hover:bg-violet-400'
+      icon={<img src='/image/ai-chat/ai.gif' className='w-[14px] h-[14px] mr-2' />}
       size='small'
       onClick={() => {
         const url = getCurrentPageUrl();
@@ -37,7 +31,7 @@ function FlashAiButtonContent() {
         });
       }}
     >
-      FlashAI
+      Nightingale AI
     </Button>
   );
 }
@@ -54,24 +48,29 @@ function AiButtonContent(props: {
   queryPageFrom?: IAiChatPageInfo;
   queryAction?: IAiChatAction;
   promptList?: string[];
+  initialMessage?: string;
   onExecuteQueryForQueryContent?: AiChatExecuteQueryForQueryContent;
+  children?: React.ReactNode;
 }) {
   const { openAiChat } = useAiChatContext();
-  const { size, queryPageFrom, queryAction, promptList, onExecuteQueryForQueryContent } = props;
+  const { size, queryPageFrom, queryAction, promptList, initialMessage, onExecuteQueryForQueryContent, children } = props;
 
   return (
     <Button
-      icon={<img src='/image/ai-chat/ai.gif' className='w-[14px] h-[14px] mb-1' />}
+      icon={<img src='/image/ai-chat/ai.gif' className={`w-[14px] h-[14px] mb-1 ${children ? 'mr-2' : ''}`} />}
       size={size}
       onClick={() => {
         openAiChat({
           queryPageFrom,
           queryAction,
           promptList,
+          initialMessage,
           onExecuteQueryForQueryContent,
         });
       }}
-    />
+    >
+      {children}
+    </Button>
   );
 }
 
@@ -80,9 +79,11 @@ export function AiButton(props: {
   queryPageFrom?: IAiChatPageInfo;
   queryAction?: IAiChatAction;
   promptList?: string[];
+  initialMessage?: string;
   onExecuteQueryForQueryContent?: AiChatExecuteQueryForQueryContent;
+  children?: React.ReactNode;
 }) {
-  const { size, queryPageFrom, queryAction, promptList, onExecuteQueryForQueryContent } = props;
+  const { size, queryPageFrom, queryAction, promptList, initialMessage, onExecuteQueryForQueryContent, children } = props;
 
   const [aiChatVisible, setAiChatVisible] = useAiChatVisible();
   const [aiHandleEvent, setAiHandleEvent] = useAiHandleEvent();
@@ -92,7 +93,7 @@ export function AiButton(props: {
   if (IS_ENT) {
     return (
       <Button
-        icon={<img src='/image/ai-chat/ai.gif' className='w-[14px] h-[14px] mb-1' />}
+        icon={<img src='/image/ai-chat/ai.gif' className={`w-[14px] h-[14px] mb-1 ${children ? 'mr-2' : ''}`} />}
         size={size}
         onClick={() => {
           // flashcat 版本逻辑
@@ -102,13 +103,16 @@ export function AiButton(props: {
             promptList,
           });
           setParamsAiAction({
+            page: EPageType.Custom,
             custom: {
               ...queryPageFrom,
               ...queryAction,
             } as any,
           });
         }}
-      />
+      >
+        {children}
+      </Button>
     );
   }
 

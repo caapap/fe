@@ -1,14 +1,19 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState, useContext } from 'react';
-import { useLocation } from 'react-router-dom';
-import { MenuUnfoldOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { useHistory, useLocation } from 'react-router-dom';
+import { Dropdown, Menu } from 'antd';
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { Settings, Sun } from 'lucide-react';
 import _ from 'lodash';
 import querystring from 'query-string';
 import { useTranslation } from 'react-i18next';
 
 import { ScrollArea } from '@/components/ScrollArea';
 import { CommonStateContext } from '@/App';
+import { DarkModeMenuItems } from '@/components/DarkModeSelect';
 import { getSideMenuBgColor } from '@/components/pageLayout/SideMenuColorSetting';
-import { IS_ENT } from '@/utils/constant';
+import LanguageIcon from '@/components/pageLayout/icons/LanguageIcon';
+import { Logout } from '@/services/login';
+import { AccessTokenKey, IS_ENT } from '@/utils/constant';
 import { getEmbeddedProducts } from '@/pages/embeddedProduct/services';
 import { eventBus, EVENT_KEYS } from '@/pages/embeddedProduct/eventBus';
 import { DETAIL_PATH as embeddedProductDetailPath } from '@/pages/embeddedProduct/constants';
@@ -22,8 +27,10 @@ import QuickStart from 'plus:/components/quickStart';
 import QuickMenu from './QuickMenu';
 import { MenuItem, DefaultLogos } from './types';
 import { M1_MENU_KEYS } from './constants';
+import { getSidebarProfileDisplay } from './profile';
 import './menu.less';
 import './locale';
+import '@/components/pageLayout/locale';
 
 const calcUrlPath = (url: string) => {
   const urlPath = url.split('?')[0];
@@ -34,6 +41,16 @@ const calcUrlPath = (url: string) => {
 const SIDE_MENU_WIDTH_STORAGE_KEY = 'sideMenuWidthPx';
 const SIDE_MENU_MIN_WIDTH = 170;
 const SIDE_MENU_MAX_WIDTH = 400;
+const i18nMap: Record<string, string> = {
+  zh_CN: '简体中文',
+  zh_HK: '繁體中文',
+  en_US: 'English',
+  ja_JP: '日本語',
+  ru_RU: 'Русский',
+};
+
+/** 侧栏语言菜单展示顺序（不依赖 Object.keys 插入顺序） */
+const SIDE_MENU_I18N_ORDER = ['zh_CN', 'zh_HK', 'en_US', 'ja_JP', 'ru_RU'] as const;
 
 function clampSideMenuWidth(px: number): number {
   return Math.min(SIDE_MENU_MAX_WIDTH, Math.max(SIDE_MENU_MIN_WIDTH, Math.round(px)));
@@ -63,9 +80,11 @@ interface SideMenuProps {
 }
 
 const SideMenu = (props: SideMenuProps) => {
-  const { i18n, t } = useTranslation('sideMenu');
-  const { darkMode, perms, installTs } = useContext(CommonStateContext);
-  let { sideMenuBgMode } = useContext(CommonStateContext);
+  const { i18n, t } = useTranslation(['sideMenu', 'pageLayout', 'DarkModeSelect']);
+  const history = useHistory();
+  const commonState = useContext(CommonStateContext);
+  const { darkMode, perms, installTs, profile, i18nList } = commonState;
+  let { sideMenuBgMode } = commonState;
   if (darkMode) {
     sideMenuBgMode = 'dark';
   }
@@ -81,16 +100,18 @@ const SideMenu = (props: SideMenuProps) => {
     onMenuClick,
     isGoldTheme,
   } = props;
-  const sideMenuBgColor = getSideMenuBgColor(isGoldTheme ? 'dark' : (sideMenuBgMode as any));
+  const effectiveSideMenuBgMode = isGoldTheme ? 'dark' : sideMenuBgMode;
+  const sideMenuBgColor = getSideMenuBgColor(effectiveSideMenuBgMode as any);
   const location = useLocation();
   const query = querystring.parse(location.search);
   const [selectedKeys, setSelectedKeys] = useState<string[]>();
   const [collapsed, setCollapsed] = useState<boolean>(Number(localStorage.getItem('menuCollapsed')) === 1);
   const [menuWidthPx, setMenuWidthPx] = useState<number>(readInitialSideMenuWidth);
   const [isResizingMenu, setIsResizingMenu] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const quickMenuRef = useRef<{ open: () => void }>({ open: () => {} });
   const resizeActiveRef = useRef(false);
-  const isCustomBg = sideMenuBgMode !== 'light';
+  const isCustomBg = effectiveSideMenuBgMode !== 'light';
   const [embeddedProductMenu, setEmbeddedProductMenu] = useState<MenuItem[]>([]);
   const [menus, setMenus] = useState<MenuItem[]>([]);
   const hideSideMenu = useMemo(() => {
@@ -272,6 +293,100 @@ const SideMenu = (props: SideMenuProps) => {
 
   const expandedMenuWidth = collapsed ? 56 : menuWidthPx;
 
+  const visibleLocaleCodes = useMemo(() => {
+    const ordered = SIDE_MENU_I18N_ORDER.filter((code) => i18nMap[code] != null);
+    if (i18nList == null || i18nList.length === 0) {
+      return ordered;
+    }
+    const allowed = new Set(i18nList);
+    return ordered.filter((code) => allowed.has(code));
+  }, [i18nList]);
+
+  const toggleCollapsed = () => {
+    const nextCollapsed = !collapsed;
+    setCollapsed(nextCollapsed);
+    localStorage.setItem('menuCollapsed', nextCollapsed ? '1' : '0');
+  };
+  const profileDisplay = getSidebarProfileDisplay(profile);
+  const profilePopupThemeClassName =
+    effectiveSideMenuBgMode === 'theme' ? 'side-menu-profile-menu-on-theme' : effectiveSideMenuBgMode === 'dark' ? 'side-menu-profile-menu-on-dark' : '';
+  const profileMenuClassName = cn('side-menu-profile-menu', profilePopupThemeClassName);
+  const profileSubmenuClassName = cn('side-menu-profile-submenu', profilePopupThemeClassName);
+  const profileMenuAlign = { points: ['bl', 'tr'] as [string, string], offset: [collapsed ? 8 : -24, 0] as [number, number] };
+  const profileMenu = (
+    <Menu
+      className={profileMenuClassName}
+      selectable={false}
+      onClick={({ key }) => {
+        if (!['theme', 'language'].includes(String(key))) {
+          setProfileMenuOpen(false);
+        }
+      }}
+    >
+      <Menu.Item
+        key='profile'
+        icon={<UserOutlined />}
+        onClick={() => {
+          history.push('/account/profile/info');
+        }}
+      >
+        {t('profile', { ns: 'pageLayout' })}
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.SubMenu
+        key='theme'
+        popupClassName={profileSubmenuClassName}
+        icon={<Sun size={14} strokeWidth={1.8} />}
+        title={t('themeSetting', { ns: 'pageLayout' })}
+        onTitleClick={({ domEvent }) => domEvent.stopPropagation()}
+      >
+        <DarkModeMenuItems popupClassName={profileSubmenuClassName} />
+      </Menu.SubMenu>
+      <Menu.SubMenu
+        key='language'
+        popupClassName={profileSubmenuClassName}
+        icon={
+          <span className='side-menu-profile-language-icon'>
+            <LanguageIcon />
+          </span>
+        }
+        title={t('language', { ns: 'pageLayout' })}
+        onTitleClick={({ domEvent }) => domEvent.stopPropagation()}
+      >
+        {visibleLocaleCodes.map((code) => (
+          <Menu.Item
+            key={code}
+            onClick={() => {
+              i18n.changeLanguage(code);
+              localStorage.setItem('language', code);
+            }}
+          >
+            {i18nMap[code]}
+          </Menu.Item>
+        ))}
+      </Menu.SubMenu>
+      <Menu.Divider />
+      <Menu.Item
+        key='logout'
+        icon={<LogoutOutlined />}
+        onClick={() => {
+          Logout().then((res) => {
+            localStorage.removeItem(AccessTokenKey);
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('curBusiId');
+            if (res.dat && typeof res.dat === 'string') {
+              window.location.href = res.dat;
+            } else {
+              history.push('/login');
+            }
+          });
+        }}
+      >
+        {t('logout', { ns: 'pageLayout' })}
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <div
       id='#tailwind'
@@ -285,6 +400,7 @@ const SideMenu = (props: SideMenuProps) => {
         <aside
           className={cn(
             'relative z-20 flex h-full shrink-0 select-none flex-col justify-between border-0 border-r border-solid bg-sidebar',
+            collapsed ? 'side-menu-collapsed-panel' : '',
             !isResizingMenu && 'transition-all duration-300 ease-[cubic-bezier(0.2,0,0,1)]',
             !IS_ENT ? 'border-fc-300' : '',
           )}
@@ -307,7 +423,13 @@ const SideMenu = (props: SideMenuProps) => {
             />
           )}
           <div className='flex flex-1 flex-col justify-between gap-0 overflow-hidden'>
-            <SideMenuHeader collapsed={collapsed} sideMenuBgMode={sideMenuBgMode} defaultLogos={defaultLogos} />
+            <SideMenuHeader
+              collapsed={collapsed}
+              sideMenuBgMode={effectiveSideMenuBgMode}
+              defaultLogos={defaultLogos}
+              onToggleCollapse={toggleCollapsed}
+              toggleTitle={collapsed ? t('expand') : t('collapse')}
+            />
             <div
               className={cn(
                 'shrink-0 h-px',
@@ -335,21 +457,60 @@ const SideMenu = (props: SideMenuProps) => {
               />
             </ScrollArea>
           </div>
-          <div className='mx-2 my-2 shrink-0'>
-            <div
-              className={cn('flex h-10 cursor-pointer items-center justify-center rounded', isCustomBg ? 'text-[#fff] hover:bg-gray-200/20' : 'text-title hover:bg-fc-200')}
-              onClick={() => {
-                const nextCollapsed = !collapsed;
-                setCollapsed(nextCollapsed);
-                localStorage.setItem('menuCollapsed', nextCollapsed ? '1' : '0');
-              }}
+          <div
+            className={cn(
+              'side-menu-footer shrink-0 border-0 border-t border-solid px-2',
+              isCustomBg ? 'border-[rgba(255,255,255,0.12)]' : 'border-[var(--fc-sidemenu-border)]',
+            )}
+          >
+            <Dropdown
+              overlay={profileMenu}
+              trigger={['hover']}
+              placement='topLeft'
+              align={profileMenuAlign}
+              visible={profileMenuOpen}
+              onVisibleChange={setProfileMenuOpen}
             >
-              {collapsed ? (
-                <MenuUnfoldOutlined className='h-4 w-4 children-icon:h-4 children-icon:w-4' />
-              ) : (
-                <MenuFoldOutlined className='h-4 w-4 children-icon:h-4 children-icon:w-4' />
-              )}
-            </div>
+              <div
+                className={cn(
+                  'side-menu-profile-row rounded transition-colors',
+                  collapsed ? 'justify-center' : '',
+                  isCustomBg ? 'text-[#fff]' : 'text-title hover:bg-fc-200',
+                )}
+              >
+                <button
+                  type='button'
+                  className={cn(
+                    'side-menu-profile-trigger flex cursor-pointer items-center border-0 bg-transparent p-0 text-left',
+                    collapsed ? 'h-10 justify-center' : 'h-12 gap-2 px-2',
+                    isCustomBg ? 'text-[#fff]' : 'text-title',
+                  )}
+                >
+                  <span className='side-menu-profile-avatar'>
+                    {profile?.portrait ? <img src={profile.portrait} /> : <span>{profileDisplay.initial}</span>}
+                  </span>
+                  {!collapsed && (
+                    <span className='min-w-0 flex-1'>
+                      <span className='block truncate text-[13px] font-medium leading-5'>{profileDisplay.name}</span>
+                      {profileDisplay.detail && <span className={cn('block truncate text-[11px] leading-4', isCustomBg ? 'side-menu-profile-detail-on-dark' : 'text-hint')}>{profileDisplay.detail}</span>}
+                    </span>
+                  )}
+                </button>
+                {!collapsed && (
+                  <button
+                    type='button'
+                    className={cn(
+                      'side-menu-profile-setting-button flex shrink-0 cursor-pointer items-center justify-center border-0 bg-transparent p-0',
+                      isCustomBg ? 'text-[#fff]' : 'text-hint',
+                    )}
+                    aria-label={t('menu.setting')}
+                    onClick={() => setProfileMenuOpen(true)}
+                  >
+                    <Settings size={16} strokeWidth={1.8} />
+                  </button>
+                )}
+              </div>
+            </Dropdown>
           </div>
         </aside>
       </div>

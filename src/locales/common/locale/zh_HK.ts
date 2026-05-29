@@ -18,6 +18,7 @@ const zh_HK = {
   unit: '單位',
   page_help: '使用說明',
   document_title: '說明文檔',
+  product_document_title: '產品文檔',
   more_document_link: '更多文檔',
   and: '且',
   yes: '是',
@@ -171,6 +172,7 @@ const zh_HK = {
   disabling: '禁用中',
   select_event: '選擇告警事件',
   click_to_view_doc: '點擊查看文檔',
+  format_sql: '格式化 SQL',
 
   tpl: '自愈腳本',
   'tpl.create': '創建',
@@ -237,6 +239,7 @@ const zh_HK = {
   'task.tip.title': '提示資訊',
   'task.tip.content': '如果你的角色是管理員，則可以在任意機器執行腳本；否則，只能對有管理權限的業務組下的機器執行腳本',
   'task.allOptionLabel': '全部任務',
+  'task.error.no_group': '業務組不存在無法建立任務，請聯絡管理員',
 
   'last.1.days': '最近 1 天',
   'last.7.days': '最近 7 天',

@@ -2,6 +2,7 @@
  * 这是开源版的菜单配置，专业版和企业版的配置在其他对应的仓库文件里
  */
 import React from 'react';
+import { RobotOutlined } from '@ant-design/icons';
 
 import IconFont from '@/components/IconFont';
 import SmartDeliveryIcon from '@/components/SideMenu/icons/SmartDeliveryIcon';
@@ -14,7 +15,7 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
     {
       key: 'infrastructure',
       label: 'menu.infrastructure',
-      icon: <IconFont type='icon-Menu_Infrastructure' />,
+      icon: <IconFont type='icon-nav_devicelist_light' />,
       children: [
         {
           key: 'devices',
@@ -51,7 +52,7 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
     {
       key: 'explorer',
       label: 'menu.explorer',
-      icon: <IconFont type='icon-IndexManagement1' />,
+      icon: <IconFont type='icon-nav_metrics_light' />,
       children: [
         {
           key: 'metrics',
@@ -79,7 +80,7 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
     {
       key: 'alerts_notifications',
       label: 'menu.alerts_notifications',
-      icon: <IconFont type='icon-Menu_AlarmManagement' />,
+      icon: <IconFont type='icon-nav_alerts_light' />,
       children: [
         {
           key: 'rules',
@@ -176,7 +177,7 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
     {
       key: 'integrations',
       label: 'menu.integrations',
-      icon: <IconFont type='icon-shujujicheng' />,
+      icon: <IconFont type='icon-nav_infrastructure_light' />,
       children: [
         {
           key: '/datasources',
@@ -194,9 +195,21 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
       ],
     },
     {
+      key: 'ai-config',
+      label: 'menu.ai_config',
+      type: 'tabs',
+      icon: <RobotOutlined />,
+      children: [
+        { key: '/ai-config/agents', label: 'menu.ai_config_agents' },
+        { key: '/ai-config/llm-configs', label: 'menu.ai_config_llm_configs' },
+        { key: '/ai-config/skills', label: 'menu.ai_config_skills' },
+        { key: '/ai-config/mcp-servers', label: 'menu.ai_config_mcp_servers' },
+      ],
+    },
+    {
       key: 'organization',
       label: 'menu.organization',
-      icon: <IconFont type='icon-Menu_PersonnelOrganization' />,
+      icon: <IconFont type='icon-nav_organization_light' />,
       children: [
         {
           key: '/users',
@@ -215,19 +228,8 @@ export const getMenuList = (embeddedProductMenu: MenuItem[] = [], hideDeprecated
     {
       key: 'setting',
       label: 'menu.setting',
-      icon: <IconFont type='icon-Menu_SystemInformation' />,
+      icon: <IconFont type='icon-nav_system_light' />,
       children: [
-        {
-          key: 'ai-config',
-          label: 'menu.ai_config',
-          type: 'tabs',
-          children: [
-            { key: '/ai-config/agents', label: 'menu.ai_config_agents' },
-            { key: '/ai-config/llm-configs', label: 'menu.ai_config_llm_configs' },
-            { key: '/ai-config/skills', label: 'menu.ai_config_skills' },
-            { key: '/ai-config/mcp-servers', label: 'menu.ai_config_mcp_servers' },
-          ],
-        },
         {
           key: '/system/site-settings',
           label: 'menu.site_setting',

@@ -276,6 +276,7 @@ const ja_JP = {
     title: '閾値判定',
     builder: 'シンプルモード',
     code: '式モード',
+    expr_invalid: '式の構文が不正です',
     label: '関連ラベル',
     exp_trigger_disable: '閾値判定を有効にする',
     advanced_settings: {
@@ -285,8 +286,8 @@ const ja_JP = {
       label: '復旧条件',
       judge_type: {
         0: 'データが見つからない場合に復旧',
-        1: '結果が条件を満たす場合に復旧',
-        2: 'データが見つからない場合に復旧しない',
+        1: 'データが取得でき、かつアラート条件を満たさない場合のみ復旧',
+        2: '結果がカスタム条件を満たす場合に復旧',
       },
       recover_exp_placeholder: 'e.g. $A < 50',
     },

@@ -18,6 +18,7 @@ const ja_JP = {
   unit: '単位',
   page_help: '使用説明',
   document_title: 'ドキュメント',
+  product_document_title: '製品ドキュメント',
   more_document_link: 'さらにドキュメント',
   and: 'および',
   yes: 'はい',
@@ -172,6 +173,7 @@ const ja_JP = {
   disabling: '無効化中',
   select_event: 'アラートイベントを選択',
   click_to_view_doc: 'クリックしてドキュメントを表示します',
+  format_sql: 'SQLをフォーマット',
 
   tpl: '自己修復スクリプト',
   'tpl.create': '作成',
@@ -238,6 +240,7 @@ const ja_JP = {
   'task.tip.title': 'ヒント情報',
   'task.tip.content': 'もしロールが管理者なら、どのマシンでもスクリプトを実行できます。それ以外は、管理権限のあるビジネスグループのマシンでのみスクリプトを実行できます',
   'task.allOptionLabel': '全スクリプト',
+  'task.error.no_group': 'ビジネスグループが存在しないためタスクを作成できません。管理者にお問い合わせください',
 
   'last.1.days': '最近 1 日',
   'last.7.days': '最近 7 日',

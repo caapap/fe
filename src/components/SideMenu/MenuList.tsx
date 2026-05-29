@@ -3,10 +3,12 @@ import { useTranslation } from 'react-i18next';
 import { Tooltip } from 'antd';
 import getPlacements from 'antd/es/_util/placements';
 import { Link } from 'react-router-dom';
-import { HomeOutlined } from '@ant-design/icons';
+import { House } from 'lucide-react';
+
 import { RightIcon } from '@/components/BusinessGroup/components/Tree/constant';
 import IconFont from '@/components/IconFont';
 import { IS_ENT } from '@/utils/constant';
+
 import { IMenuItem } from './types';
 import { cn, getSavedPath } from './utils';
 import DeprecatedIcon from './DeprecatedIcon';
@@ -141,6 +143,7 @@ function SectionHeader(props: { section: NonNullable<IMenuItem['section']>; coll
 export function MenuGroup(props: { item: IMenuItem } & IMenuProps) {
   const { t } = useTranslation('sideMenu');
   const { item, collapsed, selectedKeys, sideMenuBgColor, isLight, ...otherProps } = props;
+  const rootRef = useRef<HTMLDivElement | null>(null);
   const isBlueTheme = localStorage.getItem('n9e-dark-mode') === '3';
   const isActive = isMenuGroupActive(item, selectedKeys);
   const [isExpand, setIsExpand] = useState<boolean>(false);
@@ -179,7 +182,7 @@ export function MenuGroup(props: { item: IMenuItem } & IMenuProps) {
   const submenuOpen = isExpand && !collapsed && visibleChildren.length > 0;
 
   return (
-    <div className='w-full'>
+    <div className='w-full' ref={rootRef}>
       <div
         onClick={() => {
           if (collapsed) {
@@ -206,6 +209,11 @@ export function MenuGroup(props: { item: IMenuItem } & IMenuProps) {
         className={cn(submenuOpen ? 'mt-0.5' : 'mt-0', 'overflow-hidden transition-height')}
         style={{
           height: !isExpand || collapsed ? 0 : visibleChildren.length * 30,
+        }}
+        onTransitionEnd={(e) => {
+          if (e.propertyName === 'height' && submenuOpen) {
+            rootRef.current?.scrollIntoView({ block: 'nearest' });
+          }
         }}
       >
         <div
@@ -390,7 +398,7 @@ export function MenuItem(props: { item: IMenuItem; isSub?: boolean; isBgBlack?: 
                 'absolute right-[5px] top-[4px] h-[18px] scale-75 text-[9px] leading-[15px]',
                 isLight
                   ? 'rounded-full bg-[var(--fc-sidemenu-beta-bg)] px-[6px] py-[1px] text-[var(--fc-sidemenu-beta-text)]'
-                  : 'fc-border rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 px-[3px] py-[1px] text-yellow-700',
+                  : 'fc-border rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 px-[3px] py-[1px] text-[var(--fc-yellow-9)]',
               )}
             >
               Beta
@@ -455,7 +463,7 @@ function AbsoluteMenuItem(props: { item: IMenuItem; isSub?: boolean; isBgBlack?:
                 'absolute right-[25px] top-[4px] h-[18px] scale-75 text-[9px] leading-[15px]',
                 isLight
                   ? 'rounded-full bg-[var(--fc-sidemenu-beta-bg)] px-[6px] py-[1px] text-[var(--fc-sidemenu-beta-text)]'
-                  : 'fc-border rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 px-[3px] py-[1px] text-yellow-700',
+                  : 'fc-border rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 px-[3px] py-[1px] text-[var(--fc-yellow-9)]',
               )}
             >
               Beta
@@ -533,7 +541,7 @@ export default function MenuList(
 
   return (
     <>
-      <div className={cn('h-full pl-2 pr-4', isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? 'text-[#e6e6e8]' : 'text-main')}>
+      <div className={cn('h-full pl-2 pr-4 pb-2.5', isLight ? 'text-[var(--fc-sidemenu-item-text)]' : props.isCustomBg ? 'text-[#e6e6e8]' : 'text-main')}>
         {IS_ENT ? (
           <Link
             to='/landing'
@@ -568,13 +576,9 @@ export default function MenuList(
             )}
           >
             <div
-              className={cn(
-                'inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center',
-                !props.collapsed && 'mr-2',
-                isLight ? 'text-[var(--fc-sidemenu-item-icon)]' : '',
-              )}
+              className={cn('inline-flex h-[16px] w-[16px] shrink-0 items-center justify-center', !props.collapsed && 'mr-2', isLight ? 'text-[var(--fc-sidemenu-item-icon)]' : '')}
             >
-              <HomeOutlined style={{ fontSize: 16 }} />
+              <House strokeWidth={1} />
             </div>
             {!props.collapsed && <div className='overflow-hidden truncate text-[13px] leading-[18px] tracking-normal'>{t('landing')} </div>}
           </Link>
@@ -603,10 +607,15 @@ export default function MenuList(
           </div>
         </Tooltip>
         {topExtra ? React.cloneElement(topExtra, { ...props, isLight }) : null}
-        <div className='space-y-[2px]'>
+        <div className='side-menu-section-list space-y-[2px]'>
           {chunks.map((chunk, chunkIndex) => (
             <React.Fragment key={`${chunk.section ?? 'none'}-${chunkIndex}`}>
               {chunk.section ? <SectionHeader section={chunk.section} collapsed={props.collapsed} isCustomBg={props.isCustomBg} isFirst={chunkIndex === 0} /> : null}
+              {props.collapsed && chunkIndex > 0 ? (
+                <div className='side-menu-collapsed-section-divider-wrap'>
+                  <div className={cn('side-menu-collapsed-section-divider', props.isCustomBg ? 'side-menu-collapsed-section-divider-on-dark' : '')} />
+                </div>
+              ) : null}
               {chunk.items.map((menu) => {
                 if (menu.children?.length) {
                   const visibleChildren = menu.children?.filter((c) => c && (c.type === 'tabs' ? c.children && c.children.length > 0 : true)) || [];
@@ -701,7 +710,7 @@ export default function MenuList(
                                         'ml-2 shrink-0 scale-75 text-[9px] leading-[15px]',
                                         isLight
                                           ? 'rounded-full bg-[var(--fc-sidemenu-beta-bg)] px-[6px] py-[1px] text-[var(--fc-sidemenu-beta-text)]'
-                                          : 'fc-border rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 px-[3px] py-[1px] text-yellow-700',
+                                          : 'fc-border rounded-full bg-gradient-to-r from-yellow-400 to-yellow-300 px-[3px] py-[1px] text-[var(--fc-yellow-9)]',
                                       )}
                                     >
                                       Beta

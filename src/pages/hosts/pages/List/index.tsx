@@ -43,7 +43,7 @@ export default function index() {
   }, [businessGroup.ids]);
 
   return (
-    <PageLayout title={t('title')}>
+    <PageLayout title={t('title')} doc='https://flashcat.cloud/docs/content/flashcat-monitor/nightingale-v9/usage/infrastructure/server-list/'>
       <div className='n9e n9e-hosts-ng-list overflow-hidden'>
         <div className='flex gap-[6px] h-full'>
           <BusinessGroup2
@@ -119,6 +119,7 @@ export default function index() {
           idents={_.map(selectedRows, 'ident')}
           reloadList={() => {
             setRefreshFlag(_.uniqueId('refreshFlag_'));
+            setSelectedRows([]);
           }}
         />
       )}

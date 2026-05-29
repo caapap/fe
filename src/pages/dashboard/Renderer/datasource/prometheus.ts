@@ -89,7 +89,7 @@ export default async function prometheusQuery(options: IOptions): Promise<Result
         });
       } else {
         const realExpr = replaceTemplateVariables(target.expr, {
-          range: target.time,
+          range: target.time ?? queryOptionsTime ?? time,
           step,
           scopedVars,
         });
@@ -142,25 +142,16 @@ export default async function prometheusQuery(options: IOptions): Promise<Result
               refId: batchQueryParams[i]?.refId,
             };
             const target = _.find(targets, (t) => t.refId === item.refId);
+            const queryParam = _.find(batchQueryParams, { refId: item.refId });
+            const step = !spanNulls ? queryParam?.step ?? 15 : 15;
             _.forEach(item.result, (serie) => {
-              let step = 15;
-              if (!spanNulls) {
-                if (target) {
-                  step = getRealStep({
-                    time: queryOptionsTime || time,
-                    maxDataPoints,
-                    panelWidth,
-                    minStep: target.step,
-                  });
-                }
-              }
               series.push({
                 id: _.uniqueId('series_'),
                 refId: item.refId,
                 name: target?.legend ? replaceExpressionBracket(target?.legend, serie.metric) : getSerieName(serie.metric),
                 metric: serie.metric,
                 expr: item.expr,
-                data: serie.values,
+                data: !spanNulls ? completeBreakpoints(step, serie.values) : serie.values, // release-24 修改，是否补全断点由前端控制，后端不再处理
               });
             });
           }
@@ -170,19 +161,9 @@ export default async function prometheusQuery(options: IOptions): Promise<Result
           for (let i = 0; i < dat?.length; i++) {
             const refId = dat[i]?.ref;
             const expr = _.find(batchQueryParams, { ref: dat[i]?.ref })?.ql;
-            const target = _.find(targets, (t) => t.refId === refId);
+            const queryParam = _.find(batchQueryParams, { ref: refId });
+            const step = !spanNulls ? queryParam?.query?.step ?? 15 : 15;
             _.forEach(dat[i]?.data, (serie) => {
-              let step = 15;
-              if (!spanNulls) {
-                if (target) {
-                  step = getRealStep({
-                    time: queryOptionsTime || time,
-                    maxDataPoints,
-                    panelWidth,
-                    minStep: target.step,
-                  });
-                }
-              }
               const isExp = _.find(exps, (exp) => exp.ref === serie.ref);
               const currentTarget = _.find(targets, (target) => target.refId === serie.ref);
               if (!currentTarget?.hide) {
@@ -193,7 +174,7 @@ export default async function prometheusQuery(options: IOptions): Promise<Result
                   isExp,
                   metric: serie.metric,
                   expr,
-                  data: serie.values,
+                  data: !spanNulls ? completeBreakpoints(step, serie.values) : serie.values, // release-24 修改，是否补全断点由前端控制，后端不再处理
                 });
               }
             });

@@ -18,6 +18,7 @@ const zh_CN = {
   unit: '单位',
   page_help: '使用说明',
   document_title: '说明文档',
+  product_document_title: '产品文档',
   more_document_link: '更多文档',
   and: '且',
   yes: '是',
@@ -171,6 +172,7 @@ const zh_CN = {
   disabling: '禁用中',
   select_event: '选择告警事件',
   click_to_view_doc: '点击查看文档',
+  format_sql: '格式化 SQL',
 
   // 临时把 task 的翻译放在这里
   tpl: '自愈脚本',
@@ -238,6 +240,7 @@ const zh_CN = {
   'task.tip.title': '提示信息',
   'task.tip.content': '如果你的角色是管理员，则可以在任意机器执行脚本；否则，只能对有管理权限的业务组下的机器执行脚本',
   'task.allOptionLabel': '全部任务',
+  'task.error.no_group': '业务组不存在无法创建任务，请联系管理员',
 
   'last.1.days': '最近 1 天',
   'last.7.days': '最近 7 天',
