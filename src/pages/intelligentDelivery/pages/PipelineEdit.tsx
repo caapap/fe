@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Card,
+  Checkbox,
   Empty,
   Form,
   Input,
@@ -10,6 +11,7 @@ import {
   Radio,
   Select,
   Space,
+  Switch,
   Tabs,
   Tag,
   Tooltip,
@@ -128,6 +130,20 @@ export default function PipelineEdit() {
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'ONLINE' | 'OFFLINE'>('ONLINE');
   const [activeTab, setActiveTab] = useState('flow');
+  const [triggerSettings, setTriggerSettings] = useState({
+    webhook: false,
+    cron: false,
+    concurrency: false,
+  });
+  const [activeTrigger, setActiveTrigger] = useState<'webhook' | 'cron' | 'concurrency' | null>(null);
+  const [cronConfig, setCronConfig] = useState({
+    mode: 'periodic', // periodic | once
+    weekdays: [] as number[],
+    startTime: '',
+    endTime: '',
+    interval: '',
+    triggerOnCodeChange: false,
+  });
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [connections, setConnections] = useState<ServiceConnection[]>([]);
@@ -350,25 +366,198 @@ export default function PipelineEdit() {
     </div>
   );
 
-  const renderTriggerTab = () => (
-    <Card className='rounded-2xl border-fc-200'>
-      <Alert
-        type='info'
-        showIcon
-        message='触发设置'
-        description={
-          <div>
-            <p className='m-0'>当前 MVP 仅支持手动触发。后续将开放：</p>
-            <ul className='m-0 mt-2 pl-4'>
-              <li>定时触发：cron 表达式</li>
-              <li>Webhook 触发：每条流水线分配独立 token，外部系统 POST 触发</li>
-              <li>告警联动：与夜莺告警引擎对接，告警发生时自动触发部署/回滚</li>
-            </ul>
+  const renderTriggerTab = () => {
+    const handleTriggerToggle = (key: 'webhook' | 'cron' | 'concurrency', checked: boolean) => {
+      setTriggerSettings((prev) => ({ ...prev, [key]: checked }));
+      if (checked) {
+        setActiveTrigger(key);
+      } else if (activeTrigger === key) {
+        setActiveTrigger(null);
+      }
+    };
+
+    return (
+      <div className='flex gap-0' style={{ minHeight: '600px' }}>
+        {/* 左侧开关列表 */}
+        <div className='w-[280px] border-r border-fc-200 bg-[var(--fc-fill-2)]'>
+          <div
+            className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors ${
+              activeTrigger === 'webhook' ? 'bg-[var(--fc-primary-bg)]' : 'hover:bg-[var(--fc-fill-3)]'
+            }`}
+            onClick={() => setActiveTrigger('webhook')}
+          >
+            <span className='text-sm'>Webhook触发</span>
+            <Switch checked={triggerSettings.webhook} onChange={(checked) => handleTriggerToggle('webhook', checked)} />
           </div>
-        }
-      />
-    </Card>
-  );
+          <div
+            className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors ${
+              activeTrigger === 'cron' ? 'bg-[var(--fc-primary-bg)]' : 'hover:bg-[var(--fc-fill-3)]'
+            }`}
+            onClick={() => setActiveTrigger('cron')}
+          >
+            <span className='text-sm'>定时触发</span>
+            <Switch checked={triggerSettings.cron} onChange={(checked) => handleTriggerToggle('cron', checked)} />
+          </div>
+          <div
+            className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors ${
+              activeTrigger === 'concurrency' ? 'bg-[var(--fc-primary-bg)]' : 'hover:bg-[var(--fc-fill-3)]'
+            }`}
+            onClick={() => setActiveTrigger('concurrency')}
+          >
+            <span className='text-sm'>并发度限制</span>
+            <Switch checked={triggerSettings.concurrency} onChange={(checked) => handleTriggerToggle('concurrency', checked)} />
+          </div>
+        </div>
+
+        {/* 右侧内容区 */}
+        <div className='flex-1 p-6 bg-[var(--fc-fill-1)]'>
+          {activeTrigger === 'webhook' && (
+            <div>
+              <h3 className='text-base font-medium mb-2'>Webhook触发</h3>
+              <p className='text-sm text-[var(--fc-text-3)] mb-4'>
+                外部系统通过Webhook将环境参数传给流水线并触发运行，
+                <a href='#' className='text-[var(--fc-fill-primary)] ml-1'>查看文档</a>
+              </p>
+
+              <div className='mb-4'>
+                <div className='text-sm text-[var(--fc-text-2)] mb-2'>通用Webhook （代码源提交触发请勿使用）</div>
+                <Input
+                  readOnly
+                  value='http://flow-openapi.aliyun.com/pipeline/webhook/5zBkGx1JpTGqhLEBsy7z'
+                  suffix={<Tooltip title='复制'><Button type='text' size='small' icon={<ApiOutlined />} /></Tooltip>}
+                />
+              </div>
+
+              <div>
+                <div className='text-sm text-[var(--fc-text-2)] mb-2'>流水线源Webhook</div>
+                <Input
+                  readOnly
+                  value='http://flow-openapi.aliyun.com/scm/webhook/5zBkGx1JpTGqhLEBsy7z'
+                  suffix={<Tooltip title='复制'><Button type='text' size='small' icon={<ApiOutlined />} /></Tooltip>}
+                />
+              </div>
+            </div>
+          )}
+
+          {activeTrigger === 'cron' && (
+            <div>
+              <h3 className='text-base font-medium mb-2'>定时触发</h3>
+              <p className='text-sm text-[var(--fc-text-3)] mb-4'>
+                定时单次或周期触发流水线自动运行，
+                <a href='#' className='text-[var(--fc-fill-primary)] ml-1'>查看文档</a>
+              </p>
+
+              <Form layout='vertical'>
+                <Form.Item label='触发方式'>
+                  <Radio.Group value={cronConfig.mode} onChange={(e) => setCronConfig({ ...cronConfig, mode: e.target.value })}>
+                    <Radio value='periodic'>周期触发</Radio>
+                    <Radio value='once'>单次触发</Radio>
+                  </Radio.Group>
+                </Form.Item>
+
+                <Form.Item label='日期选择'>
+                  <Checkbox.Group
+                    value={cronConfig.weekdays}
+                    onChange={(values) => setCronConfig({ ...cronConfig, weekdays: values as number[] })}
+                  >
+                    <div className='grid grid-cols-7 gap-2'>
+                      {['周一', '周二', '周三', '周四', '周五', '周六', '周日'].map((day, index) => (
+                        <Checkbox key={index} value={index + 1} className='m-0'>
+                          <div className='text-center'>{day}</div>
+                        </Checkbox>
+                      ))}
+                    </div>
+                  </Checkbox.Group>
+                </Form.Item>
+
+                <Form.Item label='触发时间'>
+                  <div className='grid grid-cols-2 gap-4'>
+                    <Input
+                      placeholder='请选择触发开始时间'
+                      value={cronConfig.startTime}
+                      onChange={(e) => setCronConfig({ ...cronConfig, startTime: e.target.value })}
+                      suffix={<ApiOutlined />}
+                    />
+                    <Input
+                      placeholder='请选择触发结束时间'
+                      value={cronConfig.endTime}
+                      onChange={(e) => setCronConfig({ ...cronConfig, endTime: e.target.value })}
+                      suffix={<ApiOutlined />}
+                    />
+                  </div>
+                </Form.Item>
+
+                <Form.Item label='间隔时间'>
+                  <Select
+                    placeholder='请选择'
+                    value={cronConfig.interval}
+                    onChange={(value) => setCronConfig({ ...cronConfig, interval: value })}
+                    style={{ width: '100%' }}
+                    options={[
+                      { value: '5m', label: '每 5 分钟' },
+                      { value: '15m', label: '每 15 分钟' },
+                      { value: '30m', label: '每 30 分钟' },
+                      { value: '1h', label: '每 1 小时' },
+                      { value: '2h', label: '每 2 小时' },
+                      { value: '6h', label: '每 6 小时' },
+                      { value: '12h', label: '每 12 小时' },
+                      { value: '1d', label: '每天' },
+                    ]}
+                  />
+                </Form.Item>
+
+                <Form.Item>
+                  <div className='flex items-center gap-2'>
+                    <span className='text-sm'>代码变更时定时器触发</span>
+                    <Tooltip title='仅当代码有变更时才触发定时任务'>
+                      <ApiOutlined className='text-[var(--fc-text-4)]' />
+                    </Tooltip>
+                  </div>
+                </Form.Item>
+              </Form>
+            </div>
+          )}
+
+          {activeTrigger === 'concurrency' && (
+            <div>
+              <h3 className='text-base font-medium mb-2'>并发度限制</h3>
+              <p className='text-sm text-[var(--fc-text-3)] mb-4'>
+                本条流水线支持的、同时处在运行中或等待中的流水线实例的最大数
+              </p>
+
+              <Form layout='vertical'>
+                <Form.Item label='并发运行实例数'>
+                  <Input type='number' defaultValue={100} style={{ width: '200px' }} />
+                </Form.Item>
+
+                <Form.Item label='超过并发实例数行为'>
+                  <Radio.Group defaultValue='block'>
+                    <Radio value='block'>超过并发实例数时，不允许触发新的运行</Radio>
+                    <Radio value='cancel'>超过并发实例数时，触发新运行自动取消前序运行</Radio>
+                  </Radio.Group>
+                </Form.Item>
+
+                <Form.Item label={
+                  <div className='flex items-center gap-2'>
+                    <span>多运行实例同一任务并发度</span>
+                    <Tooltip title='控制多个运行实例中同一任务的并发执行数量'>
+                      <ApiOutlined className='text-[var(--fc-text-4)]' />
+                    </Tooltip>
+                  </div>
+                }>
+                  <Input type='number' defaultValue={1} style={{ width: '200px' }} />
+                </Form.Item>
+              </Form>
+            </div>
+          )}
+
+          {!activeTrigger && (
+            <Empty description='请从左侧选择触发方式' />
+          )}
+        </div>
+      </div>
+    );
+  };
 
   const renderVarsTab = () => (
     <Card className='rounded-2xl border-fc-200'>
