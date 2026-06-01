@@ -57,6 +57,7 @@ const TASK_KIND_TO_STEP_TYPE: Record<string, StepType> = {
   'shell-exec': 'shell-exec',
   'manual-gate': 'manual-gate',
   'mcp-call': 'mcp-call',
+  agent: 'agent',
   // 公共组件
   component: 'component',
   // Legacy

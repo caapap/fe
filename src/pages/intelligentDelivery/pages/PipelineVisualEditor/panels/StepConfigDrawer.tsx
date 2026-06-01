@@ -38,6 +38,7 @@ const STEP_META: Record<string, { icon: React.ReactNode; color: string; title: s
   'shell-exec': { icon: <CodeOutlined />, color: 'default', title: '命令执行' },
   'manual-gate': { icon: <PauseCircleOutlined />, color: 'orange', title: '人工卡点' },
   'mcp-call': { icon: <ApiOutlined />, color: 'magenta', title: 'MCP 调用' },
+  agent: { icon: <ApiOutlined />, color: 'purple', title: 'AI Agent' },
   // legacy
   'shell-local': { icon: <CodeOutlined />, color: 'default', title: '命令执行' },
   'shell-ssh': { icon: <CodeOutlined />, color: 'default', title: '命令执行' },
@@ -171,6 +172,8 @@ function renderConfigByType(
       return renderManualGateForm(config);
     case 'mcp-call':
       return renderMcpCallForm(config);
+    case 'agent':
+      return renderAgentForm(config);
     default:
       return null;
   }
@@ -482,6 +485,61 @@ function renderMcpCallForm(config?: Record<string, any>) {
       </Form.Item>
       <Form.Item label='超时（秒）'>
         <Input type='number' defaultValue={config?.timeout_sec ?? 600} />
+      </Form.Item>
+    </>
+  );
+}
+
+// ── AI Agent ──────────────────────────────────────────────────────────────
+function renderAgentForm(config?: Record<string, any>) {
+  return (
+    <>
+      <Alert type='info' showIcon className='mb-3' message='AI Agent（LLM 驱动智能体）'
+        description='支持 Prompt + MCP + Skill + 多轮推理，兜底复杂场景。自研轻量 Agent 引擎，复用 N9E MCP 网关。' />
+      <Form.Item label='任务描述（Prompt）' required>
+        <Input.TextArea rows={8} className='font-mono text-xs'
+          defaultValue={config?.prompt || `你是一个部署助手，负责在 Skynet 平台上分配服务。
+当前上下文：
+- 服务名称：\${VARS.SERVICE_NAME}
+- 目标节点：\${VARS.TARGET_NODES}
+
+请按以下步骤操作：
+1. 检查服务定义是否存在
+2. 分配服务到目标节点
+3. 验证分配结果`}
+          placeholder='支持变量注入：${VARS.xxx}、${STEP.xxx.output}' />
+      </Form.Item>
+      <Form.Item label='LLM 模型' required>
+        <Select defaultValue={config?.model || 'gpt-4o'} options={[
+          { value: 'gpt-4o', label: 'GPT-4o（OpenAI）' },
+          { value: 'spark-v4', label: '星火大模型 v4.0' },
+          { value: 'qwen-max', label: '通义千问 Max' },
+          { value: 'claude-3-5-sonnet', label: 'Claude 3.5 Sonnet' },
+        ]} />
+      </Form.Item>
+      <Form.Item label='最大推理轮次'>
+        <Input type='number' defaultValue={config?.max_iterations ?? 5} min={1} max={20} />
+      </Form.Item>
+      <Form.Item label='可用 MCP 工具'>
+        <Select mode='multiple' defaultValue={config?.tools || []} placeholder='从 MCP Provider 选择工具' options={[
+          { value: 'ansible-mcp-server:audit_inventory', label: 'Ansible · 资产审计' },
+          { value: 'ansible-mcp-server:run_playbook', label: 'Ansible · Playbook 执行' },
+          { value: 'skynet-mcp-server:check_service_definition', label: 'Skynet · 检查服务定义' },
+          { value: 'skynet-mcp-server:allocate_service', label: 'Skynet · 分配服务' },
+        ]} />
+      </Form.Item>
+      <Form.Item label='可用 Skill'>
+        <Select mode='multiple' defaultValue={config?.skills || []} placeholder='选择预定义 Skill' options={[
+          { value: 'ansible-check-connectivity', label: 'Ansible 连通性检查' },
+          { value: 'k8s-get-pods', label: 'K8s 获取 Pod 列表' },
+          { value: 'diagnose-logs', label: '日志诊断分析' },
+        ]} />
+      </Form.Item>
+      <Form.Item label='超时时间（秒）'>
+        <Input type='number' defaultValue={config?.timeout_sec ?? 600} />
+      </Form.Item>
+      <Form.Item label='失败时中断流水线'>
+        <Switch defaultChecked={config?.fail_on_error ?? true} />
       </Form.Item>
     </>
   );

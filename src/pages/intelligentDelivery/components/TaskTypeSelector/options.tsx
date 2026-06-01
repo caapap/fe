@@ -52,6 +52,7 @@ export type TaskKind =
   | 'shell-exec'
   | 'manual-gate'
   | 'mcp-call'
+  | 'agent'
   // 公共组件（保留，不分形态）
   | 'component'
   // legacy 兼容
@@ -225,7 +226,7 @@ export const TASK_OPTIONS: TaskOption[] = [
     highlight: true,
   },
 
-  // ========== 通用工具（3个）==========
+  // ========== 通用工具（4个）==========
   {
     kind: 'shell-exec',
     category: 'common',
@@ -246,6 +247,14 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '人工卡点',
     description: '等待人工确认后继续（审批人 / 会签 / 超时 / 通知）',
     icon: <PauseCircleOutlined className='text-[#1677ff]' />,
+  },
+  {
+    kind: 'agent',
+    category: 'common',
+    title: 'AI Agent',
+    description: 'LLM 驱动的智能体，支持 Prompt + MCP + Skill + 多轮推理，兜底复杂场景',
+    icon: <ApiOutlined className='text-[#722ed1]' />,
+    highlight: true,
   },
 
   // ========== 公共组件（不分形态）==========

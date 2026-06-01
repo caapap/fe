@@ -43,6 +43,7 @@ export type StepType =
   | 'shell-exec' // 通用 · 命令执行（local/ssh）
   | 'manual-gate' // 通用 · 人工卡点
   | 'mcp-call' // 通用 · MCP 调用
+  | 'agent' // 通用 · AI Agent（LLM 驱动智能体）
   // —— legacy 别名（兼容历史保存的流水线，画布会自动映射到新视觉）——
   | 'shell-local'
   | 'shell-ssh'
@@ -69,6 +70,7 @@ const STEP_META: Record<StepType, { icon: React.ReactNode; color: string; title:
   'shell-exec': { icon: <CodeOutlined />, color: 'default', title: '命令执行' },
   'manual-gate': { icon: <PauseCircleOutlined />, color: 'orange', title: '人工卡点' },
   'mcp-call': { icon: <ApiOutlined />, color: 'magenta', title: 'MCP 调用' },
+  agent: { icon: <ApiOutlined />, color: 'purple', title: 'AI Agent' },
   // legacy 别名
   'shell-local': { icon: <DesktopOutlined />, color: 'default', title: '命令执行' },
   'shell-ssh': { icon: <GlobalOutlined />, color: 'default', title: '命令执行' },
