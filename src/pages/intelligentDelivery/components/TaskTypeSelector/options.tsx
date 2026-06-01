@@ -65,7 +65,6 @@ export interface TaskOption {
   title: string;
   description: string;
   icon: React.ReactNode;
-  highlight?: boolean;
 }
 
 export const TASK_CATEGORIES: { key: TaskCategory; label: string }[] = [
@@ -109,7 +108,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '环境预检',
     description: '基于 Ansible MCP 对目标主机执行 IPTSE 标准核查与初始化',
     icon: <SafetyOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
   {
     kind: 'license-grant',
@@ -117,7 +115,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '授权管理',
     description: '引擎/大模型授权：hasp 指纹采集→v2c、云锁、大模型授权码统一编排',
     icon: <SafetyCertificateOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
 
   // ========== 分发部署（6个）==========
@@ -127,7 +124,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '容器镜像分发',
     description: '镜像 push 到容器仓库（Docker Registry / Harbor）',
     icon: <CloudUploadOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
   {
     kind: 'distribute-hosted',
@@ -135,7 +131,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '托管服务分发',
     description: 'Agent 批量分发到托管平台节点（DataSophon / Skynet）',
     icon: <CloudUploadOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
   {
     kind: 'distribute-native',
@@ -143,7 +138,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '原生包分发',
     description: '单机 scp / 大模型 jar 解压 / 断点续传',
     icon: <CloudUploadOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
   {
     kind: 'app-deploy-docker',
@@ -151,7 +145,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: 'Docker 部署',
     description: '单机 docker run / docker-compose up',
     icon: <RocketOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
   {
     kind: 'app-deploy-k8s',
@@ -159,7 +152,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: 'K8s 部署',
     description: 'Helm install / kubectl apply / KubeSphere',
     icon: <RocketOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
   {
     kind: 'app-deploy-native',
@@ -167,7 +159,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '原生部署',
     description: 'tar 解压 + 启动脚本 / systemd / 裸机 GPU',
     icon: <RocketOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
 
   // ========== 配置管理（3个）==========
@@ -223,7 +214,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '健康检查',
     description: 'HTTP / 端口 / 进程 / 推理实测，回写结果',
     icon: <HeartOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
 
   // ========== 通用工具（4个）==========
@@ -254,7 +244,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: 'AI Agent',
     description: 'LLM 驱动的智能体，支持 Prompt + MCP + Skill + 多轮推理，兜底复杂场景',
     icon: <ApiOutlined className='text-[#722ed1]' />,
-    highlight: true,
   },
 
   // ========== 公共组件（不分形态）==========
@@ -264,7 +253,6 @@ export const TASK_OPTIONS: TaskOption[] = [
     title: '公共组件',
     description: 'MySQL / ES / Redis / ZK 等：版本包 + 配置项 + 单机/集群拓扑',
     icon: <DatabaseOutlined className='text-[#1677ff]' />,
-    highlight: true,
   },
 
   // ========== Legacy 兼容（MCP 快捷方式）==========

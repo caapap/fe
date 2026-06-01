@@ -101,9 +101,7 @@ function TaskCard({ option, onSelect }: { option: TaskOption; onSelect: () => vo
     <div
       role='button'
       onClick={onSelect}
-      className={`group flex cursor-pointer items-center gap-3 rounded-lg border bg-[var(--fc-fill-2)] p-3 transition-all hover:border-[var(--fc-fill-primary)] hover:shadow-sm ${
-        option.highlight ? 'border-[var(--fc-fill-primary)]/30' : 'border-fc-200'
-      }`}
+      className='group fc-border flex cursor-pointer items-center gap-3 rounded-lg border bg-[var(--fc-fill-2)] p-3 transition-all hover:border-[var(--fc-fill-primary)] hover:shadow-sm'
     >
       <span className='inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[var(--fc-primary-bg)] text-base'>
         {option.icon}

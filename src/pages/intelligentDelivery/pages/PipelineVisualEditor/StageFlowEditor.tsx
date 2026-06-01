@@ -47,7 +47,9 @@ export default function StageFlowEditor() {
 
   const [taskSelectorOpen, setTaskSelectorOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<{ stageId: string; jobId: string; position: 'before' | 'after' | 'parallel' } | null>(null);
+  const [selectedStageForNew, setSelectedStageForNew] = useState<string | null>(null);
   const [configDrawerJob, setConfigDrawerJob] = useState<Job | null>(null);
+  const [pendingJobForConfig, setPendingJobForConfig] = useState<Job | null>(null);
 
   const handleAddSerialTask = (stageId: string, jobId: string, position: 'before' | 'after') => {
     setSelectedJob({ stageId, jobId, position });
@@ -60,20 +62,11 @@ export default function StageFlowEditor() {
   };
 
   const handleAddStage = (afterStageId: string) => {
-    const newStage: Stage = {
-      id: `stage_${Date.now()}`,
-      name: '新阶段',
-      jobs: [{ id: `job_${Date.now()}`, name: '新的任务', stepType: 'shell-exec', driven: 'AUTO' }],
-    };
-    const index = stages.findIndex((s) => s.id === afterStageId);
-    const newStages = [...stages];
-    newStages.splice(index + 1, 0, newStage);
-    setStages(newStages);
+    setSelectedStageForNew(afterStageId);
+    setTaskSelectorOpen(true);
   };
 
   const handleTaskSelect = (opt: TaskOption) => {
-    if (!selectedJob) return;
-
     const newJob: Job = {
       id: `job_${Date.now()}`,
       name: opt.title,
@@ -81,27 +74,49 @@ export default function StageFlowEditor() {
       driven: 'AUTO',
     };
 
-    setStages((prev) =>
-      prev.map((stage) => {
-        if (stage.id !== selectedJob.stageId) return stage;
+    // 如果是添加新阶段
+    if (selectedStageForNew) {
+      const newStage: Stage = {
+        id: `stage_${Date.now()}`,
+        name: '新阶段',
+        jobs: [newJob],
+      };
+      const index = stages.findIndex((s) => s.id === selectedStageForNew);
+      const newStages = [...stages];
+      newStages.splice(index + 1, 0, newStage);
+      setStages(newStages);
+      setSelectedStageForNew(null);
+    }
+    // 如果是添加串行/并行任务
+    else if (selectedJob) {
+      setStages((prev) =>
+        prev.map((stage) => {
+          if (stage.id !== selectedJob.stageId) return stage;
 
-        if (selectedJob.position === 'parallel') {
-          return { ...stage, jobs: [...stage.jobs, newJob] };
-        }
+          if (selectedJob.position === 'parallel') {
+            return { ...stage, jobs: [...stage.jobs, newJob] };
+          }
 
-        const jobIndex = stage.jobs.findIndex((j) => j.id === selectedJob.jobId);
-        const newJobs = [...stage.jobs];
-        if (selectedJob.position === 'before') {
-          newJobs.splice(jobIndex, 0, newJob);
-        } else {
-          newJobs.splice(jobIndex + 1, 0, newJob);
-        }
-        return { ...stage, jobs: newJobs };
-      }),
-    );
+          const jobIndex = stage.jobs.findIndex((j) => j.id === selectedJob.jobId);
+          const newJobs = [...stage.jobs];
+          if (selectedJob.position === 'before') {
+            newJobs.splice(jobIndex, 0, newJob);
+          } else {
+            newJobs.splice(jobIndex + 1, 0, newJob);
+          }
+          return { ...stage, jobs: newJobs };
+        }),
+      );
+      setSelectedJob(null);
+    }
 
     setTaskSelectorOpen(false);
-    setSelectedJob(null);
+
+    // 自动打开配置抽屉
+    setPendingJobForConfig(newJob);
+    setTimeout(() => {
+      setConfigDrawerJob(newJob);
+    }, 100);
   };
 
   const toggleDriven = (stageId: string, jobId: string) => {
