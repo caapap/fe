@@ -26,7 +26,7 @@ import {
   PlayCircleOutlined,
   SaveOutlined,
 } from '@ant-design/icons';
-import { useHistory, useParams } from 'react-router-dom';
+import { useHistory, useParams, useLocation } from 'react-router-dom';
 
 import PageLayout from '@/components/pageLayout';
 import request from '@/utils/request';
@@ -43,6 +43,7 @@ import {
 } from '../services';
 import PipelineVisualEditor from './PipelineVisualEditor';
 import StageFlowEditor from './PipelineVisualEditor/StageFlowEditor';
+import { getPipelinePreset } from './PipelineVisualEditor/hooks/usePipelineFlow';
 
 const DEFAULT_YAML = `name: 部署应用到生产环境
 description: 从资源仓库下载软件包并通过 SSH 部署到目标服务器
@@ -124,7 +125,23 @@ const STEP_TEMPLATES = [
 export default function PipelineEdit() {
   const { id } = useParams<{ id?: string }>();
   const history = useHistory();
+  const location = useLocation();
   const isNew = !id;
+
+  // 从 URL 参数读取模板 ID
+  const templateId = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('template') || undefined;
+  }, [location.search]);
+
+  // 获取模板信息
+  const preset = useMemo(() => {
+    if (templateId) {
+      return getPipelinePreset(templateId);
+    }
+    return null;
+  }, [templateId]);
+
   const [yaml, setYaml] = useState(DEFAULT_YAML);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -583,7 +600,9 @@ export default function PipelineEdit() {
         <Card className='mb-4 rounded-2xl border-fc-200'>
           <div className='flex flex-wrap items-center justify-between gap-4'>
             <Space size={12}>
-              <span className='text-lg font-semibold text-title'>{name || (isNew ? '新建流水线' : `流水线 #${id}`)}</span>
+              <span className='text-lg font-semibold text-title'>
+                {name || (isNew ? (preset?.title || '新建流水线') : `流水线 #${id}`)}
+              </span>
               <Tag color={status === 'ONLINE' ? 'success' : 'default'}>{status === 'ONLINE' ? '启用' : '停用'}</Tag>
               <Tooltip title='SSH 凭证、密码等通过服务连接管理'>
                 <Button type='link' size='small' icon={<ApiOutlined />} onClick={() => history.push(PATHS.serviceConnections)}>
