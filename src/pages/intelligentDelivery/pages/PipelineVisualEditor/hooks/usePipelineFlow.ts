@@ -30,37 +30,292 @@ export interface PipelinePreset {
   durationsMs: Record<string, number>;
 }
 
-const DEMO_PIPELINE: PipelinePreset = {
-  id: 'deploy-host-iso',
-  title: 'ISO 镜像源部署',
+// ========== 三形态 Demo 模板（基于真实文档）==========
+
+// 1. 舆情平台 V1.4.5（容器化形态）
+const YUQING_CONTAINER_PIPELINE: PipelinePreset = {
+  id: 'yuqing-container',
+  title: '舆情平台 V1.4.5（容器化）',
   triggerLabel: '手动触发',
   stages: [
     {
-      id: 'stage_1',
-      name: '准备阶段',
+      id: 'yq_stage_1',
+      name: '环境准备',
       steps: [
-        { id: 'step_1', name: '环境预检', stepType: 'env-precheck', status: 'pending', config: { target_hosts: 'all', mode: 'check', tags: ['phase1'] } },
+        {
+          id: 'yq_step_1',
+          name: '环境预检（IPTSE）',
+          stepType: 'env-precheck',
+          status: 'pending',
+          config: { target_hosts: 'yuqing-cluster', mode: 'check', tags: ['docker', 'k8s', 'network'] },
+        },
       ],
     },
     {
-      id: 'stage_2',
-      name: '部署阶段',
+      id: 'yq_stage_2',
+      name: '配置初始化',
       steps: [
-        { id: 'step_2', name: '挂载 ISO / 配置 yum 源', stepType: 'shell-exec', status: 'pending', config: { target: 'ssh', script: 'mount -o loop /data/CentOS-7.9.iso /mnt/iso\ncp /mnt/iso/local.repo /etc/yum.repos.d/' } },
-        { id: 'step_3', name: '安装 httpd', stepType: 'app-deploy', status: 'pending', config: { deployForm: 'native', pkg: 'httpd', version: '2.4.6', targetPath: '/etc/httpd' } },
+        {
+          id: 'yq_step_2',
+          name: 'ES 字段映射',
+          stepType: 'config-render',
+          status: 'pending',
+          config: { deployForm: 'container', engine: 'es', configPath: '/config/es-mapping.json' },
+        },
+        {
+          id: 'yq_step_3',
+          name: 'MySQL 初始化脚本',
+          stepType: 'config-render',
+          status: 'pending',
+          config: { deployForm: 'container', engine: 'sql', configPath: '/config/init.sql' },
+        },
       ],
     },
     {
-      id: 'stage_3',
-      name: '验证阶段',
+      id: 'yq_stage_3',
+      name: '镜像分发',
       steps: [
-        { id: 'step_4', name: '启动 httpd 服务', stepType: 'service-ctl', status: 'pending', config: { deployForm: 'native', action: 'start', serviceName: 'httpd' } },
-        { id: 'step_5', name: '健康检查', stepType: 'health-check', status: 'pending', config: { checkType: 'http', target: 'http://localhost:80/repodata/repomd.xml' } },
+        {
+          id: 'yq_step_4',
+          name: '推送镜像到 Harbor',
+          stepType: 'distribute',
+          status: 'pending',
+          config: { deployForm: 'container', source: 'artifact-repo', pkg: 'yuqing-app', version: '1.4.5', registry: 'harbor.iflytek.com' },
+        },
+      ],
+    },
+    {
+      id: 'yq_stage_4',
+      name: '应用部署',
+      steps: [
+        {
+          id: 'yq_step_5',
+          name: 'Helm 部署舆情应用',
+          stepType: 'app-deploy',
+          status: 'pending',
+          config: { deployForm: 'container', mode: 'k8s', chart: 'yuqing-app', namespace: 'yuqing-prod', replicas: 3 },
+        },
+      ],
+    },
+    {
+      id: 'yq_stage_5',
+      name: '验证',
+      steps: [
+        {
+          id: 'yq_step_6',
+          name: '健康检查',
+          stepType: 'health-check',
+          status: 'pending',
+          config: { checkType: 'http', target: 'http://yuqing-api.iflytek.com/health', expectedStatus: 200 },
+        },
       ],
     },
   ],
-  durationsMs: { step_1: 1500, step_2: 1200, step_3: 2000, step_4: 1500, step_5: 1000 },
+  durationsMs: { yq_step_1: 2000, yq_step_2: 1500, yq_step_3: 1500, yq_step_4: 3000, yq_step_5: 4000, yq_step_6: 1000 },
 };
+
+// 2. 星云大数据 V1.4.1（托管平台 DataSophon）
+const XINGYUN_HOSTED_PIPELINE: PipelinePreset = {
+  id: 'xingyun-hosted',
+  title: '星云大数据 V1.4.1（托管平台）',
+  triggerLabel: '手动触发',
+  stages: [
+    {
+      id: 'xy_stage_1',
+      name: '环境准备',
+      steps: [
+        {
+          id: 'xy_step_1',
+          name: '环境预检（IPTSE）',
+          stepType: 'env-precheck',
+          status: 'pending',
+          config: { target_hosts: 'bigdata-cluster', mode: 'check', tags: ['os', 'jdk', 'network'] },
+        },
+      ],
+    },
+    {
+      id: 'xy_stage_2',
+      name: '制品分发',
+      steps: [
+        {
+          id: 'xy_step_2',
+          name: 'Agent 批量分发',
+          stepType: 'distribute',
+          status: 'pending',
+          config: { deployForm: 'hosted', source: 'artifact-repo', pkg: 'datasophon-agent', version: '1.4.1-arm', executor: 'm2-agent' },
+        },
+      ],
+    },
+    {
+      id: 'xy_stage_3',
+      name: '集群组件部署',
+      steps: [
+        {
+          id: 'xy_step_3',
+          name: 'ZooKeeper 集群',
+          stepType: 'component',
+          status: 'pending',
+          config: { deployForm: 'hosted', componentType: 'zookeeper', topology: { mode: 'cluster', nodes: 3 } },
+        },
+        {
+          id: 'xy_step_4',
+          name: 'HDFS 集群',
+          stepType: 'component',
+          status: 'pending',
+          config: { deployForm: 'hosted', componentType: 'hdfs', topology: { mode: 'cluster', namenode: 2, datanode: 5 } },
+        },
+        {
+          id: 'xy_step_5',
+          name: 'YARN 集群',
+          stepType: 'component',
+          status: 'pending',
+          config: { deployForm: 'hosted', componentType: 'yarn', topology: { mode: 'cluster', resourcemanager: 2, nodemanager: 5 } },
+        },
+      ],
+    },
+    {
+      id: 'xy_stage_4',
+      name: '服务注册',
+      steps: [
+        {
+          id: 'xy_step_6',
+          name: '注册到 DataSophon',
+          stepType: 'service-ctl',
+          status: 'pending',
+          config: { deployForm: 'hosted', action: 'register', platform: 'datasophon' },
+        },
+      ],
+    },
+    {
+      id: 'xy_stage_5',
+      name: '验证',
+      steps: [
+        {
+          id: 'xy_step_7',
+          name: '健康检查',
+          stepType: 'health-check',
+          status: 'pending',
+          config: { checkType: 'http', target: 'http://datasophon-manager:8081/api/cluster/status' },
+        },
+      ],
+    },
+  ],
+  durationsMs: { xy_step_1: 2500, xy_step_2: 3500, xy_step_3: 4000, xy_step_4: 4000, xy_step_5: 4000, xy_step_6: 2000, xy_step_7: 1500 },
+};
+
+// 3. 星火大模型平台 V1.3（原生+GPU+托管混合）
+const XINGHUO_NATIVE_PIPELINE: PipelinePreset = {
+  id: 'xinghuo-native',
+  title: '星火大模型平台 V1.3（原生+GPU）',
+  triggerLabel: '手动触发',
+  stages: [
+    {
+      id: 'xh_stage_1',
+      name: '环境准备',
+      steps: [
+        {
+          id: 'xh_step_1',
+          name: '环境预检（IPTSE）',
+          stepType: 'env-precheck',
+          status: 'pending',
+          config: { target_hosts: 'llm-gpu-cluster', mode: 'check', tags: ['os', 'driver', 'cuda'] },
+        },
+        {
+          id: 'xh_step_2',
+          name: 'GPU 检查',
+          stepType: 'shell-exec',
+          status: 'pending',
+          config: { target: 'ssh', script: 'nvidia-smi\nnpu-smi info' },
+        },
+      ],
+    },
+    {
+      id: 'xh_stage_2',
+      name: '授权管理',
+      steps: [
+        {
+          id: 'xh_step_3',
+          name: 'HASP 指纹采集',
+          stepType: 'license-grant',
+          status: 'pending',
+          config: { licenseType: 'hasp', action: 'collect-fingerprint', targetHosts: 'llm-gpu-cluster' },
+        },
+        {
+          id: 'xh_step_4',
+          name: '导入 v2c 授权文件',
+          stepType: 'license-grant',
+          status: 'pending',
+          config: { licenseType: 'hasp', action: 'import-v2c', licenseFile: '/licenses/xinghuo.v2c' },
+        },
+      ],
+    },
+    {
+      id: 'xh_stage_3',
+      name: '制品分发',
+      steps: [
+        {
+          id: 'xh_step_5',
+          name: '分发推理引擎（40GB）',
+          stepType: 'distribute',
+          status: 'pending',
+          config: { deployForm: 'native', source: 'artifact-repo', pkg: 'xinghuo-engine', version: '1.3.0', targetPath: '/opt/xinghuo' },
+        },
+        {
+          id: 'xh_step_6',
+          name: '分发模型文件',
+          stepType: 'distribute',
+          status: 'pending',
+          config: { deployForm: 'native', source: 'artifact-repo', pkg: 'xinghuo-model-v3', version: '3.5', targetPath: '/data/models' },
+        },
+      ],
+    },
+    {
+      id: 'xh_stage_4',
+      name: '应用部署',
+      steps: [
+        {
+          id: 'xh_step_7',
+          name: '部署推理引擎',
+          stepType: 'app-deploy',
+          status: 'pending',
+          config: { deployForm: 'native', pkg: 'xinghuo-engine', targetPath: '/opt/xinghuo', startMode: 'systemd' },
+        },
+      ],
+    },
+    {
+      id: 'xh_stage_5',
+      name: '服务注册',
+      steps: [
+        {
+          id: 'xh_step_8',
+          name: '注册到 Skynet',
+          stepType: 'service-ctl',
+          status: 'pending',
+          config: { deployForm: 'hosted', action: 'register', platform: 'skynet', serviceName: 'xinghuo-inference' },
+        },
+      ],
+    },
+    {
+      id: 'xh_stage_6',
+      name: '验证',
+      steps: [
+        {
+          id: 'xh_step_9',
+          name: '推理实测',
+          stepType: 'health-check',
+          status: 'pending',
+          config: { checkType: 'inference', target: 'http://xinghuo-api:8080/v1/chat/completions', prompt: '你好，请介绍一下自己' },
+        },
+      ],
+    },
+  ],
+  durationsMs: {
+    xh_step_1: 2500, xh_step_2: 1500, xh_step_3: 2000, xh_step_4: 1500,
+    xh_step_5: 8000, xh_step_6: 6000, xh_step_7: 5000, xh_step_8: 2000, xh_step_9: 3000
+  },
+};
+
+const DEMO_PIPELINE: PipelinePreset = YUQING_CONTAINER_PIPELINE; // 默认使用舆情平台模板
 
 const ENV_PRECHECK_PIPELINE: PipelinePreset = {
   id: 'env-precheck-iptse',
@@ -303,8 +558,11 @@ const DEPLOY_NATIVE_LLM_PIPELINE: PipelinePreset = {
 };
 
 const PRESETS: Record<string, PipelinePreset> = {
-  'deploy-host-iso': DEMO_PIPELINE,
+  'yuqing-container': YUQING_CONTAINER_PIPELINE,
+  'xingyun-hosted': XINGYUN_HOSTED_PIPELINE,
+  'xinghuo-native': XINGHUO_NATIVE_PIPELINE,
   'env-precheck-iptse': ENV_PRECHECK_PIPELINE,
+  'deploy-host-iso': DEMO_PIPELINE, // legacy
   'deploy-container-yqpt': DEPLOY_CONTAINER_PIPELINE,
   'deploy-hosted-bigdata': DEPLOY_HOSTED_BIGDATA_PIPELINE,
   'deploy-native-llm': DEPLOY_NATIVE_LLM_PIPELINE,
