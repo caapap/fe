@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Drawer, Form, Input, Tag, Divider, Button, Radio, Switch, Select, Checkbox, Alert, Tooltip, Segmented } from 'antd';
+import { Drawer, Form, Input, Tag, Divider, Button, Radio, Switch, Select, Checkbox, Alert, Tooltip, Segmented, Modal } from 'antd';
 import { Node } from 'reactflow';
 import {
   SafetyOutlined,
@@ -14,6 +14,7 @@ import {
   PauseCircleOutlined,
   ApiOutlined,
   InfoCircleOutlined,
+  DeleteOutlined,
 } from '@ant-design/icons';
 import { StepType } from '../nodes/StepNode';
 import { useArtifactOptions, useBusiGroupOptions, useServiceConnectionOptions, useMcpProviderOptions } from '../hooks/useDropdownData';
@@ -93,9 +94,10 @@ const MCP_TOOL_OPTIONS: Record<string, { value: string; label: string }[]> = {
 interface StepConfigDrawerProps {
   node: Node | null;
   onClose: () => void;
+  onDelete?: () => void;
 }
 
-export default function StepConfigDrawer({ node, onClose }: StepConfigDrawerProps) {
+export default function StepConfigDrawer({ node, onClose, onDelete }: StepConfigDrawerProps) {
   const initialDeployForm = node?.data?.config?.deployForm || 'native';
   const [deployForm, setDeployForm] = useState<DeployForm>(initialDeployForm);
 
@@ -134,9 +136,32 @@ export default function StepConfigDrawer({ node, onClose }: StepConfigDrawerProp
         })}
       </Form>
       <Divider />
-      <div className='flex justify-end gap-2'>
-        <Button onClick={onClose}>取消</Button>
-        <Button type='primary' onClick={onClose}>保存</Button>
+      <div className='flex justify-between items-center'>
+        {onDelete && (
+          <Button
+            danger
+            icon={<DeleteOutlined />}
+            onClick={() => {
+              Modal.confirm({
+                title: '确认删除',
+                content: '确定要删除这个任务吗？此操作不可恢复。',
+                okText: '删除',
+                okType: 'danger',
+                cancelText: '取消',
+                onOk: () => {
+                  onDelete();
+                  onClose();
+                },
+              });
+            }}
+          >
+            删除任务
+          </Button>
+        )}
+        <div className='flex gap-2'>
+          <Button onClick={onClose}>取消</Button>
+          <Button type='primary' onClick={onClose}>保存</Button>
+        </div>
       </div>
     </Drawer>
   );
