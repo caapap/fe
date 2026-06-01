@@ -16,6 +16,7 @@ import {
   InfoCircleOutlined,
 } from '@ant-design/icons';
 import { StepType } from '../nodes/StepNode';
+import { useArtifactOptions, useBusiGroupOptions, useServiceConnectionOptions, useMcpProviderOptions } from '../hooks/useDropdownData';
 
 /** 部署形态：三大形态横切所有原子能力 */
 type DeployForm = 'native' | 'hosted' | 'container';
@@ -98,6 +99,12 @@ export default function StepConfigDrawer({ node, onClose }: StepConfigDrawerProp
   const initialDeployForm = node?.data?.config?.deployForm || 'native';
   const [deployForm, setDeployForm] = useState<DeployForm>(initialDeployForm);
 
+  // 加载动态下拉数据
+  const { options: artifactOptions, loading: artifactLoading } = useArtifactOptions();
+  const { options: busiGroupOptions, loading: busiGroupLoading } = useBusiGroupOptions();
+  const { options: sshConnectionOptions, loading: sshConnectionLoading } = useServiceConnectionOptions('SSH_KEY');
+  const { options: mcpProviderOptions, loading: mcpProviderLoading } = useMcpProviderOptions();
+
   if (!node) return null;
   const { label, stepType } = node.data || {};
   const meta = STEP_META[stepType as StepType] || STEP_META['shell-exec'];
@@ -119,7 +126,12 @@ export default function StepConfigDrawer({ node, onClose }: StepConfigDrawerProp
         <Form.Item label='步骤名称'>
           <Input defaultValue={label} />
         </Form.Item>
-        {renderConfigByType(stepType as StepType, node.data?.config, deployForm, setDeployForm)}
+        {renderConfigByType(stepType as StepType, node.data?.config, deployForm, setDeployForm, {
+          artifactOptions,
+          busiGroupOptions,
+          sshConnectionOptions,
+          mcpProviderOptions,
+        })}
       </Form>
       <Divider />
       <div className='flex justify-end gap-2'>
@@ -139,54 +151,63 @@ function DeployFormSelector({ value, onChange }: { value: DeployForm; onChange: 
   );
 }
 
+interface DropdownOptions {
+  artifactOptions: { value: string; label: string }[];
+  busiGroupOptions: { value: string; label: string }[];
+  sshConnectionOptions: { value: string; label: string }[];
+  mcpProviderOptions: { value: string; label: string }[];
+}
+
 function renderConfigByType(
   stepType: StepType,
   config: Record<string, any> | undefined,
   deployForm: DeployForm,
   setDeployForm: (v: DeployForm) => void,
+  dropdownOptions: DropdownOptions,
 ) {
   switch (stepType) {
     case 'env-precheck':
-      return renderEnvPrecheckForm(config);
+      return renderEnvPrecheckForm(config, dropdownOptions);
     case 'license-grant':
-      return renderLicenseGrantForm(config, deployForm, setDeployForm);
+      return renderLicenseGrantForm(config, deployForm, setDeployForm, dropdownOptions);
     case 'component':
-      return renderComponentForm(config, deployForm, setDeployForm);
+      return renderComponentForm(config, deployForm, setDeployForm, dropdownOptions);
     case 'distribute':
-      return renderDistributeForm(config, deployForm, setDeployForm);
+      return renderDistributeForm(config, deployForm, setDeployForm, dropdownOptions);
     case 'app-deploy':
     case 'deploy':
-      return renderAppDeployForm(config, deployForm, setDeployForm);
+      return renderAppDeployForm(config, deployForm, setDeployForm, dropdownOptions);
     case 'config-render':
-      return renderConfigRenderForm(config);
+      return renderConfigRenderForm(config, dropdownOptions);
     case 'service-ctl':
-      return renderServiceCtlForm(config, deployForm, setDeployForm);
+      return renderServiceCtlForm(config, deployForm, setDeployForm, dropdownOptions);
     case 'health-check':
       return renderHealthCheckForm(config);
     case 'shell-exec':
     case 'shell-local':
     case 'shell-ssh':
-      return renderShellExecForm(config);
+      return renderShellExecForm(config, dropdownOptions);
     case 'manual-gate':
     case 'approval':
       return renderManualGateForm(config);
     case 'mcp-call':
-      return renderMcpCallForm(config);
+      return renderMcpCallForm(config, dropdownOptions);
     case 'agent':
-      return renderAgentForm(config);
+      return renderAgentForm(config, dropdownOptions);
     default:
       return null;
   }
 }
 
 // ── 环境预检 ──────────────────────────────────────────────────────────────
-function renderEnvPrecheckForm(config?: Record<string, any>) {
+function renderEnvPrecheckForm(config?: Record<string, any>, dropdownOptions?: DropdownOptions) {
+  const { busiGroupOptions = [] } = dropdownOptions || {};
   return (
     <>
       <Alert type='info' showIcon className='mb-3' message='Ansible MCP 驱动'
         description='通过 N9E MCP 网关调用 ansible-mcp-server，按 IPTSE 标准对目标主机进行核查 / 初始化。' />
       <Form.Item label='目标主机组' required>
-        <Select defaultValue={config?.target_hosts || 'all'} options={HOST_GROUP_OPTIONS} />
+        <Select defaultValue={config?.target_hosts || 'all'} options={busiGroupOptions.length > 0 ? busiGroupOptions : HOST_GROUP_OPTIONS} />
       </Form.Item>
       <Form.Item label={<span>执行模式 <Tooltip title='check：仅核查；init：直接初始化；check-init：核查后卡点再修复'><InfoCircleOutlined className='ml-1 text-[var(--fc-text-4)]' /></Tooltip></span>}>
         <Radio.Group defaultValue={config?.mode || 'check'}>
@@ -216,7 +237,7 @@ function renderEnvPrecheckForm(config?: Record<string, any>) {
 }
 
 // ── 授权 ──────────────────────────────────────────────────────────────────
-function renderLicenseGrantForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void) {
+function renderLicenseGrantForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void, dropdownOptions?: DropdownOptions) {
   return (
     <>
       <Alert type='warning' showIcon className='mb-3' message='授权能力（公共抽象）'
@@ -250,7 +271,7 @@ function renderLicenseGrantForm(config?: Record<string, any>, deployForm?: Deplo
 }
 
 // ── 公共组件 ──────────────────────────────────────────────────────────────
-function renderComponentForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void) {
+function renderComponentForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void, dropdownOptions?: DropdownOptions) {
   return (
     <>
       <Alert type='info' showIcon className='mb-3' message='公共组件管理（公共抽象）'
@@ -287,7 +308,7 @@ function renderComponentForm(config?: Record<string, any>, deployForm?: DeployFo
 }
 
 // ── 分发下发 ──────────────────────────────────────────────────────────────
-function renderDistributeForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void) {
+function renderDistributeForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void, dropdownOptions?: DropdownOptions) {
   return (
     <>
       <Alert type='info' showIcon className='mb-3' message='分发能力（公共抽象）'
@@ -319,7 +340,7 @@ function renderDistributeForm(config?: Record<string, any>, deployForm?: DeployF
 }
 
 // ── 应用部署 ──────────────────────────────────────────────────────────────
-function renderAppDeployForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void) {
+function renderAppDeployForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void, dropdownOptions?: DropdownOptions) {
   return (
     <>
       {setDeployForm && <DeployFormSelector value={deployForm || 'native'} onChange={setDeployForm} />}
@@ -356,7 +377,7 @@ function renderAppDeployForm(config?: Record<string, any>, deployForm?: DeployFo
 }
 
 // ── 配置注入 ──────────────────────────────────────────────────────────────
-function renderConfigRenderForm(config?: Record<string, any>) {
+function renderConfigRenderForm(config?: Record<string, any>, dropdownOptions?: DropdownOptions) {
   return (
     <>
       <Form.Item label='配置类型' required>
@@ -379,7 +400,7 @@ function renderConfigRenderForm(config?: Record<string, any>) {
 }
 
 // ── 服务管控 ──────────────────────────────────────────────────────────────
-function renderServiceCtlForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void) {
+function renderServiceCtlForm(config?: Record<string, any>, deployForm?: DeployForm, setDeployForm?: (v: DeployForm) => void, dropdownOptions?: DropdownOptions) {
   return (
     <>
       {setDeployForm && <DeployFormSelector value={deployForm || 'native'} onChange={setDeployForm} />}
@@ -427,7 +448,7 @@ function renderHealthCheckForm(config?: Record<string, any>) {
 }
 
 // ── 命令执行 ──────────────────────────────────────────────────────────────
-function renderShellExecForm(config?: Record<string, any>) {
+function renderShellExecForm(config?: Record<string, any>, dropdownOptions?: DropdownOptions) {
   return (
     <>
       <Form.Item label='执行目标'>
@@ -467,7 +488,7 @@ function renderManualGateForm(config?: Record<string, any>) {
 }
 
 // ── MCP 调用 ──────────────────────────────────────────────────────────────
-function renderMcpCallForm(config?: Record<string, any>) {
+function renderMcpCallForm(config?: Record<string, any>, dropdownOptions?: DropdownOptions) {
   const provider = config?.provider || 'ansible-mcp-server';
   return (
     <>
@@ -491,7 +512,7 @@ function renderMcpCallForm(config?: Record<string, any>) {
 }
 
 // ── AI Agent ──────────────────────────────────────────────────────────────
-function renderAgentForm(config?: Record<string, any>) {
+function renderAgentForm(config?: Record<string, any>, dropdownOptions?: DropdownOptions) {
   return (
     <>
       <Alert type='info' showIcon className='mb-3' message='AI Agent（LLM 驱动智能体）'
