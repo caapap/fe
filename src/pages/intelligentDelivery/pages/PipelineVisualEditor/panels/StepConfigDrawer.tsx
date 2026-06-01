@@ -94,7 +94,9 @@ interface StepConfigDrawerProps {
 }
 
 export default function StepConfigDrawer({ node, onClose }: StepConfigDrawerProps) {
-  const [deployForm, setDeployForm] = useState<DeployForm>('native');
+  const initialDeployForm = node?.data?.config?.deployForm || 'native';
+  const [deployForm, setDeployForm] = useState<DeployForm>(initialDeployForm);
+
   if (!node) return null;
   const { label, stepType } = node.data || {};
   const meta = STEP_META[stepType as StepType] || STEP_META['shell-exec'];

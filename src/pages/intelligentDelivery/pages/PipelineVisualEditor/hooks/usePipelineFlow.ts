@@ -406,13 +406,13 @@ export function usePipelineFlow(presetId?: string) {
   }, []);
 
   const addStepNode = useCallback(
-    (stepType: StepType, label: string) => {
+    (stepType: StepType, label: string, config?: Record<string, any>) => {
       const id = getNodeId();
       const newNode: Node = {
         id,
         type: 'step',
         position: { x: 400, y: 200 },
-        data: { label, stepType, status: 'pending' },
+        data: { label, stepType, status: 'pending', config },
       };
       setNodes((nds) => [...nds, newNode]);
     },

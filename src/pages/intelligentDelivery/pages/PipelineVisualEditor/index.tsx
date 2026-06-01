@@ -29,17 +29,37 @@ const edgeTypes = {
 import { StepType } from './nodes/StepNode';
 
 const TASK_KIND_TO_STEP_TYPE: Record<string, StepType> = {
+  // 触发器（前端节点，不映射到 Step）
+  'trigger-manual': 'shell-exec', // placeholder
+  'trigger-cron': 'shell-exec',
+  'trigger-webhook': 'shell-exec',
+  // 环境准备
   'env-precheck': 'env-precheck',
   'license-grant': 'license-grant',
-  component: 'component',
-  distribute: 'distribute',
-  'app-deploy': 'app-deploy',
-  'config-render': 'config-render',
-  'service-ctl': 'service-ctl',
+  // 分发部署（形态细分 → 统一后端 StepType）
+  'distribute-container': 'distribute',
+  'distribute-hosted': 'distribute',
+  'distribute-native': 'distribute',
+  'app-deploy-docker': 'app-deploy',
+  'app-deploy-k8s': 'app-deploy',
+  'app-deploy-native': 'app-deploy',
+  // 配置管理
+  'config-render-container': 'config-render',
+  'config-render-hosted': 'config-render',
+  'config-render-native': 'config-render',
+  // 服务控制
+  'service-ctl-container': 'service-ctl',
+  'service-ctl-hosted': 'service-ctl',
+  'service-ctl-native': 'service-ctl',
+  // 验证检查
   'health-check': 'health-check',
+  // 通用工具
   'shell-exec': 'shell-exec',
   'manual-gate': 'manual-gate',
   'mcp-call': 'mcp-call',
+  // 公共组件
+  component: 'component',
+  // Legacy
   'mcp-ansible-audit': 'mcp-call',
   'mcp-ansible-playbook': 'mcp-call',
 };
@@ -90,7 +110,16 @@ function PipelineVisualEditorInner() {
 
   const handleTaskSelect = (opt: TaskOption) => {
     const stepType = TASK_KIND_TO_STEP_TYPE[opt.kind] || 'shell-exec';
-    addStepNode(stepType, opt.title);
+
+    // 从 TaskKind 提取形态参数
+    let deployForm: 'native' | 'hosted' | 'container' | undefined;
+    if (opt.kind.includes('-container')) deployForm = 'container';
+    else if (opt.kind.includes('-hosted')) deployForm = 'hosted';
+    else if (opt.kind.includes('-native')) deployForm = 'native';
+    else if (opt.kind.includes('-docker')) deployForm = 'container';
+    else if (opt.kind.includes('-k8s')) deployForm = 'container';
+
+    addStepNode(stepType, opt.title, { deployForm });
     setTaskSelectorOpen(false);
   };
 

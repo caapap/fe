@@ -11,7 +11,7 @@ interface Props {
 }
 
 export default function TaskTypeSelectorDrawer({ open, onClose, onSelect }: Props) {
-  const [activeCategory, setActiveCategory] = useState<TaskCategory>('deploy');
+  const [activeCategory, setActiveCategory] = useState<TaskCategory>('distribute-deploy');
   const [keyword, setKeyword] = useState('');
 
   const grouped = useMemo(() => {
