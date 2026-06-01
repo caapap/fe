@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Button, Input, Tooltip } from 'antd';
 import { PlusOutlined, ThunderboltOutlined, PauseCircleOutlined, EditOutlined } from '@ant-design/icons';
+import { useLocation } from 'react-router-dom';
 import TaskTypeSelectorDrawer from '../../components/TaskTypeSelector';
 import { TaskOption } from '../../components/TaskTypeSelector/options';
 import StepConfigDrawer from './panels/StepConfigDrawer';
+import { usePipelineFlow } from './hooks/usePipelineFlow';
 import './StageFlowEditor.less';
 
 interface Job {
@@ -21,48 +23,70 @@ interface Stage {
 }
 
 export default function StageFlowEditor() {
-  const [stages, setStages] = useState<Stage[]>([
-    {
-      id: 'stage_1',
-      name: '阶段1',
-      jobs: [
-        { id: 'job_1', name: '空任务', stepType: 'shell-exec', driven: 'AUTO' },
-      ],
-    },
-    {
-      id: 'stage_2',
-      name: '测试',
-      jobs: [
-        { id: 'job_2', name: 'Python 单元测试', stepType: 'shell-exec', driven: 'MANUAL' },
-      ],
-    },
-    {
-      id: 'stage_3',
-      name: '新阶段',
-      jobs: [
-        { id: 'job_3', name: '新的任务', stepType: 'shell-exec', driven: 'AUTO' },
-      ],
-    },
-  ]);
+  const location = useLocation();
+  const presetId = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('template') || undefined;
+  }, [location.search]);
+
+  const { preset } = usePipelineFlow(presetId);
+
+  // 将 preset 的 stages 转换为 StageFlowEditor 的数据格式
+  const initialStages = useMemo((): Stage[] => {
+    if (!preset || !preset.stages) {
+      return [
+        {
+          id: 'stage_1',
+          name: '阶段1',
+          jobs: [
+            { id: 'job_1', name: '空任务', stepType: 'shell-exec', driven: 'AUTO' as const },
+          ],
+        },
+      ];
+    }
+
+    return preset.stages.map((stage) => ({
+      id: stage.id,
+      name: stage.name,
+      jobs: stage.steps.map((step) => ({
+        id: step.id,
+        name: step.name,
+        stepType: step.stepType,
+        driven: 'AUTO' as const,
+        config: step.config,
+      })),
+    }));
+  }, [preset]);
+
+  const [stages, setStages] = useState<Stage[]>(initialStages);
+
+  // 当 preset 变化时更新 stages
+  useEffect(() => {
+    setStages(initialStages);
+  }, [initialStages]);
 
   const [taskSelectorOpen, setTaskSelectorOpen] = useState(false);
   const [selectedJob, setSelectedJob] = useState<{ stageId: string; jobId: string; position: 'before' | 'after' | 'parallel' } | null>(null);
   const [selectedStageForNew, setSelectedStageForNew] = useState<string | null>(null);
   const [configDrawerJob, setConfigDrawerJob] = useState<Job | null>(null);
   const [pendingJobForConfig, setPendingJobForConfig] = useState<Job | null>(null);
+  const [isAddingNewNode, setIsAddingNewNode] = useState(false); // 标记是否正在添加新节点
 
   const handleAddSerialTask = (stageId: string, jobId: string, position: 'before' | 'after') => {
     setSelectedJob({ stageId, jobId, position });
+    setIsAddingNewNode(true);
     setTaskSelectorOpen(true);
   };
 
   const handleAddParallelTask = (stageId: string, jobId: string) => {
     setSelectedJob({ stageId, jobId, position: 'parallel' });
+    setIsAddingNewNode(true);
     setTaskSelectorOpen(true);
   };
 
   const handleAddStage = (afterStageId: string) => {
     setSelectedStageForNew(afterStageId);
+    setIsAddingNewNode(true);
     setTaskSelectorOpen(true);
   };
 
@@ -119,6 +143,26 @@ export default function StageFlowEditor() {
     }, 100);
   };
 
+  const handleConfigDrawerClose = () => {
+    // 如果是添加新节点流程，关闭配置抽屉后返回任务选择器
+    if (isAddingNewNode && pendingJobForConfig) {
+      setConfigDrawerJob(null);
+      setTaskSelectorOpen(true);
+    } else {
+      // 否则直接关闭
+      setConfigDrawerJob(null);
+      setIsAddingNewNode(false);
+      setPendingJobForConfig(null);
+    }
+  };
+
+  const handleTaskSelectorClose = () => {
+    setTaskSelectorOpen(false);
+    setIsAddingNewNode(false);
+    setSelectedJob(null);
+    setSelectedStageForNew(null);
+  };
+
   const toggleDriven = (stageId: string, jobId: string) => {
     setStages((prev) =>
       prev.map((stage) => {
@@ -154,10 +198,90 @@ export default function StageFlowEditor() {
               </div>
 
               <div className='jobs-container'>
-                {stage.jobs.map((job, jobIndex) => (
-                  <div key={job.id} className='job-row'>
-                    {/* 串行任务前加号 */}
-                    {jobIndex === 0 && (
+                {stage.jobs.length > 1 ? (
+                  // 多个任务时，用并行框包裹
+                  <div className='parallel-jobs-wrapper'>
+                    {stage.jobs.map((job, jobIndex) => (
+                      <div key={job.id} className='job-row'>
+                        {/* 串行任务前加号 */}
+                        {jobIndex === 0 && (
+                          <Tooltip title='添加串行任务'>
+                            <Button
+                              type='text'
+                              shape='circle'
+                              size='small'
+                              icon={<PlusOutlined />}
+                              className='add-serial-btn'
+                              onClick={() => handleAddSerialTask(stage.id, job.id, 'before')}
+                            />
+                          </Tooltip>
+                        )}
+
+                        {/* 自动/手动触发切换 */}
+                        <Tooltip title={job.driven === 'AUTO' ? '自动触发' : '手动触发'}>
+                          <Button
+                            type='text'
+                            shape='circle'
+                            icon={job.driven === 'AUTO' ? <ThunderboltOutlined /> : <PauseCircleOutlined />}
+                            className='driven-toggle-btn'
+                            onClick={() => toggleDriven(stage.id, job.id)}
+                          />
+                        </Tooltip>
+
+                        {/* 任务节点 */}
+                        <div className='job-node' onClick={() => { setConfigDrawerJob(job); setIsAddingNewNode(false); }}>
+                          <span>{job.name}</span>
+                        </div>
+
+                        {/* 串行任务后加号 */}
+                        <Tooltip title='添加串行任务'>
+                          <Button
+                            type='text'
+                            shape='circle'
+                            size='small'
+                            icon={<PlusOutlined />}
+                            className='add-serial-btn'
+                            onClick={() => handleAddSerialTask(stage.id, job.id, 'after')}
+                          />
+                        </Tooltip>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  // 单个任务时，正常渲染
+                  stage.jobs.map((job, jobIndex) => (
+                    <div key={job.id} className='job-row'>
+                      {/* 串行任务前加号 */}
+                      {jobIndex === 0 && (
+                        <Tooltip title='添加串行任务'>
+                          <Button
+                            type='text'
+                            shape='circle'
+                            size='small'
+                            icon={<PlusOutlined />}
+                            className='add-serial-btn'
+                            onClick={() => handleAddSerialTask(stage.id, job.id, 'before')}
+                          />
+                        </Tooltip>
+                      )}
+
+                      {/* 自动/手动触发切换 */}
+                      <Tooltip title={job.driven === 'AUTO' ? '自动触发' : '手动触发'}>
+                        <Button
+                          type='text'
+                          shape='circle'
+                          icon={job.driven === 'AUTO' ? <ThunderboltOutlined /> : <PauseCircleOutlined />}
+                          className='driven-toggle-btn'
+                          onClick={() => toggleDriven(stage.id, job.id)}
+                        />
+                      </Tooltip>
+
+                      {/* 任务节点 */}
+                      <div className='job-node' onClick={() => { setConfigDrawerJob(job); setIsAddingNewNode(false); }}>
+                        <span>{job.name}</span>
+                      </div>
+
+                      {/* 串行任务后加号 */}
                       <Tooltip title='添加串行任务'>
                         <Button
                           type='text'
@@ -165,40 +289,12 @@ export default function StageFlowEditor() {
                           size='small'
                           icon={<PlusOutlined />}
                           className='add-serial-btn'
-                          onClick={() => handleAddSerialTask(stage.id, job.id, 'before')}
+                          onClick={() => handleAddSerialTask(stage.id, job.id, 'after')}
                         />
                       </Tooltip>
-                    )}
-
-                    {/* 自动/手动触发切换 */}
-                    <Tooltip title={job.driven === 'AUTO' ? '自动触发' : '手动触发'}>
-                      <Button
-                        type='text'
-                        shape='circle'
-                        icon={job.driven === 'AUTO' ? <ThunderboltOutlined /> : <PauseCircleOutlined />}
-                        className='driven-toggle-btn'
-                        onClick={() => toggleDriven(stage.id, job.id)}
-                      />
-                    </Tooltip>
-
-                    {/* 任务节点 */}
-                    <div className='job-node' onClick={() => setConfigDrawerJob(job)}>
-                      <span>{job.name}</span>
                     </div>
-
-                    {/* 串行任务后加号 */}
-                    <Tooltip title='添加串行任务'>
-                      <Button
-                        type='text'
-                        shape='circle'
-                        size='small'
-                        icon={<PlusOutlined />}
-                        className='add-serial-btn'
-                        onClick={() => handleAddSerialTask(stage.id, job.id, 'after')}
-                      />
-                    </Tooltip>
-                  </div>
-                ))}
+                  ))
+                )}
 
                 {/* 并行任务添加 */}
                 <Tooltip title='添加并行任务'>
@@ -234,7 +330,7 @@ export default function StageFlowEditor() {
 
       <TaskTypeSelectorDrawer
         open={taskSelectorOpen}
-        onClose={() => setTaskSelectorOpen(false)}
+        onClose={handleTaskSelectorClose}
         onSelect={handleTaskSelect}
       />
 
@@ -251,7 +347,7 @@ export default function StageFlowEditor() {
               } as any)
             : null
         }
-        onClose={() => setConfigDrawerJob(null)}
+        onClose={handleConfigDrawerClose}
       />
     </div>
   );
