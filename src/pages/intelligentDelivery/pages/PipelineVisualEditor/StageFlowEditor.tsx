@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Button, Input, Tooltip } from 'antd';
-import { PlusOutlined, ThunderboltOutlined, PauseCircleOutlined, EditOutlined } from '@ant-design/icons';
+import { PlusOutlined, ThunderboltOutlined, EditOutlined, PauseCircleOutlined } from '@ant-design/icons';
 import { useLocation } from 'react-router-dom';
 import TaskTypeSelectorDrawer from '../../components/TaskTypeSelector';
 import { TaskOption } from '../../components/TaskTypeSelector/options';
