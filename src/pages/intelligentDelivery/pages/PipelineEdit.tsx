@@ -40,6 +40,7 @@ import {
   triggerPipelineRun,
 } from '../services';
 import PipelineVisualEditor from './PipelineVisualEditor';
+import StageFlowEditor from './PipelineVisualEditor/StageFlowEditor';
 
 const DEFAULT_YAML = `name: 部署应用到生产环境
 description: 从资源仓库下载软件包并通过 SSH 部署到目标服务器
@@ -126,7 +127,7 @@ export default function PipelineEdit() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<'ONLINE' | 'OFFLINE'>('ONLINE');
-  const [activeTab, setActiveTab] = useState('basic');
+  const [activeTab, setActiveTab] = useState('flow');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);
   const [connections, setConnections] = useState<ServiceConnection[]>([]);
@@ -416,11 +417,8 @@ export default function PipelineEdit() {
           <Tabs.TabPane key='basic' tab='基本信息'>
             {renderBasicTab()}
           </Tabs.TabPane>
-          <Tabs.TabPane key='visual' tab='可视化编排'>
-            <PipelineVisualEditor />
-          </Tabs.TabPane>
-          <Tabs.TabPane key='flow' tab='流程配置（YAML）'>
-            {renderFlowTab()}
+          <Tabs.TabPane key='flow' tab='流程配置'>
+            <StageFlowEditor />
           </Tabs.TabPane>
           <Tabs.TabPane key='trigger' tab='触发设置'>
             {renderTriggerTab()}

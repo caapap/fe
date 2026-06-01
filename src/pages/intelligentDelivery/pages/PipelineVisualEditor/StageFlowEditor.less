@@ -1,0 +1,135 @@
+.stage-flow-editor {
+  padding: 24px;
+  background: var(--fc-fill-1);
+  min-height: calc(100vh - 200px);
+  overflow-x: auto;
+}
+
+.stages-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  min-width: fit-content;
+}
+
+/* 阶段列 */
+.stage-column {
+  min-width: 320px;
+  background: var(--fc-fill-2);
+  border-radius: 8px;
+  padding: 16px;
+  border: 1px solid var(--fc-border-2);
+}
+
+.stage-header {
+  margin-bottom: 16px;
+}
+
+.stage-name-input {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fc-text-2);
+  padding: 4px 8px;
+
+  &:hover {
+    background: var(--fc-fill-3);
+    border-radius: 4px;
+  }
+}
+
+/* 任务容器 */
+.jobs-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.job-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 任务节点 */
+.job-node {
+  flex: 1;
+  padding: 12px 16px;
+  background: var(--fc-fill-1);
+  border: 1px solid var(--fc-border-2);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: var(--fc-text-1);
+
+  &:hover {
+    border-color: var(--fc-fill-primary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+}
+
+/* 自动/手动触发按钮 */
+.driven-toggle-btn {
+  color: var(--fc-text-3);
+
+  &:hover {
+    color: var(--fc-fill-primary);
+    background: var(--fc-primary-bg);
+  }
+}
+
+/* 添加串行任务按钮 */
+.add-serial-btn {
+  color: var(--fc-text-4);
+
+  &:hover {
+    color: var(--fc-fill-primary);
+    background: var(--fc-primary-bg);
+  }
+}
+
+/* 添加并行任务按钮 */
+.add-parallel-btn {
+  width: 100%;
+  border-style: dashed;
+  color: var(--fc-text-3);
+
+  &:hover {
+    color: var(--fc-fill-primary);
+    border-color: var(--fc-fill-primary);
+  }
+}
+
+/* 阶段间分割线 */
+.stage-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--fc-border-2);
+    transform: translateX(-50%);
+  }
+}
+
+.add-stage-btn {
+  position: relative;
+  z-index: 1;
+  background: var(--fc-fill-2);
+  border: 1px solid var(--fc-border-2);
+  color: var(--fc-text-4);
+
+  &:hover {
+    color: var(--fc-fill-primary);
+    border-color: var(--fc-fill-primary);
+    background: var(--fc-primary-bg);
+  }
+}
