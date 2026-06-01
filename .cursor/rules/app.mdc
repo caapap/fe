@@ -8,7 +8,7 @@ alwaysApply: true
 本仓库**不再维护** `CLAUDE.md`。完整约定见 monorepo 根目录：
 
 - [/Users/caapap/iflytek/AGENT.md](/Users/caapap/iflytek/AGENT.md) — **附录 A：fe 前端编码规范**
-- 联调 / API / 分支 / D1 实证 — 同文件 §4、§5.4、§9–10、§11
-- 回复前缀 — 同文件 §0.1（`xmgg`）
+- 联调 / API / 分支 / PRD — 同文件 §4、§5、§9、§11；D1 见 `stellar-aiops-prd/D1-pipeline/`
+- 回复末尾后缀 — 同文件 §0.1（单独一行 `xmgg`）
 
 Tailwind 与 Less 分工见本目录 [tailwind-usage.mdc](./tailwind-usage.mdc)。
