@@ -44,9 +44,10 @@ import {
 import PipelineVisualEditor from './PipelineVisualEditor';
 import StageFlowEditor from './PipelineVisualEditor/StageFlowEditor';
 import { getPipelinePreset } from './PipelineVisualEditor/hooks/usePipelineFlow';
+import { PIPELINE_TEMPLATES } from '../components/PipelineTemplateModal/templates';
 
-const DEFAULT_YAML = `name: 部署应用到生产环境
-description: 从资源仓库下载软件包并通过 SSH 部署到目标服务器
+const DEFAULT_YAML = `name: 新建流水线
+description: 自定义编排流水线
 
 stages:
   - name: 部署阶段
@@ -142,6 +143,13 @@ export default function PipelineEdit() {
     return null;
   }, [templateId]);
 
+  const templateMeta = useMemo(
+    () => (templateId ? PIPELINE_TEMPLATES.find((t) => t.id === templateId) : undefined),
+    [templateId],
+  );
+
+  const templateTitle = templateMeta?.title || preset?.title || '';
+
   const [yaml, setYaml] = useState(DEFAULT_YAML);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -175,12 +183,17 @@ export default function PipelineEdit() {
 
   useEffect(() => {
     if (isNew) {
+      if (templateId && templateTitle) {
+        setName(templateTitle);
+        setDescription(templateMeta?.description || '');
+        return;
+      }
       try {
         const cfg = parseYAMLLite(DEFAULT_YAML);
-        setName(cfg.name || '');
+        setName(cfg.name || '新建流水线');
         setDescription(cfg.description || '');
       } catch {
-        /* ignore */
+        setName('新建流水线');
       }
       return;
     }
@@ -195,7 +208,13 @@ export default function PipelineEdit() {
         setStatus(dat?.status === 'OFFLINE' ? 'OFFLINE' : 'ONLINE');
       })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, isNew, templateId, templateTitle, templateMeta?.description]);
+
+  const pageTitle = useMemo(() => {
+    if (!isNew) return name || `流水线 #${id}`;
+    if (templateTitle) return templateTitle;
+    return name || '新建流水线';
+  }, [isNew, name, id, templateTitle]);
 
   const sshConnections = useMemo(
     () => connections.filter((c) => c.type === 'SSH_KEY' || c.type === 'USERNAME_PASSWORD'),
@@ -600,9 +619,7 @@ export default function PipelineEdit() {
         <Card className='mb-4 rounded-2xl border-fc-200'>
           <div className='flex flex-wrap items-center justify-between gap-4'>
             <Space size={12}>
-              <span className='text-lg font-semibold text-title'>
-                {name || (isNew ? (preset?.title || '新建流水线') : `流水线 #${id}`)}
-              </span>
+              <span className='text-lg font-semibold text-title'>{pageTitle}</span>
               <Tag color={status === 'ONLINE' ? 'success' : 'default'}>{status === 'ONLINE' ? '启用' : '停用'}</Tag>
               <Tooltip title='SSH 凭证、密码等通过服务连接管理'>
                 <Button type='link' size='small' icon={<ApiOutlined />} onClick={() => history.push(PATHS.serviceConnections)}>

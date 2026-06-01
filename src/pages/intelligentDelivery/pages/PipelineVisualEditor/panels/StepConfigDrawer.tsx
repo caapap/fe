@@ -449,22 +449,44 @@ function renderHealthCheckForm(config?: Record<string, any>) {
 
 // ── 命令执行 ──────────────────────────────────────────────────────────────
 function renderShellExecForm(config?: Record<string, any>, dropdownOptions?: DropdownOptions) {
+  const { busiGroupOptions = [], sshConnectionOptions = [] } = dropdownOptions || {};
   return (
     <>
+      <Alert type='info' showIcon className='mb-3' message='Shell 脚本执行'
+        description='在 Server 本地或通过 SSH 在目标主机执行 shell 脚本。' />
       <Form.Item label='执行目标'>
         <Radio.Group defaultValue={config?.target === 'ssh' ? 'ssh' : 'local'}>
           <Radio.Button value='local'>本地（Server）</Radio.Button>
           <Radio.Button value='ssh'>SSH 远程</Radio.Button>
         </Radio.Group>
       </Form.Item>
-      <Form.Item label='目标主机'>
-        <Select defaultValue={config?.target_hosts || 'all'} options={HOST_GROUP_OPTIONS} />
+      <Form.Item label='目标主机组'>
+        <Select
+          defaultValue={config?.target_hosts || 'all'}
+          options={busiGroupOptions.length > 0 ? busiGroupOptions : HOST_GROUP_OPTIONS}
+          placeholder='选择主机组'
+        />
       </Form.Item>
-      <Form.Item label='服务连接'>
-        <Input defaultValue={config?.connection} placeholder='选择 SSH 连接' />
+      <Form.Item label='服务连接（SSH）'>
+        <Select
+          defaultValue={config?.connection}
+          options={sshConnectionOptions}
+          placeholder='选择 SSH 连接'
+        />
       </Form.Item>
-      <Form.Item label='执行脚本'>
-        <Input.TextArea rows={6} className='font-mono text-xs' defaultValue={config?.script} placeholder='#!/bin/bash' />
+      <Form.Item label='执行脚本' required>
+        <Input.TextArea
+          rows={8}
+          className='font-mono text-xs'
+          defaultValue={config?.script}
+          placeholder='#!/bin/bash&#10;echo "Hello World"&#10;# 支持多行脚本'
+        />
+      </Form.Item>
+      <Form.Item label='超时时间（秒）'>
+        <Input type='number' defaultValue={config?.timeout_sec ?? 300} min={1} max={3600} />
+      </Form.Item>
+      <Form.Item label='失败时中断流水线'>
+        <Switch defaultChecked={config?.fail_on_error ?? true} />
       </Form.Item>
     </>
   );
@@ -474,14 +496,46 @@ function renderShellExecForm(config?: Record<string, any>, dropdownOptions?: Dro
 function renderManualGateForm(config?: Record<string, any>) {
   return (
     <>
-      <Form.Item label='审批人'>
-        <Input defaultValue={config?.approver} placeholder='输入审批人用户名' />
+      <Alert type='info' showIcon className='mb-3' message='人工卡点'
+        description='等待人工确认后继续执行。支持单人审批、会签、超时策略等。' />
+      <Form.Item label='审批模式'>
+        <Radio.Group defaultValue={config?.approvalMode || 'single'}>
+          <Radio.Button value='single'>单人审批</Radio.Button>
+          <Radio.Button value='all'>会签（全部通过）</Radio.Button>
+          <Radio.Button value='any'>或签（任一通过）</Radio.Button>
+        </Radio.Group>
+      </Form.Item>
+      <Form.Item label='审批人' required>
+        <Select
+          mode='tags'
+          defaultValue={config?.approvers || []}
+          placeholder='输入审批人用户名，支持多个'
+          style={{ width: '100%' }}
+        />
       </Form.Item>
       <Form.Item label='超时时间（分钟）'>
-        <Input type='number' defaultValue={config?.timeout ?? 30} />
+        <Input type='number' defaultValue={config?.timeout ?? 30} min={1} max={1440} />
+      </Form.Item>
+      <Form.Item label='超时后操作'>
+        <Radio.Group defaultValue={config?.timeoutAction || 'fail'}>
+          <Radio value='fail'>标记失败</Radio>
+          <Radio value='pass'>自动通过</Radio>
+          <Radio value='reject'>自动拒绝</Radio>
+        </Radio.Group>
       </Form.Item>
       <Form.Item label='提示信息'>
-        <Input.TextArea rows={3} defaultValue={config?.message} placeholder='请确认后继续...' />
+        <Input.TextArea
+          rows={3}
+          defaultValue={config?.message}
+          placeholder='请确认环境检查结果后继续部署...'
+        />
+      </Form.Item>
+      <Form.Item label='通知方式'>
+        <Checkbox.Group defaultValue={config?.notifyChannels || ['email']}>
+          <Checkbox value='email'>邮件</Checkbox>
+          <Checkbox value='sms'>短信</Checkbox>
+          <Checkbox value='webhook'>Webhook</Checkbox>
+        </Checkbox.Group>
       </Form.Item>
     </>
   );
@@ -489,23 +543,39 @@ function renderManualGateForm(config?: Record<string, any>) {
 
 // ── MCP 调用 ──────────────────────────────────────────────────────────────
 function renderMcpCallForm(config?: Record<string, any>, dropdownOptions?: DropdownOptions) {
+  const { mcpProviderOptions = [] } = dropdownOptions || {};
   const provider = config?.provider || 'ansible-mcp-server';
   return (
     <>
       <Alert type='info' showIcon className='mb-3' message='通用 MCP 调用'
         description='通过 N9E MCP 网关（/api/n9e-plus/mcp/invoke）调用任意已注册的 MCP 工具。' />
       <Form.Item label='MCP Provider' required>
-        <Select defaultValue={provider} options={MCP_PROVIDER_OPTIONS} />
+        <Select
+          defaultValue={provider}
+          options={mcpProviderOptions.length > 0 ? mcpProviderOptions : MCP_PROVIDER_OPTIONS}
+          placeholder='选择 MCP Provider'
+        />
       </Form.Item>
       <Form.Item label='工具' required>
-        <Select defaultValue={config?.tool || 'audit_inventory'} options={MCP_TOOL_OPTIONS[provider] || []} />
+        <Select
+          defaultValue={config?.tool || 'audit_inventory'}
+          options={MCP_TOOL_OPTIONS[provider] || []}
+          placeholder='选择工具'
+        />
       </Form.Item>
       <Form.Item label='参数（JSON）'>
-        <Input.TextArea rows={6} className='font-mono text-xs'
-          defaultValue={JSON.stringify(config?.args || { inventory: 'inventory.ini', target_group: 'all' }, null, 2)} />
+        <Input.TextArea
+          rows={6}
+          className='font-mono text-xs'
+          defaultValue={JSON.stringify(config?.args || { inventory: 'inventory.ini', target_group: 'all' }, null, 2)}
+          placeholder='{"key": "value"}'
+        />
       </Form.Item>
-      <Form.Item label='超时（秒）'>
-        <Input type='number' defaultValue={config?.timeout_sec ?? 600} />
+      <Form.Item label='超时时间（秒）'>
+        <Input type='number' defaultValue={config?.timeout_sec ?? 600} min={1} max={3600} />
+      </Form.Item>
+      <Form.Item label='失败时中断流水线'>
+        <Switch defaultChecked={config?.fail_on_error ?? true} />
       </Form.Item>
     </>
   );
