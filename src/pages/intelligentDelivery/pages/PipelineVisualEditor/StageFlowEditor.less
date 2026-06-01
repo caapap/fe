@@ -51,16 +51,22 @@
   gap: 8px;
   position: relative;
 
-  /* 串行任务之间的连线 */
-  &:not(:last-child)::after {
+  /* 节点之间的横向连线 */
+  &::before {
     content: '';
     position: absolute;
-    left: 50%;
-    bottom: -12px;
-    width: 2px;
-    height: 12px;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 2px;
     background: var(--fc-border-2);
-    transform: translateX(-50%);
+    z-index: 0;
+  }
+
+  /* 所有子元素提升层级，覆盖连线 */
+  > * {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -154,8 +160,8 @@
     left: 50%;
     top: 0;
     bottom: 0;
-    width: 1px;
-    background: var(--fc-border-2);
+    width: 2px;
+    background: var(--fc-border-3);
     transform: translateX(-50%);
   }
 }
@@ -164,8 +170,8 @@
   position: relative;
   z-index: 1;
   background: var(--fc-fill-2);
-  border: 1px solid var(--fc-border-2);
-  color: var(--fc-text-4);
+  border: 1px solid var(--fc-border-3);
+  color: var(--fc-text-3);
 
   &:hover {
     color: var(--fc-fill-primary);
